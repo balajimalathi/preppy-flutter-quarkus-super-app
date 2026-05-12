@@ -7,7 +7,7 @@ import 'package:shared_ui/theme/styles/textformfield.dart';
 import 'app_colors.dart';
 import 'app_typography.dart';
 
-class ThemeState {
+final class ThemeState {
   const ThemeState({
     required this.theme,
     required this.darkTheme,
@@ -19,7 +19,7 @@ class ThemeState {
   final ThemeMode themeMode;
 }
 
-class ThemeNotifier extends Notifier<ThemeState> {
+final class ThemeNotifier extends Notifier<ThemeState> {
   @override
   ThemeState build() {
     return ThemeState(

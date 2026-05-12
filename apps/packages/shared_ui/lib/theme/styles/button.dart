@@ -3,9 +3,7 @@ import 'package:shared_ui/theme/app_radius.dart';
 
 // Shared shape and padding for shadcn-like consistency.
 const _defaultPadding = EdgeInsets.symmetric(horizontal: 16, vertical: 10);
-const _defaultShape = RoundedRectangleBorder(
-  borderRadius: AppRadius.roundedSm,
-);
+const _defaultShape = RoundedRectangleBorder(borderRadius: AppRadius.roundedSm);
 
 /// Default (primary) filled button — shadcn "default" variant.
 FilledButtonThemeData filledButtonTheme(

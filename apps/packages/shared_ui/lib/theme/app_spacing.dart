@@ -1,8 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-class AppSpacing {
-  const AppSpacing._();
-
+abstract final class AppSpacing {
   static const xxs = 4.0;
   static const xs = 8.0;
   static const sm = 12.0;

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_ui/shared_ui.dart';
@@ -16,7 +17,7 @@ class PreppyApp extends ConsumerWidget {
       theme: theme.theme,
       darkTheme: theme.darkTheme,
       routerConfig: router,
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: kDebugMode,
     );
   }
 }

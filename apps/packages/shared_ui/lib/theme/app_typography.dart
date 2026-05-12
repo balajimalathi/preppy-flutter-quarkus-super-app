@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class AppTypography {
-  const AppTypography._();
-
+abstract final class AppTypography {
   static TextTheme get textTheme => TextTheme(
     displayLarge: GoogleFonts.googleSans(
       fontSize: 57,
