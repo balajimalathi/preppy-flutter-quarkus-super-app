@@ -16,9 +16,12 @@ class PreppyScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title), actions: actions),
-      body: body,
+    return SafeArea(
+      top: false,
+      child: Scaffold(
+        appBar: AppBar(title: Text(title), actions: actions),
+        body: body,
+      ),
     );
   }
 }

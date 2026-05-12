@@ -1,4 +1,4 @@
-name: feature_ingestion
+name: ingestion
 description: Upload PDFs and view processing status.
 version: 0.1.0
 publish_to: 'none'

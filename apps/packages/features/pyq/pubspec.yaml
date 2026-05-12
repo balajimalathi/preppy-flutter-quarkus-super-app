@@ -1,5 +1,5 @@
-name: feature_dashboard
-description: Coverage map and daily plan overview.
+name: pyq
+description: Browse, filter and attempt previous-year questions.
 version: 0.1.0
 publish_to: 'none'
 

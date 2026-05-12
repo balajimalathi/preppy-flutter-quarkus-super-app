@@ -1,5 +1,5 @@
-name: feature_pyq
-description: Browse, filter and attempt previous-year questions.
+name: practice
+description: Flashcard SRS and MCQ drill screens.
 version: 0.1.0
 publish_to: 'none'
 

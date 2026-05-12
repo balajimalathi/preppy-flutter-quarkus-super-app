@@ -1,5 +1,5 @@
-name: feature_practice
-description: Flashcard SRS and MCQ drill screens.
+name: syllabus
+description: Syllabus tree with coverage bars.
 version: 0.1.0
 publish_to: 'none'
 

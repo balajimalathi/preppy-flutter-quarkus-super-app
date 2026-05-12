@@ -1,24 +1,24 @@
-# melos_managed_dependency_overrides: core_di,core_models,core_network,core_storage,feature_auth,feature_dashboard,feature_ingestion,feature_practice,feature_pyq,feature_syllabus,shared_ui
+# melos_managed_dependency_overrides: core_di,core_models,core_network,core_storage,shared_ui,auth,dashboard,ingestion,practice,pyq,syllabus
 dependency_overrides:
+  auth:
+    path: ../packages/features/auth
   core_di:
-    path: ../packages/core/core_di
+    path: ../packages/core/di
   core_models:
-    path: ../packages/core/core_models
+    path: ../packages/core/models
   core_network:
-    path: ../packages/core/core_network
+    path: ../packages/core/network
   core_storage:
-    path: ../packages/core/core_storage
-  feature_auth:
-    path: ../packages/features/feature_auth
-  feature_dashboard:
-    path: ../packages/features/feature_dashboard
-  feature_ingestion:
-    path: ../packages/features/feature_ingestion
-  feature_practice:
-    path: ../packages/features/feature_practice
-  feature_pyq:
-    path: ../packages/features/feature_pyq
-  feature_syllabus:
-    path: ../packages/features/feature_syllabus
+    path: ../packages/core/storage
+  dashboard:
+    path: ../packages/features/dashboard
+  ingestion:
+    path: ../packages/features/ingestion
+  practice:
+    path: ../packages/features/practice
+  pyq:
+    path: ../packages/features/pyq
   shared_ui:
     path: ../packages/shared_ui
+  syllabus:
+    path: ../packages/features/syllabus

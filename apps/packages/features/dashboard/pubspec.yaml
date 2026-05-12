@@ -1,5 +1,5 @@
-name: feature_syllabus
-description: Syllabus tree with coverage bars.
+name: dashboard
+description: Coverage map and daily plan overview.
 version: 0.1.0
 publish_to: 'none'
 

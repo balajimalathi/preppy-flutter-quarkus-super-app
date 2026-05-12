@@ -8,9 +8,9 @@ environment:
 
 dependencies:
   core_network:
-    path: ../core_network
+    path: ../network
   core_storage:
-    path: ../core_storage
+    path: ../storage
   riverpod: ^2.5.1
 
 dev_dependencies:

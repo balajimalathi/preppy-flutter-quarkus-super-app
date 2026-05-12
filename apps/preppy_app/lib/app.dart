@@ -10,10 +10,11 @@ class PreppyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
+    final theme = ref.watch(themeProvider);
     return MaterialApp.router(
       title: 'Preppy',
-      theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
+      theme: theme.theme,
+      darkTheme: theme.darkTheme,
       routerConfig: router,
       debugShowCheckedModeBanner: false,
     );

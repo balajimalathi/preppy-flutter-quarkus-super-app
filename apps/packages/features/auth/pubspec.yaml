@@ -1,4 +1,4 @@
-name: feature_auth
+name: auth
 description: Login, exam profile setup and onboarding for Preppy.
 version: 0.1.0
 publish_to: 'none'

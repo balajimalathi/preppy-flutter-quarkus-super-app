@@ -23,18 +23,18 @@ dependencies:
   core_storage:
     path: ../packages/core/core_storage
 
-  feature_auth:
-    path: ../packages/features/feature_auth
-  feature_dashboard:
-    path: ../packages/features/feature_dashboard
-  feature_ingestion:
-    path: ../packages/features/feature_ingestion
-  feature_practice:
-    path: ../packages/features/feature_practice
-  feature_pyq:
-    path: ../packages/features/feature_pyq
-  feature_syllabus:
-    path: ../packages/features/feature_syllabus
+  auth:
+    path: ../packages/features/auth
+  dashboard:
+    path: ../packages/features/dashboard
+  ingestion:
+    path: ../packages/features/ingestion
+  practice:
+    path: ../packages/features/practice
+  pyq:
+    path: ../packages/features/pyq
+  syllabus:
+    path: ../packages/features/syllabus
 
   shared_ui:
     path: ../packages/shared_ui
