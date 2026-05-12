@@ -1,0 +1,39 @@
+name: preppy
+
+packages:
+  - apps/preppy_app
+  - apps/packages/shared_ui
+  - apps/packages/core/*
+  - apps/packages/features/*
+
+command:
+  version:
+    branch: main
+    includeCommitId: true
+  bootstrap:
+    runPubGetInParallel: true
+
+scripts:
+  analyze:
+    description: Run `dart analyze` in all packages.
+    run: melos exec -c 1 -- "dart analyze ."
+
+  format:
+    description: Run `dart format` across the workspace.
+    run: melos exec -c 1 -- "dart format ."
+
+  format-check:
+    description: Check formatting without writing changes.
+    run: melos exec -c 1 -- "dart format --set-exit-if-changed ."
+
+  test:
+    description: Run `flutter test` (or `dart test`) in every package that has tests.
+    run: melos exec -c 1 --dir-exists=test -- "flutter test"
+
+  test:dart:
+    description: Run `dart test` in pure-Dart packages that have tests.
+    run: melos exec -c 1 --no-flutter --dir-exists=test -- "dart test"
+
+  clean:
+    description: Clean build outputs for every package.
+    run: melos exec -c 1 -- "flutter clean"

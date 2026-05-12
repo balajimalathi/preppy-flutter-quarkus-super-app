@@ -1,0 +1,24 @@
+# melos_managed_dependency_overrides: core_di,core_models,core_network,core_storage,feature_auth,feature_dashboard,feature_ingestion,feature_practice,feature_pyq,feature_syllabus,shared_ui
+dependency_overrides:
+  core_di:
+    path: ../packages/core/core_di
+  core_models:
+    path: ../packages/core/core_models
+  core_network:
+    path: ../packages/core/core_network
+  core_storage:
+    path: ../packages/core/core_storage
+  feature_auth:
+    path: ../packages/features/feature_auth
+  feature_dashboard:
+    path: ../packages/features/feature_dashboard
+  feature_ingestion:
+    path: ../packages/features/feature_ingestion
+  feature_practice:
+    path: ../packages/features/feature_practice
+  feature_pyq:
+    path: ../packages/features/feature_pyq
+  feature_syllabus:
+    path: ../packages/features/feature_syllabus
+  shared_ui:
+    path: ../packages/shared_ui

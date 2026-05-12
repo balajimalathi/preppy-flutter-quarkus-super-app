@@ -1,0 +1,56 @@
+name: quarkus
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - ".github/workflows/quarkus.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/quarkus.yml"
+
+jobs:
+  verify:
+    name: Maven verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: preppy
+          POSTGRES_PASSWORD: preppy
+          POSTGRES_DB: preppy
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U preppy -d preppy"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      POSTGRES_URL: jdbc:postgresql://localhost:5432/preppy
+      POSTGRES_USER: preppy
+      POSTGRES_PASSWORD: preppy
+      REDIS_URL: redis://localhost:6379
+      QDRANT_HOST: localhost
+      QDRANT_PORT: 6334
+      FIREBASE_PROJECT_ID: preppy-ci
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Verify
+        working-directory: backend
+        run: ./mvnw -B verify

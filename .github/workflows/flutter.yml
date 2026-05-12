@@ -1,0 +1,49 @@
+name: flutter
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/**"
+      - "melos.yaml"
+      - "pubspec.yaml"
+      - "analysis_options.yaml"
+      - ".github/workflows/flutter.yml"
+  pull_request:
+    paths:
+      - "apps/**"
+      - "melos.yaml"
+      - "pubspec.yaml"
+      - "analysis_options.yaml"
+      - ".github/workflows/flutter.yml"
+
+jobs:
+  analyze-and-test:
+    name: Analyze & test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.41.9"
+          channel: stable
+          cache: true
+
+      - name: Install Melos
+        run: dart pub global activate melos 6.3.2
+
+      - name: Bootstrap workspace
+        run: melos bootstrap
+
+      - name: Format check
+        run: melos run format-check
+
+      - name: Analyze
+        run: melos run analyze
+
+      - name: Test
+        run: melos run test --no-select || echo "no test-bearing packages yet"

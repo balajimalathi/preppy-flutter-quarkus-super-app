@@ -1,0 +1,6 @@
+# melos_managed_dependency_overrides: core_models,shared_ui
+dependency_overrides:
+  core_models:
+    path: ../../core/core_models
+  shared_ui:
+    path: ../../shared_ui

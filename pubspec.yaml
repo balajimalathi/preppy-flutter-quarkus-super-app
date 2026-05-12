@@ -1,0 +1,10 @@
+name: preppy_workspace
+description: Root workspace pubspec for the Preppy monorepo. Managed by Melos.
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: ^3.11.0
+
+dev_dependencies:
+  melos: ^6.3.2

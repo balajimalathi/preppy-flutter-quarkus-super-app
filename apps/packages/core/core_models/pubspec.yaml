@@ -1,0 +1,13 @@
+name: core_models
+description: Pure-Dart domain models (Question, Card, Plan, SyllabusItem) shared by every feature.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.6

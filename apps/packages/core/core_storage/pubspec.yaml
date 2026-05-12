@@ -1,0 +1,14 @@
+name: core_storage
+description: Hive-based local persistence abstraction (settings, offline queue, cached entities).
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  hive: ^2.2.3
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.6

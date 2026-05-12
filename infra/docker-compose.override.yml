@@ -1,0 +1,16 @@
+# Dev-only overrides — host port forwarding, exposed Swagger, no resource caps.
+# Auto-loaded by `docker compose up`. Not used in prod deployments.
+
+services:
+  postgres:
+    ports:
+      - "5432:5432"
+
+  qdrant:
+    ports:
+      - "6333:6333"   # REST
+      - "6334:6334"   # gRPC
+
+  redis:
+    ports:
+      - "6379:6379"
