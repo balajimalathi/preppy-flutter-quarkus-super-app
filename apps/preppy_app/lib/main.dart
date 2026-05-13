@@ -5,6 +5,8 @@ import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 
 import 'app.dart';
 
+/// Offline / online snackbars are wired on [MaterialApp.router] in [PreppyApp]
+/// so [ScaffoldMessenger] is available under the app shell.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SharedPreferencesSingleton.init();

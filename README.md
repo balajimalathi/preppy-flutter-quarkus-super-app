@@ -64,6 +64,10 @@ cd apps/preppy_app
 flutter run
 ```
 
+## Flutter performance
+
+For DevTools **memory** validation, **leak** triage, and **jank** on simple screens, see [docs/performance-and-memory.md](docs/performance-and-memory.md).
+
 ## CI
 
 GitHub Actions workflows live in [`.github/workflows`](.github/workflows):
