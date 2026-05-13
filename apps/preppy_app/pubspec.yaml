@@ -6,22 +6,24 @@ version: 1.0.0+1
 environment:
   sdk: ^3.11.5
 
+resolution: workspace
+
 dependencies:
   flutter:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
-  flutter_riverpod: ^2.5.1
+  flutter_riverpod: ^3.3.1
   go_router: ^14.6.1
 
   core_di:
-    path: ../packages/core/core_di
+    path: ../packages/core/di
   core_models:
-    path: ../packages/core/core_models
+    path: ../packages/core/models
   core_network:
-    path: ../packages/core/core_network
+    path: ../packages/core/network
   core_storage:
-    path: ../packages/core/core_storage
+    path: ../packages/core/storage
 
   auth:
     path: ../packages/features/auth

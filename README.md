@@ -8,8 +8,7 @@ Domain: **preppy.skndan.com**
 
 ```
 preppy/
-├── melos.yaml                 # Melos workspace config
-├── pubspec.yaml               # Root workspace pubspec
+├── pubspec.yaml               # Pub workspace root + Melos scripts (`melos:`)
 ├── infra/                     # docker-compose, env templates
 ├── backend/                   # Quarkus 3.x monolith (JDK 17)
 └── apps/
@@ -29,15 +28,16 @@ preppy/
 | JDK         | 17 (Temurin)       |
 | Quarkus CLI | 3.35+              |
 | Docker      | 24+                |
-| Melos       | 6.x (`dart pub global activate melos`) |
+| Melos       | 7.x (`dart pub global activate melos 7`) |
 
 ## Quick start
 
 ### 1. Bootstrap the Flutter workspace
 
 ```bash
-dart pub global activate melos
-melos bootstrap
+dart pub global activate melos 7
+cd /path/to/preppy   # repository root
+melos bootstrap      # runs `flutter pub get` for the Pub workspace
 ```
 
 ### 2. Spin up local infra

@@ -5,14 +5,12 @@ on:
     branches: [main]
     paths:
       - "apps/**"
-      - "melos.yaml"
       - "pubspec.yaml"
       - "analysis_options.yaml"
       - ".github/workflows/flutter.yml"
   pull_request:
     paths:
       - "apps/**"
-      - "melos.yaml"
       - "pubspec.yaml"
       - "analysis_options.yaml"
       - ".github/workflows/flutter.yml"
@@ -34,7 +32,7 @@ jobs:
           cache: true
 
       - name: Install Melos
-        run: dart pub global activate melos 6.3.2
+        run: dart pub global activate melos 7.7.0
 
       - name: Bootstrap workspace
         run: melos bootstrap

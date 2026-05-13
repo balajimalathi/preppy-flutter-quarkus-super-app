@@ -16,6 +16,7 @@ class PreppyApp extends ConsumerWidget {
       title: 'Preppy',
       theme: theme.theme,
       darkTheme: theme.darkTheme,
+      themeMode: theme.themeMode,
       routerConfig: router,
       debugShowCheckedModeBanner: kDebugMode,
     );
