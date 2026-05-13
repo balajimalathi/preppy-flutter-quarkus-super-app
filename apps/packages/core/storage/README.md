@@ -1,39 +1,36 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# core_storage
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages). 
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages). 
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
-
-## Features
-
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+String key–value storage for Flutter with shared validation, debug logging, and consistent `StorageException` wrapping. Ships Hive, secure storage, and SharedPreferences implementations plus Riverpod providers.
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
+Depend on `core_storage` and use [`StorageContract`](lib/src/storage_contract.dart) from the app (for example via [`storage_provider.dart`](lib/src/storage_provider.dart)):
 
 ```dart
-const like = 'sample';
+import 'package:core_storage/core_storage.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+Future<void> example(WidgetRef ref) async {
+  final storage = ref.read(storageProvider);
+  await storage.write('theme', 'dark');
+  final theme = await storage.read('theme');
+  await storage.delete('theme');
+  await storage.clear();
+}
 ```
+
+Call `read`, `write`, `delete`, `containsKey`, and `clear` on the contract type only. Empty or whitespace-only keys throw `StorageException` before the backend runs.
+
+Initialize platform pieces before first use where required (see your app `main.dart`): e.g. `SharedPreferencesSingleton.init()`, `Hive.initFlutter()` for Hive-backed storage.
+
+## Custom backends
+
+Subclass [`BaseStorage`](lib/src/base_storage.dart) and implement the `@protected` primitives (`readRaw`, `writeRaw`, `deleteRaw`, `containsKeyRaw`, `clearRaw`). The public `read` / `write` / … methods on the base class perform key validation and error wrapping; do not reimplement that in subclasses.
 
 ## Additional information
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+This package is not published (`publish_to: 'none'`). Run tests from the package root:
+
+```bash
+flutter test
+```
