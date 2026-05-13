@@ -1,3 +1,4 @@
-/// Public surface of [core_storage].
+export 'src/shared_preferences_singleton.dart';
+export 'src/storage_contract.dart';
+export 'src/storage_provider.dart';
 
-export 'src/key_value_store.dart';
