@@ -1,39 +1,39 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# core_models
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages). 
+**Pure Dart** shared domain types so feature packages agree on JSON-shaped entities without pulling in Flutter.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages). 
--->
+## Exports
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+See `lib/core_models.dart` — includes:
 
-## Features
+- **`ApiResult<T>`** — Sealed union for idle / loading / success / error UI flows (`lib/network/api_result.dart`).
+- **Entities** — `Question`, `Flashcard`, `DailyPlan`, `SyllabusItem`, etc.
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+## Add the package
 
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+```yaml
+dependencies:
+  core_models:
+    path: ../models
+```
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
-
 ```dart
-const like = 'sample';
+import 'package:core_models/core_models.dart';
+
+void example() {
+  const result = ApiResult<Question>.loading();
+  // Parse JSON in repositories; map failures to ApiResult.error.
+}
 ```
 
-## Additional information
+Keep parsing and DTOs here; keep widgets and `BuildContext` in feature packages.
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+## Mixins
+
+Pure Dart: no Riverpod here. You can use a `mixin` for JSON → entity mapping shared across repositories (example on **core_models** in repo `docs/`).
+
+## Documentation
+
+Starlight: **core_models** in the repo `docs/` site.

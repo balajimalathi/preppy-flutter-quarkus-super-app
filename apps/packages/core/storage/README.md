@@ -27,6 +27,10 @@ Initialize platform pieces before first use where required (see your app `main.d
 
 Subclass [`BaseStorage`](lib/src/base_storage.dart) and implement the `@protected` primitives (`readRaw`, `writeRaw`, `deleteRaw`, `containsKeyRaw`, `clearRaw`). The public `read` / `write` / … methods on the base class perform key validation and error wrapping; do not reimplement that in subclasses.
 
+## Mixins
+
+This package does not ship mixins. Define a `mixin` on `ConsumerState` that reads `storageProvider` / `secureStorageProvider` for shared helpers (see **core_storage** in repo `docs/`).
+
 ## Additional information
 
 This package is not published (`publish_to: 'none'`). Run tests from the package root:

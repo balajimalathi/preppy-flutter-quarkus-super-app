@@ -23,3 +23,19 @@ protoc --dart_out=grpc:lib/src/generated -I proto proto/common/v1/rpc_surface.pr
 ## Connectivity
 
 `ConnectivityMonitor` wraps `connectivity_plus` with debouncing and consecutive-state deduplication. Plugin types are not part of the public API.
+
+## Example: `Ref` + `dioProvider`
+
+```dart
+import 'package:core_network/core_network.dart';
+import 'package:riverpod/riverpod.dart';
+
+Future<void> ping(Ref ref) async {
+  final dio = ref.read(dioProvider);
+  await dio.get('/health');
+}
+```
+
+## Mixins
+
+`core_network` does not ship mixins. A common pattern is `mixin DioMixin on ConsumerState<T>` with `Dio get dio => ref.read(dioProvider)` (add `import 'package:dio/dio.dart';` for types). See the **core_network** page in repo `docs/`.

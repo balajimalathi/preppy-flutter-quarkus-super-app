@@ -15,7 +15,8 @@ dependencies:
   core_storage:
     path: ../storage
   dio: ^5.9.2
-  firebase_auth: ^5.3.3
+  firebase_auth: ^6.5.1
+  firebase_core: ^4.9.0
   flutter:
     sdk: flutter
   google_sign_in: ^6.2.2

@@ -12,7 +12,8 @@ resolution: workspace
 dependencies:
   core_env:
     path: ../env
-  firebase_analytics: ^11.3.3
+  firebase_analytics: ^12.4.1
+  firebase_core: ^4.9.0
   flutter:
     sdk: flutter
   riverpod: ^3.2.1

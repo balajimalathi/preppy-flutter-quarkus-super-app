@@ -1,4 +1,4 @@
-# cloud
+# core_cloud
 
 Backend-agnostic contracts (`CloudCollection`, `CloudDatabase`, `CloudStorage`, `CloudTransaction`) with **Firebase**, **Supabase**, **Neon**, and **S3-compatible** storage in one package. Feature code should depend on the **contracts** and **named Riverpod providers**; the **app shell** wires concrete adapters at bootstrap by overriding those providers on `ProviderScope`.
 
@@ -13,24 +13,25 @@ In your app (or a feature package) `pubspec.yaml`:
 ```yaml
 dependencies:
   core_cloud:
-    path: ../packages/core/cloud  # adjust to your monorepo layout
+    path: ../packages/core/cloud  # from apps/preppy_app
+    # path: ../cloud              # from another apps/packages/core/* package
 ```
 
-Most apps already pull cloud types through **`core_di`**, which re-exports `package:cloud/cloud.dart`. Prefer one import at the feature boundary:
+Most apps already pull cloud types through **`core_di`**, which re-exports `package:core_cloud/core_cloud.dart`. Prefer one import at the feature boundary:
 
 ```dart
 import 'package:core_di/core_di.dart';
-// or, if this package depends on cloud directly:
-import 'package:cloud/cloud.dart';
+// or, if this package depends on core_cloud directly:
+import 'package:core_cloud/core_cloud.dart';
 ```
 
-The public entrypoint is [`lib/cloud.dart`](lib/cloud.dart): contracts, models (including `CloudDownloadUrlRequest`), providers, and façade adapters (`FirestoreDatabase`, `SupabaseDatabase`, `NeonDatabase`, `FirebaseStorageAdapter`, `SupabaseStorageAdapter`, `NeonStorageAdapter`, `S3CompatibleStorageAdapter`, `S3StorageConfig`, `S3PublicUrl`). Low-level collection/transaction implementations stay under `lib/src/adapters/`.
+The public entrypoint is [`lib/core_cloud.dart`](lib/core_cloud.dart): contracts, models (including `CloudDownloadUrlRequest`), providers, and façade adapters (`FirestoreDatabase`, `SupabaseDatabase`, `NeonDatabase`, `FirebaseStorageAdapter`, `SupabaseStorageAdapter`, `NeonStorageAdapter`, `S3CompatibleStorageAdapter`, `S3StorageConfig`, `S3PublicUrl`). Low-level collection/transaction implementations stay under `lib/src/adapters/`.
 
 ---
 
 ## Bootstrap: `ProviderScope` overrides
 
-`cloud` providers are **declared** with `throw UnsupportedError(...)` until you **override** them. Do that once, as high in the widget tree as practical (same place you override `appEnvProvider`, `cloudEnvProvider`, etc.).
+`core_cloud` providers are **declared** with `throw UnsupportedError(...)` until you **override** them. Do that once, as high in the widget tree as practical (same place you override `appEnvProvider`, `cloudEnvProvider`, etc.).
 
 ### Minimal pattern
 
@@ -41,7 +42,7 @@ The public entrypoint is [`lib/cloud.dart`](lib/cloud.dart): contracts, models (
 Example shape (your constructors and env flags will differ):
 
 ```dart
-import 'package:cloud/cloud.dart';
+import 'package:core_cloud/core_cloud.dart';
 import 'package:core_env/core_env.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -176,9 +177,13 @@ Obtain a collection from your `CloudDatabase` façade (e.g. `SupabaseDatabase.co
 
 ---
 
+## Mixins
+
+`core_cloud` does not ship mixins. Use an app-side mixin on `ConsumerState` for `ref.read(firebaseDatabaseProvider)` (or the storage provider you override). See **core_cloud** in repo `docs/`.
+
 ## This repo’s app shell (`preppy_app`)
 
-[`apps/preppy_app/lib/bootstrap/bootstrap.dart`](../../../preppy_app/lib/bootstrap/bootstrap.dart) currently overrides `appEnvProvider`, `cloudEnvProvider`, and `baseUrlProvider` only. When you start using `cloud` in the app, add the same `ProviderScope` `overrides:` entries for the database/storage providers you need, after the relevant SDK initialization in that file (or a dedicated `cloud_bootstrap.dart` imported from there).
+`apps/preppy_app/lib/bootstrap/bootstrap.dart` currently overrides `appEnvProvider`, `cloudEnvProvider`, and `baseUrlProvider` only. When you start using `core_cloud` in the app, add the same `ProviderScope` `overrides:` entries for the database/storage providers you need, after the relevant SDK initialization in that file (or a dedicated `cloud_bootstrap.dart` imported from there).
 
 ---
 
