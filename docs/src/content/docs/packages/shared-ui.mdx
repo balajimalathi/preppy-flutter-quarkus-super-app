@@ -1,0 +1,81 @@
+---
+title: shared_ui
+description: Preppy design system — theme provider, Material 3 setup, and PreppyScaffold.
+---
+
+Package **`shared_ui`** (`apps/packages/shared_ui/`) centralizes **colors**, **typography**, **component themes** (buttons, app bar, text fields), and a small **`PreppyScaffold`** wrapper so feature screens look consistent.
+
+## When to use
+
+- Apply the product **theme** in the shell (`MaterialApp` / `Cupertino` is not used here — the shell uses `MaterialApp.router` with `themeProvider`).
+- Build feature screens that should match **spacing**, **radius**, and **AppBar** conventions without duplicating `ThemeData` wiring.
+
+## Public API highlights
+
+The main barrel is `package:shared_ui/shared_ui.dart`, which exports:
+
+- **`themeProvider`** — `NotifierProvider<ThemeNotifier, ThemeState>`: light/dark `ThemeData`, `ThemeMode`, and `setThemeMode`.
+- **`ThemeState`**, **`ThemeNotifier`** — definitions in `theme/app_theme.dart`.
+- **`PreppyScaffold`** — title + body + optional actions around a standard `AppBar`.
+
+Subpaths such as `package:shared_ui/theme/app_colors.dart` exist for internal composition; prefer the barrel unless you extend the design system inside `shared_ui` itself.
+
+## Minimal usage
+
+**Shell (already done in `preppy_app`):** watch `themeProvider` and pass `theme`, `darkTheme`, and `themeMode` into `MaterialApp.router`.
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_ui/shared_ui.dart';
+
+class ThemedApp extends ConsumerWidget {
+  const ThemedApp({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(themeProvider);
+    return Theme(
+      data: t.themeMode == ThemeMode.dark ? t.darkTheme : t.theme,
+      child: child,
+    );
+  }
+}
+```
+
+**Feature screen:** use `PreppyScaffold` for a consistent app bar.
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:shared_ui/shared_ui.dart';
+
+class SamplePage extends StatelessWidget {
+  const SamplePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PreppyScaffold(
+      title: 'Practice',
+      body: const Center(child: Text('Content')),
+    );
+  }
+}
+```
+
+**Toggle theme mode** (e.g. from a settings action):
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_ui/shared_ui.dart';
+
+void useDarkMode(WidgetRef ref) {
+  ref.read(themeProvider.notifier).setThemeMode(ThemeMode.dark);
+}
+```
+
+## Dependencies
+
+`shared_ui` depends on **`flutter_riverpod`** (for `themeProvider`) and **`google_fonts`**. Feature packages already use Riverpod for screen logic, so this aligns with the rest of the monorepo.

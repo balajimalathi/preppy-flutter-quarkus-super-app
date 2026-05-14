@@ -1,0 +1,27 @@
+---
+title: Packages
+description: Overview of Preppy Dart packages — core infrastructure and shared_ui.
+---
+
+This section documents **core** packages under `apps/packages/core/` and the **`shared_ui`** design system. Feature packages (`auth`, `dashboard`, `ingestion`, `practice`, `pyq`, `syllabus`) are thin vertical slices consumed by `preppy_app`; they typically depend on `shared_ui`, `go_router`, `flutter_riverpod`, and selected core libraries.
+
+## Quick reference
+
+| Package name | Path | Role |
+|--------------|------|------|
+| `core_env` | `core/env` | Compile-time `AppEnv` / `CloudEnv` + Riverpod providers |
+| `core_models` | `core/models` | Pure-Dart domain types (`Question`, `Flashcard`, etc.) |
+| `core_network` | `core/network` | `Dio`, SSE, GraphQL/gRPC helpers, connectivity |
+| `core_storage` | `core/storage` | `StorageContract` + Hive / secure / shared_preferences impls |
+| `core_auth` | `core/auth` | Firebase auth + Quarkus profile; `authProvider` |
+| `core_analytics` | `core/analytics` | `AnalyticsContract` + Firebase / composite backends |
+| `cloud` | `core/cloud` | Backend-agnostic cloud DB/storage contracts + adapters |
+| `core_di` | `core/di` | Barrel re-exporting cross-cutting providers |
+| `shared_ui` | `shared_ui` | Theme, tokens, `PreppyScaffold` |
+
+Import names match **`name:`** in each package’s `pubspec.yaml` (the `cloud` package imports as `package:cloud/...`).
+
+## Further reading
+
+- [Core packages](/packages/core/) — purpose, when to use, and minimal Dart examples
+- [shared_ui](/packages/shared-ui/) — design system usage

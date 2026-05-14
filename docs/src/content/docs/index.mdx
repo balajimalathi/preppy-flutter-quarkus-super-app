@@ -1,0 +1,39 @@
+---
+title: Preppy documentation
+description: Technical documentation for the Preppy Flutter monorepo — architecture and packages.
+template: splash
+hero:
+  tagline: Flutter workspace documentation for apps, core libraries, and shared_ui.
+  image:
+    file: ../../assets/houston.webp
+  actions:
+    - text: Architecture
+      link: /architecture/
+      icon: right-arrow
+    - text: Packages
+      link: /packages/
+      icon: open-book
+    - text: Core libraries
+      link: /packages/core/
+      icon: document
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Start here
+
+<CardGrid stagger>
+	<Card title="Architecture" icon="document">
+		[Monorepo layout](/architecture/) — apps vs packages, routing and bootstrap,
+		Riverpod overrides, and how `shared_ui` fits the shell.
+	</Card>
+	<Card title="Packages" icon="open-book">
+		[Package overview](/packages/) and deep dives on [core](/packages/core/) and
+		[`shared_ui`](/packages/shared-ui/).
+	</Card>
+	<Card title="Run the app" icon="rocket">
+		From the repo root, use Melos (see root `pubspec.yaml`), for example
+		`melos run run:dev` with compile-time env JSON under the app `config/`
+		directory.
+	</Card>
+</CardGrid>
