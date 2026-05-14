@@ -1,13 +1,89 @@
 {
   "project_info": {
-    "project_number": "100001000002",
-    "project_id": "preppy-staging",
-    "storage_bucket": "preppy-staging.firebasestorage.app"
+    "project_number": "222654864742",
+    "project_id": "hlp-chat",
+    "storage_bucket": "hlp-chat.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:100001000002:android:stg0000000000001",
+        "mobilesdk_app_id": "1:222654864742:android:95f5146671f5c88d1a7ca7",
+        "android_client_info": {
+          "package_name": "com.gabryel.fala_comigo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDa5XppPIzbYztTjU7IYFGQcoSnUzo-Ut0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:222654864742:android:e4725813cb2ee3811a7ca7",
+        "android_client_info": {
+          "package_name": "com.skndan.pdfstand"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDa5XppPIzbYztTjU7IYFGQcoSnUzo-Ut0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:222654864742:android:7391ce897f7996111a7ca7",
+        "android_client_info": {
+          "package_name": "com.skndan.pdfstand.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDa5XppPIzbYztTjU7IYFGQcoSnUzo-Ut0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:222654864742:android:5b98b3bf55d0e4c01a7ca7",
+        "android_client_info": {
+          "package_name": "com.skndan.preppy_app.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDa5XppPIzbYztTjU7IYFGQcoSnUzo-Ut0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:222654864742:android:ea8e3e215e6b798b1a7ca7",
         "android_client_info": {
           "package_name": "com.skndan.preppy_app.staging"
         }
@@ -15,7 +91,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyStgPlaceholderReplaceWithFlutterFire"
+          "current_key": "AIzaSyDa5XppPIzbYztTjU7IYFGQcoSnUzo-Ut0"
         }
       ],
       "services": {

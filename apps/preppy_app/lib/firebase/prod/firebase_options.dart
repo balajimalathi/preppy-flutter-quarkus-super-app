@@ -26,19 +26,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyPrdPlaceholderReplaceWithFlutterFire',
-    appId: '1:100001000003:android:prd0000000000001',
-    messagingSenderId: '100001000003',
-    projectId: 'preppy-prod',
-    storageBucket: 'preppy-prod.firebasestorage.app',
+    apiKey: 'AIzaSyDa5XppPIzbYztTjU7IYFGQcoSnUzo-Ut0',
+    appId: '1:222654864742:android:1cfe6e3680284f9e1a7ca7',
+    messagingSenderId: '222654864742',
+    projectId: 'hlp-chat',
+    storageBucket: 'hlp-chat.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyPrdPlaceholderReplaceWithFlutterFire',
-    appId: '1:100001000003:ios:prd00000000000001',
-    messagingSenderId: '100001000003',
-    projectId: 'preppy-prod',
-    storageBucket: 'preppy-prod.firebasestorage.app',
-    iosBundleId: 'com.skndan.preppyApp',
+    apiKey: 'AIzaSyAaB0Y3Or2KgMhNZ-NIkZOS78s5TAnPhng',
+    appId: '1:222654864742:ios:545a1730ab77d0151a7ca7',
+    messagingSenderId: '222654864742',
+    projectId: 'hlp-chat',
+    storageBucket: 'hlp-chat.firebasestorage.app',
+    iosBundleId: 'com.skndan.preppyapp',
   );
+
 }

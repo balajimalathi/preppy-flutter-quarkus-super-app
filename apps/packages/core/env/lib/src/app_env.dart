@@ -7,8 +7,6 @@ final class AppEnv {
   const AppEnv({
     required this.environment,
     required this.baseUrl,
-    required this.supabaseUrl,
-    required this.supabaseAnonKey,
     required this.firebaseProjectId,
     required this.analyticsEnabled,
     required this.crashlyticsEnabled,
@@ -16,8 +14,6 @@ final class AppEnv {
 
   final Environment environment;
   final String baseUrl;
-  final String supabaseUrl;
-  final String supabaseAnonKey;
   final String firebaseProjectId;
   final bool analyticsEnabled;
   final bool crashlyticsEnabled;
@@ -31,8 +27,6 @@ final class AppEnv {
         _ => const DevEnvironment(),
       },
       baseUrl: const String.fromEnvironment('BASE_URL'),
-      supabaseUrl: const String.fromEnvironment('SUPABASE_URL'),
-      supabaseAnonKey: const String.fromEnvironment('SUPABASE_ANON_KEY'),
       firebaseProjectId: const String.fromEnvironment('FIREBASE_PROJECT_ID'),
       analyticsEnabled:
           const String.fromEnvironment('ANALYTICS_ENABLED') == 'true',

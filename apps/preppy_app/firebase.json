@@ -1,0 +1,70 @@
+{
+    "flutter": {
+        "platforms": {
+            "android": {
+                "buildConfigurations": {
+                    "src/dev": {
+                        "projectId": "hlp-chat",
+                        "appId": "1:222654864742:android:5b98b3bf55d0e4c01a7ca7",
+                        "fileOutput": "android/app/src/dev/google-services.json"
+                    },
+                    "src/staging": {
+                        "projectId": "hlp-chat",
+                        "appId": "1:222654864742:android:ea8e3e215e6b798b1a7ca7",
+                        "fileOutput": "android/app/src/staging/google-services.json"
+                    },
+                    "src/prod": {
+                        "projectId": "hlp-chat",
+                        "appId": "1:222654864742:android:1cfe6e3680284f9e1a7ca7",
+                        "fileOutput": "android/app/src/prod/google-services.json"
+                    }
+                }
+            },
+            "ios": {
+                "buildConfigurations": {
+                    "Debug-dev": {
+                        "projectId": "hlp-chat",
+                        "appId": "1:222654864742:ios:3101cee40df9948f1a7ca7",
+                        "uploadDebugSymbols": true,
+                        "fileOutput": "ios/Firebase/dev/GoogleService-Info.plist"
+                    },
+                    "Debug-staging": {
+                        "projectId": "hlp-chat",
+                        "appId": "1:222654864742:ios:e2e1e7285511f3591a7ca7",
+                        "uploadDebugSymbols": true,
+                        "fileOutput": "ios/Firebase/staging/GoogleService-Info.plist"
+                    },
+                    "Release-prod": {
+                        "projectId": "hlp-chat",
+                        "appId": "1:222654864742:ios:545a1730ab77d0151a7ca7",
+                        "uploadDebugSymbols": true,
+                        "fileOutput": "ios/Firebase/prod/GoogleService-Info.plist"
+                    }
+                }
+            },
+            "dart": {
+                "lib/firebase/dev/firebase_options.dart": {
+                    "projectId": "hlp-chat",
+                    "configurations": {
+                        "android": "1:222654864742:android:5b98b3bf55d0e4c01a7ca7",
+                        "ios": "1:222654864742:ios:3101cee40df9948f1a7ca7"
+                    }
+                },
+                "lib/firebase/staging/firebase_options.dart": {
+                    "projectId": "hlp-chat",
+                    "configurations": {
+                        "android": "1:222654864742:android:ea8e3e215e6b798b1a7ca7",
+                        "ios": "1:222654864742:ios:e2e1e7285511f3591a7ca7"
+                    }
+                },
+                "lib/firebase/prod/firebase_options.dart": {
+                    "projectId": "hlp-chat",
+                    "configurations": {
+                        "android": "1:222654864742:android:1cfe6e3680284f9e1a7ca7",
+                        "ios": "1:222654864742:ios:545a1730ab77d0151a7ca7"
+                    }
+                }
+            }
+        }
+    }
+}

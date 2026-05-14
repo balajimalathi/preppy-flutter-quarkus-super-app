@@ -7,18 +7,15 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../app.dart';
 import '../env/app_env_firebase.dart';
 
-/// Shared startup: storage, Firebase, Supabase, Riverpod overrides, then [runApp].
+/// Shared startup: storage, Firebase, Riverpod overrides, then [runApp].
 Future<void> bootstrap(AppEnv env) async {
-  if (env.baseUrl.isEmpty ||
-      env.supabaseUrl.isEmpty ||
-      env.supabaseAnonKey.isEmpty) {
+  if (env.baseUrl.isEmpty) {
     throw StateError(
-      'Missing compile-time defines (BASE_URL, SUPABASE_URL, SUPABASE_ANON_KEY). '
+      'Missing compile-time defines (BASE_URL). '
       'Run via Melos, e.g. `melos run run:dev`, or pass '
       '`--dart-define-from-file=config/env.dev.json` when invoking Flutter.',
     );
@@ -29,8 +26,6 @@ Future<void> bootstrap(AppEnv env) async {
   await Firebase.initializeApp(
     options: env.firebaseOptionsFor(env.environment),
   );
-
-  await Supabase.initialize(url: env.supabaseUrl, anonKey: env.supabaseAnonKey);
 
   await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(
     env.analyticsEnabled,
