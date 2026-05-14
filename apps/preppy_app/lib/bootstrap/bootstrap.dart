@@ -41,6 +41,7 @@ Future<void> bootstrap(AppEnv env) async {
     ProviderScope(
       overrides: [
         appEnvProvider.overrideWithValue(env),
+        cloudEnvProvider.overrideWithValue(CloudEnv.fromEnvironment()),
         baseUrlProvider.overrideWithValue(env.baseUrl),
       ],
       child: const PreppyApp(),

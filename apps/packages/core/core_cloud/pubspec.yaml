@@ -1,0 +1,29 @@
+name: core_cloud
+description: Backend-agnostic cloud contracts with Firebase, Supabase, and Neon adapters.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.11.5
+  flutter: '>=3.41.0'
+
+resolution: workspace
+
+dependencies:
+  cloud_firestore: ^5.6.0
+  firebase_storage: ^12.4.0
+  flutter:
+    sdk: flutter
+  meta: ^1.16.0
+  postgres: ^3.5.0
+  riverpod: ^3.2.1
+  supabase_flutter: ^2.9.0
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+  lints: ^6.0.0
+
+flutter:
+  uses-material-design: false

@@ -41,5 +41,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'hlp-chat.firebasestorage.app',
     iosBundleId: 'com.skndan.preppyapp',
   );
-
 }

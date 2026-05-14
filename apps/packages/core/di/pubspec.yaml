@@ -11,6 +11,8 @@ resolution: workspace
 dependencies:
   core_analytics:
     path: ../analytics
+  core_cloud:
+    path: ../core_cloud
   core_env:
     path: ../env
   core_network:
