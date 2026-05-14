@@ -1,4 +1,4 @@
-name: core_cloud
+name: cloud
 description: Backend-agnostic cloud contracts with Firebase, Supabase, Neon, and S3-compatible storage adapters.
 version: 0.1.0
 publish_to: 'none'

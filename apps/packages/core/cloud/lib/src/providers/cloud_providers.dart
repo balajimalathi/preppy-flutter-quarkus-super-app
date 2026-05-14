@@ -41,9 +41,8 @@ final supabaseStorageProvider = Provider<CloudStorage>(
 /// S3-compatible storage (R2, MinIO, RustFS, AWS S3) — override at bootstrap
 /// with `S3CompatibleStorageAdapter` and `S3StorageConfig`.
 final s3StorageProvider = Provider<CloudStorage>(
-  (ref) => throw UnsupportedError(
-    'Override s3StorageProvider in ProviderScope.',
-  ),
+  (ref) =>
+      throw UnsupportedError('Override s3StorageProvider in ProviderScope.'),
 );
 
 /// Neon / external object storage placeholder.

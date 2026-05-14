@@ -1,4 +1,4 @@
-import 'package:core_cloud/core_cloud.dart';
+import 'package:cloud/core_cloud.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

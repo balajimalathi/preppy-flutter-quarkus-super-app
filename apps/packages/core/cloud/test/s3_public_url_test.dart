@@ -1,5 +1,5 @@
-import 'package:core_cloud/src/adapters/s3/s3_public_url.dart';
-import 'package:core_cloud/src/adapters/s3/s3_storage_config.dart';
+import 'package:cloud/src/adapters/s3/s3_public_url.dart';
+import 'package:cloud/src/adapters/s3/s3_storage_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
