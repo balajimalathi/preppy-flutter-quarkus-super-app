@@ -3,6 +3,7 @@
 
 library;
 
+export 'package:core_analytics/core_analytics.dart';
 export 'package:core_env/core_env.dart';
 export 'package:core_network/core_connectivity.dart'
     show

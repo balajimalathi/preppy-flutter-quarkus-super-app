@@ -9,6 +9,8 @@ environment:
 resolution: workspace
 
 dependencies:
+  core_analytics:
+    path: ../analytics
   core_env:
     path: ../env
   core_network:

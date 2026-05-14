@@ -10,6 +10,7 @@ final class AppEnv {
     required this.firebaseProjectId,
     required this.analyticsEnabled,
     required this.crashlyticsEnabled,
+    required this.analyticsBackends,
   });
 
   final Environment environment;
@@ -18,8 +19,15 @@ final class AppEnv {
   final bool analyticsEnabled;
   final bool crashlyticsEnabled;
 
+  /// Lowercase backend ids from `ANALYTICS_BACKENDS` (e.g. `firebase,posthog`).
+  final List<String> analyticsBackends;
+
   factory AppEnv.fromEnvironment() {
     const env = String.fromEnvironment('ENV', defaultValue: 'dev');
+    const backendsRaw = String.fromEnvironment(
+      'ANALYTICS_BACKENDS',
+      defaultValue: 'firebase',
+    );
     return AppEnv(
       environment: switch (env) {
         'prod' => const ProdEnvironment(),
@@ -32,7 +40,20 @@ final class AppEnv {
           const String.fromEnvironment('ANALYTICS_ENABLED') == 'true',
       crashlyticsEnabled:
           const String.fromEnvironment('CRASHLYTICS_ENABLED') == 'true',
+      analyticsBackends: _parseAnalyticsBackends(backendsRaw),
     );
+  }
+
+  static List<String> _parseAnalyticsBackends(String raw) {
+    final parts = raw
+        .split(',')
+        .map((s) => s.trim().toLowerCase())
+        .where((s) => s.isNotEmpty)
+        .toList();
+    if (parts.isEmpty) {
+      return const ['firebase'];
+    }
+    return List<String>.unmodifiable(parts);
   }
 
   bool get isDev => environment is DevEnvironment;

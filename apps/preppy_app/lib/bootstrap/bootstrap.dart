@@ -1,7 +1,7 @@
+import 'package:core_analytics/core_analytics.dart';
 import 'package:core_env/core_env.dart';
 import 'package:core_network/core_network.dart';
 import 'package:core_storage/core_storage.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/widgets.dart';
