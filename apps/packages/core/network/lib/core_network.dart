@@ -4,4 +4,5 @@
 
 library;
 
-export 'src/api_client.dart';
+export 'src/http/api_client.dart'
+    show ApiClient, apiClientProvider, baseUrlProvider;

@@ -3,6 +3,7 @@
 
 library;
 
+export 'package:core_env/core_env.dart';
 export 'package:core_network/core_connectivity.dart'
     show
         ConnectivityContract,
@@ -10,4 +11,5 @@ export 'package:core_network/core_connectivity.dart'
         ConnectivityState,
         connectivityServiceProvider,
         connectivityStateProvider;
-export 'package:core_network/core_network.dart' show apiClientProvider;
+export 'package:core_network/core_network.dart'
+    show apiClientProvider, baseUrlProvider;

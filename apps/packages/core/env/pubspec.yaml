@@ -1,0 +1,16 @@
+name: core_env
+description: Compile-time app environment (dart-define) and Riverpod appEnvProvider.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.11.5
+
+resolution: workspace
+
+dependencies:
+  riverpod: ^3.2.1
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.6

@@ -2,5 +2,4 @@ import 'package:core_env/core_env.dart';
 
 import 'bootstrap/bootstrap.dart';
 
-/// Default entrypoint — still requires `--dart-define-from-file` (see Melos `run:*`).
 void main() => bootstrap(AppEnv.fromEnvironment());

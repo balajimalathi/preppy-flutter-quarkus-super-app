@@ -20,5 +20,5 @@ final class ConnectivityNotifier extends StreamNotifier<ConnectivityState> {
 /// Watches [ConnectivityNotifier]; exposed state is [AsyncValue<ConnectivityState>].
 final connectivityStateProvider =
     StreamNotifierProvider<ConnectivityNotifier, ConnectivityState>(
-  ConnectivityNotifier.new,
-);
+      ConnectivityNotifier.new,
+    );

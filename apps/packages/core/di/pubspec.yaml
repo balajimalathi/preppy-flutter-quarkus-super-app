@@ -9,6 +9,8 @@ environment:
 resolution: workspace
 
 dependencies:
+  core_env:
+    path: ../env
   core_network:
     path: ../network
   core_storage:

@@ -47,3 +47,23 @@ melos:
     clean:
       description: Clean build outputs for every package.
       run: melos exec -c 1 -- "flutter clean"
+
+    run:dev:
+      description: Run preppy_app with dev flavor and compile-time env defines.
+      run: melos exec --scope=preppy_app -c 1 -- "flutter run --flavor dev --dart-define-from-file=config/env.dev.json -t lib/main_dev.dart"
+
+    run:staging:
+      description: Run preppy_app with staging flavor and env defines.
+      run: melos exec --scope=preppy_app -c 1 -- "flutter run --flavor staging --dart-define-from-file=config/env.staging.json -t lib/main_staging.dart"
+
+    run:prod:
+      description: Run preppy_app with prod flavor and env defines.
+      run: melos exec --scope=preppy_app -c 1 -- "flutter run --flavor prod --dart-define-from-file=config/env.prod.json -t lib/main_prod.dart"
+
+    build:apk:prod:
+      description: Build release APK for prod flavor.
+      run: melos exec --scope=preppy_app -c 1 -- "flutter build apk --flavor prod --dart-define-from-file=config/env.prod.json -t lib/main_prod.dart"
+
+    build:ios:prod:
+      description: Build iOS release for prod flavor (requires signing).
+      run: melos exec --scope=preppy_app -c 1 -- "flutter build ios --flavor prod --dart-define-from-file=config/env.prod.json -t lib/main_prod.dart"
