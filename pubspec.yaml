@@ -9,8 +9,20 @@ environment:
 workspace:
   - apps/preppy_app
   - apps/packages/shared_ui
-  - apps/packages/core/*
-  - apps/packages/features/*
+  - apps/packages/core/analytics
+  - apps/packages/core/cloud
+  - apps/packages/core/auth
+  - apps/packages/core/di
+  - apps/packages/core/env
+  - apps/packages/core/models
+  - apps/packages/core/network
+  - apps/packages/core/storage
+  - apps/packages/features/auth
+  - apps/packages/features/dashboard
+  - apps/packages/features/ingestion
+  - apps/packages/features/practice
+  - apps/packages/features/pyq
+  - apps/packages/features/syllabus
 
 dev_dependencies:
   melos: ^7.7.0

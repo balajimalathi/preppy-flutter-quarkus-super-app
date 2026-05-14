@@ -4,14 +4,14 @@
 library;
 
 export 'package:core_analytics/core_analytics.dart';
-export 'package:core_cloud/core_cloud.dart';
+export 'package:core_auth/core_auth.dart';
+export 'package:cloud/core_cloud.dart';
 export 'package:core_env/core_env.dart';
 export 'package:core_network/core_connectivity.dart'
     show
         ConnectivityContract,
         ConnectivityNotifier,
         ConnectivityState,
-        connectivityServiceProvider,
+        connectivityServiceProvider,  
         connectivityStateProvider;
-export 'package:core_network/core_network.dart'
-    show apiClientProvider, baseUrlProvider;
+export 'package:core_network/core_network.dart';

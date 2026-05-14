@@ -2,6 +2,7 @@ import 'package:core_analytics/core_analytics.dart';
 import 'package:core_env/core_env.dart';
 import 'package:core_network/core_network.dart';
 import 'package:core_storage/core_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/widgets.dart';
@@ -43,6 +44,15 @@ Future<void> bootstrap(AppEnv env) async {
         appEnvProvider.overrideWithValue(env),
         cloudEnvProvider.overrideWithValue(CloudEnv.fromEnvironment()),
         baseUrlProvider.overrideWithValue(env.baseUrl),
+        authTokenProvider.overrideWith(
+          (ref) => () async {
+            final user = FirebaseAuth.instance.currentUser;
+            if (user == null) {
+              return null;
+            }
+            return user.getIdToken();
+          },
+        ),
       ],
       child: const PreppyApp(),
     ),

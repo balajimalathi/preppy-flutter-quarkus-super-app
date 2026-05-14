@@ -1,13 +1,24 @@
 # core_network
 
-Shared HTTP (`Dio`) and connectivity for Preppy apps.
+Shared networking: HTTP (`Dio`), SSE, GraphQL (`graphql` + `HttpLink`), gRPC (`grpc` + generated stubs), and connectivity.
 
 ## Imports
 
-- **`package:core_network/core_network.dart`** — `ApiClient` / `apiClientProvider` only. Use this when you do not need reachability; it avoids pulling the connectivity plugin into your compilation unit.
-- **`package:core_network/core_connectivity.dart`** — `ConnectivityContract`, `ConnectivityState`, `connectivityServiceProvider`, and `connectivityStateProvider` (Riverpod). The slice provider exposes `AsyncValue<ConnectivityState>` when watched.
+- **`package:core_network/core_network.dart`** — REST (`dioProvider`, `apiClientProvider`, `authTokenProvider`, `sseClientProvider`), GraphQL (`graphQLClientProvider`, `fetchDashboardHeartbeat`), gRPC (`grpcChannelProvider`, `rpcSurfaceClientProvider`, `grpcCallOptions`), and multipart helpers.
+- **`package:core_network/core_connectivity.dart`** — `ConnectivityContract`, `ConnectivityState`, `connectivityServiceProvider`, and `connectivityStateProvider` (Riverpod). Use this entrypoint when you only need reachability and want a smaller import graph.
 
 For a single import of all shared providers, use **`package:core_di/core_di.dart`**.
+
+## gRPC codegen
+
+Proto: [`proto/common/v1/rpc_surface.proto`](proto/common/v1/rpc_surface.proto). From this package directory:
+
+```bash
+dart pub global activate protoc_plugin
+export PATH="$PATH:$HOME/.pub-cache/bin"
+mkdir -p lib/src/generated/common/v1
+protoc --dart_out=grpc:lib/src/generated -I proto proto/common/v1/rpc_surface.proto
+```
 
 ## Connectivity
 

@@ -1,5 +1,5 @@
-name: core_network
-description: HTTP (Dio), SSE, GraphQL, gRPC channel/clients, connectivity, and shared interceptors.
+name: core_auth
+description: Firebase authentication + Quarkus-backed app profile for Preppy.
 version: 0.1.0
 publish_to: 'none'
 
@@ -10,17 +10,15 @@ environment:
 resolution: workspace
 
 dependencies:
-  connectivity_plus: ^6.1.4
-  core_env:
-    path: ../env
+  core_network:
+    path: ../network
+  core_storage:
+    path: ../storage
   dio: ^5.9.2
-  gql: ^1.0.0+1
-  graphql: ^5.2.0
-  grpc: ^4.1.0
-  http_parser: ^4.1.2
-  protobuf: ^4.2.0
+  firebase_auth: ^5.3.3
   flutter:
     sdk: flutter
+  google_sign_in: ^6.2.2
   riverpod: ^3.2.1
 
 dev_dependencies:

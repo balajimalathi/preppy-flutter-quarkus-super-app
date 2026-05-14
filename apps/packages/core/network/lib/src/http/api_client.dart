@@ -1,6 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:riverpod/riverpod.dart';
 
+import 'auth_interceptor.dart';
+import 'auth_token.dart';
+
 /// HTTP API origin; overridden at app bootstrap (see `core_env` / shell).
 final baseUrlProvider = Provider<String>(
   (ref) => throw UnsupportedError(
@@ -15,9 +18,9 @@ class ApiClient {
 
   final String baseUrl;
 
-  Dio build() {
+  Dio build(Ref ref) {
     final dio = Dio(BaseOptions(baseUrl: baseUrl));
-    // TODO: attach AuthInterceptor that refreshes Firebase ID tokens.
+    dio.interceptors.add(AuthInterceptor(() => ref.read(authTokenProvider)()));
     return dio;
   }
 }
@@ -25,4 +28,12 @@ class ApiClient {
 final apiClientProvider = Provider<ApiClient>((ref) {
   final baseUrl = ref.watch(baseUrlProvider);
   return ApiClient(baseUrl: baseUrl);
+});
+
+/// Shared [Dio] with base URL and [AuthInterceptor].
+final dioProvider = Provider<Dio>((ref) {
+  final api = ref.watch(apiClientProvider);
+  final dio = api.build(ref);
+  ref.onDispose(dio.close);
+  return dio;
 });

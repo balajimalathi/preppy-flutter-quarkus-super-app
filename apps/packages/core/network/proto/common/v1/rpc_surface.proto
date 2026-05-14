@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package common.v1;
+
+// App-agnostic RPC examples (health check + server-streaming job updates).
+// Regenerate Dart: `dart pub global activate protoc_plugin` then from this package:
+// `protoc --dart_out=grpc:lib/src/generated -I proto proto/common/v1/rpc_surface.proto`
+
+service RpcSurface {
+  rpc Ping(PingRequest) returns (PingResponse);
+  rpc WatchJobStatus(WatchJobStatusRequest) returns (stream JobStatusEvent);
+}
+
+message PingRequest {
+  string client = 1;
+}
+
+message PingResponse {
+  string message = 1;
+}
+
+message WatchJobStatusRequest {
+  string job_id = 1;
+}
+
+message JobStatusEvent {
+  string phase = 1;
+  string detail = 2;
+}

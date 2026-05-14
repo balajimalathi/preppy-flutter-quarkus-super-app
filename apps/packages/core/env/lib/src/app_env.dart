@@ -11,6 +11,10 @@ final class AppEnv {
     required this.analyticsEnabled,
     required this.crashlyticsEnabled,
     required this.analyticsBackends,
+    required this.grpcHost,
+    required this.grpcPort,
+    required this.grpcUseTls,
+    required this.graphqlUrl,
   });
 
   final Environment environment;
@@ -22,12 +26,29 @@ final class AppEnv {
   /// Lowercase backend ids from `ANALYTICS_BACKENDS` (e.g. `firebase,posthog`).
   final List<String> analyticsBackends;
 
+  /// Optional override for gRPC host. When empty, derived from [baseUrl] host.
+  final String grpcHost;
+
+  /// gRPC port (e.g. 443 for TLS).
+  final int grpcPort;
+
+  /// Use TLS credentials when true (typical production).
+  final bool grpcUseTls;
+
+  /// Full GraphQL HTTP endpoint. When empty, derived as `<BASE_URL>/graphql`.
+  final String graphqlUrl;
+
   factory AppEnv.fromEnvironment() {
     const env = String.fromEnvironment('ENV', defaultValue: 'dev');
     const backendsRaw = String.fromEnvironment(
       'ANALYTICS_BACKENDS',
       defaultValue: 'firebase',
     );
+    const grpcPortRaw = String.fromEnvironment(
+      'GRPC_PORT',
+      defaultValue: '443',
+    );
+    const grpcTlsRaw = String.fromEnvironment('GRPC_TLS', defaultValue: 'true');
     return AppEnv(
       environment: switch (env) {
         'prod' => const ProdEnvironment(),
@@ -41,6 +62,10 @@ final class AppEnv {
       crashlyticsEnabled:
           const String.fromEnvironment('CRASHLYTICS_ENABLED') == 'true',
       analyticsBackends: _parseAnalyticsBackends(backendsRaw),
+      grpcHost: const String.fromEnvironment('GRPC_HOST', defaultValue: ''),
+      grpcPort: int.tryParse(grpcPortRaw) ?? 443,
+      grpcUseTls: grpcTlsRaw.toLowerCase() != 'false',
+      graphqlUrl: const String.fromEnvironment('GRAPHQL_URL', defaultValue: ''),
     );
   }
 
@@ -59,6 +84,25 @@ final class AppEnv {
   bool get isDev => environment is DevEnvironment;
   bool get isStaging => environment is StagingEnvironment;
   bool get isProd => environment is ProdEnvironment;
+
+  /// REST API origin (same as [baseUrl], normalized for clarity in multi-protocol setups).
+  Uri get restBaseUri => Uri.parse(baseUrl);
+
+  String get effectiveGrpcHost {
+    if (grpcHost.isNotEmpty) {
+      return grpcHost;
+    }
+    return restBaseUri.host;
+  }
+
+  /// HttpLink URI for GraphQL over HTTP POST.
+  String get graphqlHttpUrl {
+    if (graphqlUrl.isNotEmpty) {
+      return graphqlUrl;
+    }
+    final origin = '${restBaseUri.scheme}://${restBaseUri.authority}';
+    return '$origin/graphql';
+  }
 }
 
 /// Overridden at app bootstrap with [AppEnv.fromEnvironment()].
