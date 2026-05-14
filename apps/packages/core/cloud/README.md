@@ -12,7 +12,7 @@ In your app (or a feature package) `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  cloud:
+  core_cloud:
     path: ../packages/core/cloud  # adjust to your monorepo layout
 ```
 
