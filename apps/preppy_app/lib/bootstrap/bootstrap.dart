@@ -5,12 +5,14 @@ import 'package:core_storage/core_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 
 import '../app.dart';
 import '../env/app_env_firebase.dart';
+import 'preppy_notifications.dart';
 
 /// Shared startup: storage, Firebase, Riverpod overrides, then [runApp].
 Future<void> bootstrap(AppEnv env) async {
@@ -37,6 +39,8 @@ Future<void> bootstrap(AppEnv env) async {
 
   await SharedPreferencesSingleton.init();
   await Hive.initFlutter();
+
+  await initializePreppyNotifications(debug: kDebugMode);
 
   runApp(
     ProviderScope(

@@ -17,6 +17,7 @@ workspace:
   - apps/packages/core/models
   - apps/packages/core/network
   - apps/packages/core/storage
+  - apps/packages/core/notifications
   - apps/packages/features/auth
   - apps/packages/features/dashboard
   - apps/packages/features/ingestion
