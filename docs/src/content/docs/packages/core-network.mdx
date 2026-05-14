@@ -1,0 +1,92 @@
+---
+title: core_network
+description: Shared Dio HTTP client, auth token hook, SSE, GraphQL, gRPC, and connectivity for Preppy.
+---
+
+Package path: `apps/packages/core/network` · pub name: **`core_network`**
+
+## Purpose
+
+- **HTTP:** `dioProvider`, `apiClientProvider`, `baseUrlProvider`, `authTokenProvider` — the shell overrides `baseUrlProvider` and `authTokenProvider` to match `AppEnv` and Firebase ID tokens.
+- **SSE, GraphQL, gRPC:** exported providers and helpers from submodules (see package `README.md` in the repo for codegen commands).
+- **Connectivity:** `connectivityStateProvider` and related types live in **`package:core_network/core_connectivity.dart`** for a smaller import graph.
+
+## Minimal usage
+
+```dart
+import 'package:core_network/core_network.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+Future<void> ping(WidgetRef ref) async {
+  final dio = ref.read(dioProvider);
+  await dio.get('/health');
+}
+```
+
+## More examples
+
+**Typed JSON via `dio`** (paths are relative to `baseUrlProvider`):
+
+```dart
+Future<Map<String, dynamic>> fetchProfile(WidgetRef ref) async {
+  final dio = ref.read(dioProvider);
+  final response = await dio.get<Map<String, dynamic>>('/me');
+  return response.data ?? {};
+}
+```
+
+**From a plain `Ref`** (notifier, repository constructed with `Ref`):
+
+```dart
+import 'package:riverpod/riverpod.dart';
+
+import 'package:core_network/core_network.dart';
+
+Future<Map<String, dynamic>> fetchMe(Ref ref) async {
+  final dio = ref.read(dioProvider);
+  final response = await dio.get<Map<String, dynamic>>('/me');
+  return response.data ?? {};
+}
+```
+
+**Connectivity-only import** (smaller dependency surface):
+
+```dart
+import 'package:core_network/core_connectivity.dart';
+
+// ref.watch(connectivityStateProvider) → AsyncValue<ConnectivityState>
+```
+
+## Mixins
+
+`core_network` does **not** ship mixins. Typical **app-side** patterns:
+
+```dart
+import 'package:core_network/core_network.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+mixin DioMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
+  Dio get dio => ref.read(dioProvider);
+
+  Future<Response<T>> get<T>(String path) => dio.get<T>(path);
+}
+```
+
+For **`Ref`**-based code (e.g. `@riverpod` notifiers), keep `ref.read(dioProvider)` inside methods rather than storing `Dio` across async gaps unless you manage lifecycle explicitly.
+
+## Single import from the barrel
+
+For shell or feature code that also needs analytics, auth, cloud, and env in one place, prefer **`package:core_di/core_di.dart`**, which re-exports `core_network.dart` and selected connectivity symbols.
+
+## Use in a new app or package
+
+1. Add `core_network` (and usually `core_env`) as `path:` dependencies.
+
+2. Override **`baseUrlProvider`** and **`authTokenProvider`** in `ProviderScope` at bootstrap so `AuthInterceptor` receives tokens and the correct API origin.
+
+3. Optionally depend on **`core_di`** instead if you want connectivity + other core providers with one import.
+
+---
+
+**See also:** [`core_di`](/packages/core-di/) · [Bootstrap](/app/bootstrap/) · [Package overview](/packages/)

@@ -1,0 +1,46 @@
+---
+title: Flavors
+description: dev, staging, and prod flavors for Android and iOS in preppy_app — and how they relate to compile-time defines.
+---
+
+The shell app at `apps/preppy_app` uses **Flutter flavors** so you can install **dev**, **staging**, and **prod** builds side by side with different Firebase configs and application ids.
+
+## Android
+
+`apps/preppy_app/android/app/build.gradle.kts` defines a single flavor dimension `environment` with three product flavors:
+
+| Flavor | `applicationIdSuffix` | `versionNameSuffix` |
+|--------|------------------------|---------------------|
+| `dev` | `.dev` | `-dev` |
+| `staging` | `.staging` | `-staging` |
+| `prod` | _(none)_ | _(none)_ |
+
+Google Services files live under flavor-specific source sets, for example `android/app/src/dev/google-services.json` and similarly for `staging` and `prod`.
+
+Run with a flavor (from repo root via Melos, or from `apps/preppy_app`):
+
+```bash
+melos run run:dev
+# equivalent shape:
+flutter run --flavor dev --dart-define-from-file=config/env.dev.json -t lib/main_dev.dart
+```
+
+## iOS
+
+Xcode schemes mirror the same three environments (for example `dev.xcscheme`, `staging.xcscheme`, `prod.xcscheme`). Firebase plist copies are organized under `ios/Firebase/<env>/` with a script noted in the app’s iOS setup; pick the scheme that matches the backend you are targeting.
+
+## Flavors vs Dart `ENV`
+
+**Flavor** selects native packaging (bundle id, Firebase plist / `google-services.json`, icons if you customize per flavor).
+
+**Which logical environment Dart uses** (`DevEnvironment`, `StagingEnvironment`, `ProdEnvironment`) comes from the compile-time define **`ENV`** inside your JSON passed as `--dart-define-from-file` (see [Environment setup](/app/env-setup/)). The Melos scripts pair each flavor with a matching `env.*.json` and `main_*.dart` entrypoint so they stay aligned in normal workflows.
+
+## Use in another app
+
+1. Add matching `productFlavors` (Android) and schemes / build configurations (iOS).
+2. Keep **one JSON file per environment** for `--dart-define-from-file`.
+3. In `main`, still call your shared `bootstrap(AppEnv.fromEnvironment())` (or equivalent) so `AppEnv` matches the JSON you passed at compile time.
+
+---
+
+**See also:** [Bootstrap](/app/bootstrap/) · [Environment setup](/app/env-setup/) · [Architecture](/architecture/)

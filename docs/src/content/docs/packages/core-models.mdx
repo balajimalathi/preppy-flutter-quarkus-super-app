@@ -1,0 +1,89 @@
+---
+title: core_models
+description: Pure Dart shared domain types and ApiResult for Preppy features.
+---
+
+Package path: `apps/packages/core/models` · pub name: **`core_models`**
+
+## Purpose
+
+**Pure Dart** DTOs and helpers so features agree on JSON-shaped entities **without** depending on Flutter. Typical exports include `ApiResult`, `Question`, `Flashcard`, `DailyPlan`, `SyllabusItem` (see `apps/packages/core/models/lib/core_models.dart`).
+
+## Minimal usage
+
+```dart
+import 'package:core_models/core_models.dart';
+
+ApiResult<Question> example() {
+  return const ApiResult.loading();
+}
+```
+
+## More examples
+
+**Exhaustive UI handling with `when`:**
+
+```dart
+Widget buildBody(ApiResult<Question> state) {
+  return state.when(
+    idle: () => const SizedBox.shrink(),
+    loading: (_) => const Center(child: CircularProgressIndicator()),
+    success: (q) => Text(q.stem),
+    error: (msg, code, _) => Text(msg),
+  );
+}
+```
+
+**Construct a success payload** (replace with your JSON parsing when you add `fromJson`):
+
+```dart
+const q = Question(
+  id: '1',
+  stem: '2 + 2?',
+  options: {'a': '3', 'b': '4'},
+  correctKey: 'b',
+);
+const state = ApiResult<Question>.success(q);
+```
+
+## Mixins
+
+`core_models` is **pure Dart** and ships **no** mixins. You can still define **your own** mixins for mapping or validation in a repository layer (no Flutter import required):
+
+```dart
+import 'package:core_models/core_models.dart';
+
+mixin QuestionMapping {
+  Question questionFromMap(Map<String, dynamic> m) {
+    return Question(
+      id: m['id'] as String,
+      stem: m['stem'] as String,
+      options: Map<String, String>.from(m['options'] as Map),
+      correctKey: m['correctKey'] as String,
+      explanation: m['explanation'] as String?,
+    );
+  }
+}
+
+class QuestionRepository with QuestionMapping {
+  ApiResult<Question> parse(Map<String, dynamic> json) {
+    try {
+      return ApiResult.success(questionFromMap(json));
+    } catch (e, st) {
+      return ApiResult.error(message: '$e', cause: st);
+    }
+  }
+}
+```
+
+## Use in a new app or package
+
+1. Add `core_models` as a `path:` dependency from any feature or core package.
+
+2. Keep **JSON parsing** and domain types here; keep Flutter widgets in feature packages.
+
+3. Prefer **`ApiResult`** (or your repository layer) for progressive UI state as documented in `api_result.dart`.
+
+---
+
+**See also:** [Architecture](/architecture/) · [Package overview](/packages/)

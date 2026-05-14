@@ -1,0 +1,66 @@
+---
+title: Environment setup
+description: JSON define files, AppEnv and CloudEnv keys, and Melos run scripts for preppy_app.
+---
+
+Compile-time configuration flows through **`String.fromEnvironment`** in `core_env`. The shell passes values with **`--dart-define-from-file=...`** so you never hard-code URLs or project ids for each machine.
+
+## Config files
+
+Under **`apps/preppy_app/config/`**:
+
+| File | Role |
+|------|------|
+| `env.dev.json`, `env.staging.json`, `env.prod.json` | Tracked defaults for each environment (replace placeholders with real values). |
+| `env.*.example.json` | Templates you can copy. |
+| `env.*.local.json` (optional, untracked) | Per-developer overrides; point Melos or Flutter at this path if you use it. |
+
+See also `apps/preppy_app/config/README.md`.
+
+## Keys consumed by `AppEnv`
+
+`AppEnv.fromEnvironment()` reads (non-exhaustive list of important keys):
+
+| Define | Purpose |
+|--------|---------|
+| `ENV` | `dev` / `staging` / `prod` — selects `Environment` sealed type. |
+| `BASE_URL` | REST API origin; **required** — empty string causes bootstrap to throw. |
+| `FIREBASE_PROJECT_ID` | Metadata; Firebase options come from generated per-flavor Dart files. |
+| `ANALYTICS_ENABLED` | `true` / other — toggles Dart-side analytics resolution. |
+| `ANALYTICS_BACKENDS` | Comma-separated ids (default `firebase`). |
+| `CRASHLYTICS_ENABLED` | Native Crashlytics collection flag. |
+| `GRPC_HOST`, `GRPC_PORT`, `GRPC_TLS` | gRPC client tuning in `core_network`. |
+| `GRAPHQL_URL` | When empty, GraphQL HTTP URL defaults to `{BASE_URL}/graphql`. |
+
+## Keys consumed by `CloudEnv`
+
+`CloudEnv.fromEnvironment()` reads optional backend keys:
+
+| Define | Purpose |
+|--------|---------|
+| `SUPABASE_URL`, `SUPABASE_ANON_KEY` | Supabase client when you wire `core_cloud` Supabase adapters. |
+| `NEON_CONNECTION_STRING` | Direct Postgres (dev/tools caution). |
+| `FIREBASE_STORAGE_BUCKET`, `SUPABASE_STORAGE_BUCKET` | Default buckets for storage adapters. |
+
+## Melos scripts (repo root)
+
+From the root `pubspec.yaml` `melos.scripts`:
+
+| Script | Flavor + defines + entrypoint |
+|--------|------------------------------|
+| `melos run run:dev` | `--flavor dev` + `config/env.dev.json` + `-t lib/main_dev.dart` |
+| `melos run run:staging` | `--flavor staging` + `config/env.staging.json` + `-t lib/main_staging.dart` |
+| `melos run run:prod` | `--flavor prod` + `config/env.prod.json` + `-t lib/main_prod.dart` |
+| `melos run build:apk:prod` / `build:ios:prod` | Release builds with prod flavor and env file |
+
+Always keep **flavor**, **entrypoint**, and **JSON** consistent for the environment you intend.
+
+## Use in another app
+
+1. Add a `config/` directory with one JSON per environment; document keys next to `AppEnv` / `CloudEnv` in `apps/packages/core/env/lib/src/`.
+2. Add Melos or shell scripts that always pass `--dart-define-from-file`.
+3. In CI, inject defines via CI secrets or generated JSON — avoid committing production secrets if policy forbids it.
+
+---
+
+**See also:** [Flavors](/app/flavors/) · [`core_env`](/packages/core-env/) · [Bootstrap](/app/bootstrap/)

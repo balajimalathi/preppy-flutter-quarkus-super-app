@@ -22,10 +22,25 @@ export default defineConfig({
 					items: [{ label: 'Architecture', slug: 'architecture' }],
 				},
 				{
+					label: 'Shell app',
+					items: [
+						{ label: 'Flavors', slug: 'app/flavors' },
+						{ label: 'Bootstrap', slug: 'app/bootstrap' },
+						{ label: 'Environment setup', slug: 'app/env-setup' },
+					],
+				},
+				{
 					label: 'Packages',
 					items: [
 						{ label: 'Overview', slug: 'packages' },
-						{ label: 'Core packages', slug: 'packages/core' },
+						{ label: 'Core hub', slug: 'packages/core' },
+						{ label: 'core_env', slug: 'packages/core-env' },
+						{ label: 'core_network', slug: 'packages/core-network' },
+						{ label: 'core_storage', slug: 'packages/core-storage' },
+						{ label: 'core_models', slug: 'packages/core-models' },
+						{ label: 'core_analytics', slug: 'packages/core-analytics' },
+						{ label: 'core_cloud', slug: 'packages/core-cloud' },
+						{ label: 'core_di', slug: 'packages/core-di' },
 						{ label: 'shared_ui', slug: 'packages/shared-ui' },
 					],
 				},

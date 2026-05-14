@@ -1,0 +1,76 @@
+---
+title: core_storage
+description: StorageContract with Hive, secure storage, and SharedPreferences implementations for Preppy.
+---
+
+Package path: `apps/packages/core/storage` · pub name: **`core_storage`**
+
+## Purpose
+
+String key–value persistence behind **`StorageContract`**, with Riverpod providers (`storageProvider`, `secureStorageProvider`, `sharedPreferencesStorageProvider`). Validates keys and wraps errors consistently.
+
+## Initialization
+
+Call platform init **before** first storage use, in the same order as the shell:
+
+1. `SharedPreferencesSingleton.init()` — done in `apps/preppy_app/lib/bootstrap/bootstrap.dart`.
+2. `Hive.initFlutter()` — same file, for Hive-backed default storage.
+
+## Minimal usage
+
+```dart
+import 'package:core_storage/core_storage.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+Future<void> cacheJson(WidgetRef ref, String key, String json) async {
+  final storage = ref.read(storageProvider);
+  await storage.write(key, json);
+}
+```
+
+## More examples
+
+**Secure storage** (tokens, refresh secrets):
+
+```dart
+final secure = ref.read(secureStorageProvider);
+await secure.write('refresh_token', token);
+```
+
+**Read with default:**
+
+```dart
+final storage = ref.read(storageProvider);
+final raw = await storage.read('last_sync');
+final at = raw == null ? null : DateTime.tryParse(raw);
+```
+
+## Mixins
+
+`core_storage` does **not** export mixins. You can centralize key naming and small helpers:
+
+```dart
+import 'package:core_storage/core_storage.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+mixin LocalCacheMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
+  StorageContract get _store => ref.read(storageProvider);
+
+  Future<void> putJson(String key, String json) => _store.write(key, json);
+  Future<String?> getJson(String key) => _store.read(key);
+}
+```
+
+## Use in a new app or package
+
+1. Add `core_storage` as a `path:` dependency.
+
+2. In `main` / bootstrap, call `SharedPreferencesSingleton.init()` and `Hive.initFlutter()` when using the default Hive-backed `storageProvider`.
+
+3. Use **`StorageContract`** only at call sites (read/write/delete/clear) — swap implementations via providers or tests with overrides.
+
+**Note:** `core_di` does **not** re-export `core_storage`; import `package:core_storage/core_storage.dart` where you need persistence.
+
+---
+
+**See also:** [Bootstrap](/app/bootstrap/) · [Package overview](/packages/)

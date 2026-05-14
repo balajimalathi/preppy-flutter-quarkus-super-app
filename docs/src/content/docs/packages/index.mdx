@@ -3,7 +3,7 @@ title: Packages
 description: Overview of Preppy Dart packages — core infrastructure and shared_ui.
 ---
 
-This section documents **core** packages under `apps/packages/core/` and the **`shared_ui`** design system. Feature packages (`auth`, `dashboard`, `ingestion`, `practice`, `pyq`, `syllabus`) are thin vertical slices consumed by `preppy_app`; they typically depend on `shared_ui`, `go_router`, `flutter_riverpod`, and selected core libraries.
+This section documents **core** packages under `apps/packages/core/` and the **`shared_ui`** design system. Feature packages (`auth`, `dashboard`, `ingestion`, `practice`, `pyq`, `syllabus`) are vertical slices consumed by `preppy_app`; they typically depend on `shared_ui`, `go_router`, `flutter_riverpod`, and selected core libraries.
 
 ## Quick reference
 
@@ -15,13 +15,13 @@ This section documents **core** packages under `apps/packages/core/` and the **`
 | `core_storage` | `core/storage` | `StorageContract` + Hive / secure / shared_preferences impls |
 | `core_auth` | `core/auth` | Firebase auth + Quarkus profile; `authProvider` |
 | `core_analytics` | `core/analytics` | `AnalyticsContract` + Firebase / composite backends |
-| `cloud` | `core/cloud` | Backend-agnostic cloud DB/storage contracts + adapters |
+| `core_cloud` | `core/cloud` | Backend-agnostic cloud DB/storage contracts + adapters |
 | `core_di` | `core/di` | Barrel re-exporting cross-cutting providers |
 | `shared_ui` | `shared_ui` | Theme, tokens, `PreppyScaffold` |
 
-Import names match **`name:`** in each package’s `pubspec.yaml` (the `cloud` package imports as `package:cloud/...`).
+Import names match **`name:`** in each package’s `pubspec.yaml`. The cloud package is **`core_cloud`**; use `import 'package:core_cloud/core_cloud.dart';` or import through **`package:core_di/core_di.dart`**.
 
 ## Further reading
 
-- [Core packages](/packages/core/) — purpose, when to use, and minimal Dart examples
+- [Core packages hub](/packages/core/) — table linking to each core topic page
 - [shared_ui](/packages/shared-ui/) — design system usage

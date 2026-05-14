@@ -1,0 +1,76 @@
+---
+title: core_analytics
+description: Vendor-neutral AnalyticsContract with Firebase and pluggable backends for Preppy.
+---
+
+Package path: `apps/packages/core/analytics` · pub name: **`core_analytics`**
+
+## Purpose
+
+**`AnalyticsContract`** behind `analyticsProvider` so UI and features never import vendor SDKs directly. Backends are chosen from compile-time **`ANALYTICS_BACKENDS`** and **`ANALYTICS_ENABLED`** (mirrored on `AppEnv`).
+
+The shell still calls **`FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(...)`** after `Firebase.initializeApp` so the native layer respects your privacy flag; that is separate from Dart-side noop behavior.
+
+## Minimal usage
+
+```dart
+import 'package:core_analytics/core_analytics.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+Future<void> logOpen(WidgetRef ref) async {
+  final analytics = ref.read(analyticsProvider);
+  await analytics.logScreenView('Home');
+}
+```
+
+## More examples
+
+**Event with parameters:**
+
+```dart
+await ref.read(analyticsProvider).logEvent(
+  'question_answered',
+  parameters: {'question_id': id, 'correct': wasCorrect},
+);
+```
+
+**Provider test override** (noop backend):
+
+```dart
+ProviderScope(
+  overrides: [
+    analyticsProvider.overrideWithValue(const NoopAnalytics()),
+  ],
+  child: const MyApp(),
+);
+```
+
+## Mixins
+
+`core_analytics` does **not** define a built-in mixin (so naming stays yours). A common pattern is a **state mixin** on `ConsumerState`:
+
+```dart
+import 'package:core_analytics/core_analytics.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+mixin AnalyticsStateMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
+  AnalyticsContract get analytics => ref.read(analyticsProvider);
+
+  Future<void> track(String name, [Map<String, Object?>? parameters]) =>
+      analytics.logEvent(name, parameters: parameters);
+}
+```
+
+Use `with AnalyticsStateMixin<MyScreen>` on your `ConsumerState` subclass, then call `track('cta_tapped')` or `analytics.logScreenView('MyScreen')` from `initState` / handlers.
+
+## Use in a new app or package
+
+1. Add `core_analytics` and `core_env` (for flags) as dependencies.
+
+2. Ensure defines `ANALYTICS_ENABLED` and `ANALYTICS_BACKENDS` exist in your `--dart-define-from-file` JSON.
+
+3. Initialize your vendor SDKs at bootstrap if you add non-Firebase backends.
+
+---
+
+**See also:** [Environment setup](/app/env-setup/) · [`core_env`](/packages/core-env/) · [Package overview](/packages/)

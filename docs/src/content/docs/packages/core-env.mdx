@@ -1,0 +1,91 @@
+---
+title: core_env
+description: Typed compile-time AppEnv and CloudEnv with Riverpod providers for the Preppy workspace.
+---
+
+Package path: `apps/packages/core/env` · pub name: **`core_env`**
+
+## Purpose
+
+**Single source of truth** for values coming from `--dart-define` / `--dart-define-from-file`. Exposes:
+
+- **`AppEnv`** — REST base URL, `Environment` (`dev` / `staging` / `prod`), Firebase project id, analytics/Crashlytics flags, gRPC and GraphQL endpoints.
+- **`CloudEnv`** — optional Supabase, Neon, and storage bucket defines.
+- **`appEnvProvider`** / **`cloudEnvProvider`** — must be overridden at app bootstrap (the shell does this in `apps/preppy_app/lib/bootstrap/bootstrap.dart`).
+
+## Minimal usage
+
+```dart
+import 'package:core_env/core_env.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+void example(WidgetRef ref) {
+  final env = ref.read(appEnvProvider);
+  final origin = env.restBaseUri;
+  final gql = env.graphqlHttpUrl;
+}
+```
+
+## More examples
+
+**Branch on environment** (for feature flags or copy):
+
+```dart
+final env = ref.read(appEnvProvider);
+if (env.isDev) {
+  // show debug banner, extra logging, etc.
+}
+```
+
+**Use `CloudEnv` in repositories** after `cloudEnvProvider` is overridden:
+
+```dart
+final cloud = ref.read(cloudEnvProvider);
+if (cloud.hasSupabase) {
+  // wire Supabase-specific paths
+}
+```
+
+## Mixins
+
+`core_env` does **not** declare any public `mixin` types. You can add an **app-side** mixin on `ConsumerState` (or similar) to shorten repeated reads:
+
+```dart
+import 'package:core_env/core_env.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+mixin AppEnvMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
+  AppEnv get appEnv => ref.read(appEnvProvider);
+  CloudEnv get cloudEnv => ref.read(cloudEnvProvider);
+}
+
+class _SettingsState extends ConsumerState<SettingsScreen> with AppEnvMixin {
+  @override
+  Widget build(BuildContext context) {
+    return Text(appEnv.firebaseProjectId);
+  }
+}
+```
+
+## Use in a new app or package
+
+1. Add to `pubspec.yaml`:
+
+   ```yaml
+   dependencies:
+     core_env:
+       path: ../packages/core/env  # adjust relative to your package
+   ```
+
+2. If you use the root Melos workspace, include this package under `workspace:` in the root `pubspec.yaml`.
+
+3. At startup, wrap the tree in `ProviderScope` with:
+
+   - `appEnvProvider.overrideWithValue(AppEnv.fromEnvironment())` (or a hand-built `AppEnv` for tests).
+   - `cloudEnvProvider.overrideWithValue(CloudEnv.fromEnvironment())`.
+
+4. Pass **`--dart-define-from-file`** (or equivalent defines) whenever you run or build Flutter so `String.fromEnvironment` resolves correctly.
+
+---
+
+**See also:** [Environment setup](/app/env-setup/) · [Bootstrap](/app/bootstrap/) · [Package overview](/packages/)

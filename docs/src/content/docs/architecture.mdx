@@ -20,7 +20,7 @@ The root `pubspec.yaml` declares the workspace members (same paths as above). Me
 
 - **`preppy_app`** depends on every feature package it mounts, on selected `core_*` packages, and on `shared_ui`.
 - **Feature packages** depend on **`shared_ui`**, **`go_router`**, **`flutter_riverpod`**, and whichever **core** surface they need (for example `core_models`, `core_auth` for the auth feature). They must **not** depend on `preppy_app`.
-- **`core_di`** is a **barrel** that re-exports providers from `core_analytics`, `core_auth`, `cloud`, `core_env`, and `core_network` (including connectivity types). Feature or shell code that wants a single import for cross-cutting providers can depend on `core_di`.
+- **`core_di`** is a **barrel** that re-exports providers from `core_analytics`, `core_auth`, `core_cloud`, `core_env`, and `core_network` (including connectivity types). Feature or shell code that wants a single import for cross-cutting providers can depend on `core_di`.
 - **`core_models`** is pure Dart and sits at the bottom of the stack (no Flutter dependency in its `pubspec.yaml`).
 
 ```mermaid
@@ -51,7 +51,7 @@ flowchart TB
     sto["core_storage"]
     ca["core_auth"]
     an["core_analytics"]
-    cl["cloud"]
+    cl["core_cloud"]
     mod["core_models"]
   end
 
@@ -84,7 +84,7 @@ flowchart TB
 - **Riverpod** is used app-wide (`flutter_riverpod` in the shell and features; `riverpod` in pure-Dart–friendly core packages).
 - **Compile-time environment** is modeled by `AppEnv` / `CloudEnv` in `core_env` and **must** be overridden at bootstrap (`appEnvProvider`, `cloudEnvProvider`).
 - **HTTP** uses a shared `Dio` from `dioProvider` with `AuthInterceptor` reading `authTokenProvider` (overridden in the shell to use Firebase).
-- **Cloud** (`cloud` package): `firebaseDatabaseProvider`, `supabaseDatabaseProvider`, `neonDatabaseProvider`, and storage counterparts are **throwing placeholders** until the shell overrides them in `ProviderScope` when you wire a backend.
+- **Cloud** (`core_cloud` package): `firebaseDatabaseProvider`, `supabaseDatabaseProvider`, `neonDatabaseProvider`, and storage counterparts are **throwing placeholders** until the shell overrides them in `ProviderScope` when you wire a backend.
 
 ## Where `shared_ui` fits
 

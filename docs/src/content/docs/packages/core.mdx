@@ -1,184 +1,30 @@
 ---
 title: Core packages
-description: core_env, core_models, core_network, core_storage, core_auth, core_analytics, cloud, and core_di — with minimal usage examples.
+description: Index of core_env, core_models, core_network, core_storage, core_auth, core_analytics, core_cloud, and core_di — each has a dedicated page.
 ---
 
-These libraries live under `apps/packages/core/`. Depend on them from feature packages or the shell by adding a `path:` dependency in that package’s `pubspec.yaml` (see the root workspace `pubspec.yaml` for canonical paths).
+Core libraries live under `apps/packages/core/`. Depend on them with a `path:` dependency from the shell or a feature package (paths match the monorepo layout).
 
----
+## Module pages
 
-## `core_env`
+Each topic page below includes **usage examples** and notes on **mixins**: the `core_*` libraries do not ship public `mixin` declarations in their `lib/` APIs; you add app-side mixins on `ConsumerState`, repositories, or notifiers that call `ref.read(...)`.
 
-**Purpose:** Typed **compile-time** configuration from `String.fromEnvironment` / `--dart-define-from-file`, plus Riverpod hooks so the rest of the app reads config through providers.
+| Package | Topic page |
+|---------|------------|
+| `core_env` | [core_env](/packages/core-env/) |
+| `core_network` | [core_network](/packages/core-network/) |
+| `core_storage` | [core_storage](/packages/core-storage/) |
+| `core_models` | [core_models](/packages/core-models/) |
+| `core_analytics` | [core_analytics](/packages/core-analytics/) |
+| `core_cloud` | [core_cloud](/packages/core-cloud/) |
+| `core_di` | [core_di](/packages/core-di/) |
 
-**When to use:** Any code that needs `BASE_URL`, Firebase project id, gRPC/GraphQL endpoints, or analytics flags without hard-coding.
+**`core_auth`** (Firebase + Quarkus profile, `authProvider`) is documented inline in [Architecture](/architecture/) and in `apps/packages/core/auth` — add a dedicated doc page later if needed.
 
-**Highlights:** `AppEnv.fromEnvironment()`, `appEnvProvider`, `CloudEnv`, `cloudEnvProvider`, `Environment` variants (`DevEnvironment`, etc.).
+## Shell topics
 
-The shell **must** override `appEnvProvider` (and typically `cloudEnvProvider`) in `ProviderScope` at startup.
-
-```dart
-import 'package:core_env/core_env.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-void example(WidgetRef ref) {
-  final env = ref.read(appEnvProvider);
-  final origin = env.restBaseUri;
-  final gql = env.graphqlHttpUrl;
-  // Use env.isDev, env.effectiveGrpcHost, etc.
-}
-```
+Runtime wiring for `preppy_app` is covered under **Shell app** in the sidebar: [Flavors](/app/flavors/), [Bootstrap](/app/bootstrap/), [Environment setup](/app/env-setup/).
 
 ---
 
-## `core_models`
-
-**Purpose:** **Pure Dart** shared domain types so features agree on JSON-shaped entities without pulling in Flutter.
-
-**When to use:** DTOs / entities shared across features (questions, cards, plans, syllabus rows).
-
-**Highlights:** `ApiResult`, `Question`, `Flashcard`, `DailyPlan`, `SyllabusItem` (see `lib/core_models.dart` exports).
-
-```dart
-import 'package:core_models/core_models.dart';
-
-ApiResult<Question> parseQuestion(Map<String, dynamic> json) {
-  return ApiResult.fromJson(json, Question.fromJson);
-}
-```
-
----
-
-## `core_network`
-
-**Purpose:** Shared **HTTP** (`Dio` + auth interceptor), **SSE**, **GraphQL** and **gRPC** plumbing, and **connectivity** monitoring.
-
-**When to use:** REST calls to your backend, streaming, or shared network-aware UI (via `connectivityStateProvider`).
-
-**Highlights:** `dioProvider`, `apiClientProvider`, `baseUrlProvider`, `authTokenProvider`, `SseClient` / `sseClientProvider`, GraphQL/gRPC provider modules, `ConnectivityState` / `connectivityStateProvider`.
-
-`baseUrlProvider` and `authTokenProvider` are designed to be **overridden** at bootstrap (the shell sets `baseUrlProvider` and wires `authTokenProvider` to Firebase ID tokens).
-
-```dart
-import 'package:core_network/core_network.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-Future<void> ping(WidgetRef ref) async {
-  final dio = ref.read(dioProvider);
-  await dio.get('/health');
-}
-```
-
----
-
-## `core_storage`
-
-**Purpose:** Key/value **persistence** behind `StorageContract`, with Hive-backed, secure, and shared-preferences implementations.
-
-**When to use:** Cached strings, offline queues, or small app settings when you do not need feature-specific storage layout.
-
-**Highlights:** `storageProvider` (default `HiveStorage`), `secureStorageProvider`, `sharedPreferencesStorageProvider`, `SharedPreferencesSingleton`.
-
-```dart
-import 'package:core_storage/core_storage.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-Future<void> cacheJson(WidgetRef ref, String key, String json) async {
-  final storage = ref.read(storageProvider);
-  await storage.write(key, json);
-}
-```
-
----
-
-## `core_auth`
-
-**Purpose:** **Firebase Authentication** plus a **Quarkus-backed** app profile service; exposes async `AuthState` via Riverpod.
-
-**When to use:** Sign-in, sign-out, profile hydration, and anything that needs `profileId` or `AppProfile`.
-
-**Highlights:** `authProvider`, `AuthNotifier`, `authServiceProvider`, `profileServiceProvider`, `profileIdProvider`, contracts `AuthService`, `ProfileService`, models `AuthState`, `AppProfile`, `SignedInUser`.
-
-```dart
-import 'package:core_auth/core_auth.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-Widget buildAuthGate(WidgetRef ref) {
-  final auth = ref.watch(authProvider);
-  return auth.when(
-    data: (state) => switch (state) {
-      AuthAuthenticated(:final profile) =>
-        Text('Hello ${profile.fullName ?? profile.email}'),
-      AuthUnauthenticated() => const Text('Signed out'),
-      AuthSessionExpired() => const Text('Session expired'),
-      AuthErrorState(:final message) => Text('Error: $message'),
-    },
-    loading: () => const CircularProgressIndicator(),
-    error: (e, _) => Text('$e'),
-  );
-}
-```
-
----
-
-## `core_analytics`
-
-**Purpose:** Vendor-neutral **`AnalyticsContract`** with a Firebase implementation and a **composite** multi-backend option driven by `AppEnv.analyticsBackends`.
-
-**When to use:** Screen and event logging without importing vendor SDKs throughout the UI.
-
-**Highlights:** `analyticsProvider`, `resolveAnalytics`, `AnalyticsContract`, `FirebaseAnalytics` re-export for advanced use.
-
-```dart
-import 'package:core_analytics/core_analytics.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-Future<void> logOpen(WidgetRef ref) async {
-  final analytics = ref.read(analyticsProvider);
-  await analytics.logScreenView('Home');
-}
-```
-
----
-
-## `cloud` (import: `package:cloud/core_cloud.dart`)
-
-**Purpose:** **Backend-agnostic** document/database and object storage abstractions, with adapters for **Firestore**, **Supabase**, **Neon**, **Firebase Storage**, **Supabase Storage**, and **S3-compatible** storage.
-
-**When to use:** Feature code that should stay independent of a specific vendor, or shell bootstrap where you select and override providers.
-
-**Highlights:** Contracts `CloudDatabase`, `CloudStorage`, `CloudCollection`, models like `CloudQuery` / `CloudResult`, adapter classes (`FirestoreDatabase`, `SupabaseDatabase`, `NeonDatabase`, storage adapters, `S3StorageConfig`). Riverpod placeholders such as `firebaseDatabaseProvider` **throw** until overridden.
-
-Most call sites can import the barrel via **`core_di`** (see below) instead of depending on `cloud` directly.
-
-```dart
-import 'package:cloud/core_cloud.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-// After overrides in ProviderScope, e.g. FirestoreDatabase + FirebaseStorageAdapter:
-void readDb(WidgetRef ref) {
-  final db = ref.read(firebaseDatabaseProvider);
-  // Use CloudDatabase API (collections, queries, etc.)
-}
-```
-
----
-
-## `core_di`
-
-**Purpose:** A **single import** that re-exports shared Riverpod surfaces from analytics, auth, cloud, env, and network (including connectivity providers from `core_network`).
-
-**When to use:** Shell widgets or features that need `connectivityStateProvider` alongside other core types without stacking many imports (as `preppy_app` does for connectivity UI + theme).
-
-**Highlights:** Re-exports from `package:core_di/core_di.dart` include `package:core_analytics/core_analytics.dart`, `package:core_auth/core_auth.dart`, `package:cloud/core_cloud.dart`, `package:core_env/core_env.dart`, `core_network.dart`, and selected connectivity symbols from `core_connectivity.dart`.
-
-```dart
-import 'package:core_di/core_di.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-void listenOnline(WidgetRef ref) {
-  ref.listen(connectivityStateProvider, (prev, next) {
-    // React to ConnectivityState.online / offline
-  });
-}
-```
+**See also:** [Package overview](/packages/) · [Architecture](/architecture/)

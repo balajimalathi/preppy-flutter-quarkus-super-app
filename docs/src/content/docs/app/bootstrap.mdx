@@ -1,0 +1,51 @@
+---
+title: Bootstrap
+description: Melos workspace bootstrap vs runtime startup in preppy_app — Firebase, storage, and Riverpod overrides.
+---
+
+## Two meanings of “bootstrap”
+
+### 1. Melos workspace bootstrap
+
+From the **repository root**, after cloning:
+
+```bash
+dart pub global activate melos
+melos bootstrap
+```
+
+This runs `pub get` (and linked workspace resolution) for every package listed under `workspace:` in the root `pubspec.yaml`. It does **not** start the Flutter app.
+
+### 2. Runtime app bootstrap (`preppy_app`)
+
+`apps/preppy_app/lib/bootstrap/bootstrap.dart` is the **shared startup** path for every flavor entrypoint (`main.dart`, `main_dev.dart`, etc.). It:
+
+1. Validates that **`BASE_URL`** is non-empty (compile-time defines must be present).
+2. Calls `WidgetsFlutterBinding.ensureInitialized()`.
+3. Initializes **Firebase** with options from `AppEnvFirebase` in `apps/preppy_app/lib/env/app_env_firebase.dart` (`firebaseOptionsFor(env.environment)`).
+4. Sets **Firebase Analytics** and **Crashlytics** collection from flags on `AppEnv`.
+5. Initializes **`SharedPreferencesSingleton`** and **`Hive.initFlutter()`** for `core_storage`.
+6. Runs **`runApp(ProviderScope(...))`** with overrides:
+
+| Provider | Override in shell |
+|----------|-------------------|
+| `appEnvProvider` | Concrete `AppEnv` built via `AppEnv.fromEnvironment()` |
+| `cloudEnvProvider` | `CloudEnv.fromEnvironment()` |
+| `baseUrlProvider` | `env.baseUrl` |
+| `authTokenProvider` | Async closure returning Firebase ID token (or `null` if signed out) |
+
+The child widget is **`PreppyApp`**, which wires GoRouter, theme, and connectivity UX (see `apps/preppy_app/lib/app.dart`).
+
+## What is not in bootstrap today
+
+`core_cloud` database and storage providers **throw until overridden**. When you add Firestore, Supabase, S3, etc., extend `ProviderScope.overrides` in the same place (or a dedicated module imported from `bootstrap.dart`) **after** the relevant SDK init.
+
+## Use in another app
+
+1. Copy the **shape** of `bootstrap`: validate env, init platform SDKs you need, init storage singletons, then `ProviderScope` with the same provider overrides your `core_*` packages expect.
+2. Depend on `core_env`, `core_network`, `core_storage`, and optionally `core_di` / `core_cloud` in your shell `pubspec.yaml`.
+3. Register your package in the root workspace `workspace:` list if you use Melos.
+
+---
+
+**See also:** [Environment setup](/app/env-setup/) · [`core_di`](/packages/core-di/) · [Architecture](/architecture/)

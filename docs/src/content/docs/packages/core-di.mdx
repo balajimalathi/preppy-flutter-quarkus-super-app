@@ -1,0 +1,95 @@
+---
+title: core_di
+description: Single-import barrel for cross-cutting Riverpod providers in Preppy.
+---
+
+Package path: `apps/packages/core/di` · pub name: **`core_di`**
+
+## Purpose
+
+Re-exports in one library so shell and features avoid stacking many imports:
+
+- `package:core_analytics/core_analytics.dart`
+- `package:core_auth/core_auth.dart`
+- `package:core_cloud/core_cloud.dart`
+- `package:core_env/core_env.dart`
+- `package:core_network/core_network.dart`
+- Selected symbols from **`package:core_network/core_connectivity.dart`**: `ConnectivityContract`, `ConnectivityNotifier`, `ConnectivityState`, `connectivityServiceProvider`, `connectivityStateProvider`
+
+**Not included:** `core_storage` — import it explicitly when you need `storageProvider`.
+
+## When to use `core_di` vs a specific package
+
+| Situation | Prefer |
+|-----------|--------|
+| Shell listening to connectivity + routing + theme (`PreppyApp`) | `core_di` |
+| Feature needs only HTTP / Dio | `core_network` only |
+| Feature needs only persistence | `core_storage` only |
+| Tests with minimal graph | Import only the packages you override |
+
+## Minimal usage
+
+```dart
+import 'package:core_di/core_di.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+void listenOnline(WidgetRef ref) {
+  ref.listen(connectivityStateProvider, (prev, next) {
+    // ConnectivityState.online / offline
+  });
+}
+```
+
+## More examples
+
+**Auth gate** (also exported from this barrel):
+
+```dart
+import 'package:core_di/core_di.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+Widget buildHome(WidgetRef ref) {
+  final auth = ref.watch(authProvider);
+  return auth.when(
+    data: (state) => switch (state) {
+      AuthAuthenticated() => const Text('Signed in'),
+      AuthUnauthenticated() => const Text('Sign in'),
+      AuthSessionExpired() => const Text('Session expired'),
+      AuthErrorState(:final message) => Text(message),
+    },
+    loading: () => const CircularProgressIndicator(),
+    error: (e, _) => Text('$e'),
+  );
+}
+```
+
+Import **`core_auth`** types such as `AuthAuthenticated` from `package:core_di/core_di.dart` (re-export).
+
+## Mixins
+
+`core_di` is only a **barrel** — it adds **no** mixins. Combine **your own** mixin that depends on several providers re-exported here:
+
+```dart
+import 'package:core_di/core_di.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+mixin CoreServicesMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
+  AppEnv get appEnv => ref.read(appEnvProvider);
+  Dio get dio => ref.read(dioProvider);
+  AnalyticsContract get analytics => ref.read(analyticsProvider);
+}
+```
+
+For storage, add `import 'package:core_storage/core_storage.dart';` and a second mixin or explicit reads — storage is intentionally not part of `core_di`.
+
+## Use in a new app or package
+
+1. Add `core_di` as a `path:` dependency (see `apps/preppy_app/pubspec.yaml`).
+
+2. Ensure every re-exported provider your code reads is **overridden or valid** at bootstrap (env, base URL, auth token, cloud providers if used).
+
+---
+
+**See also:** [Architecture](/architecture/) · [`core_network`](/packages/core-network/) · [`core_cloud`](/packages/core-cloud/) · [Package overview](/packages/)

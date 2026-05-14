@@ -1,0 +1,99 @@
+---
+title: core_cloud
+description: Backend-agnostic cloud database and storage contracts with Firebase, Supabase, Neon, and S3 adapters.
+---
+
+Package path: `apps/packages/core/cloud` · pub name: **`core_cloud`**
+
+Public barrel: **`package:core_cloud/core_cloud.dart`**
+
+## Purpose
+
+Contracts **`CloudDatabase`**, **`CloudStorage`**, **`CloudCollection`**, and related models (`CloudResult`, `CloudQuery`, …) with adapters for **Firestore**, **Supabase**, **Neon**, and **S3-compatible** storage. Riverpod providers are **declared to throw** until the shell overrides them.
+
+## Providers to override
+
+| Provider | When |
+|----------|------|
+| `firebaseDatabaseProvider` | Firestore as `CloudDatabase`. |
+| `supabaseDatabaseProvider` | After `Supabase.initialize`. |
+| `neonDatabaseProvider` | Direct Postgres (prefer server-mediated access in production). |
+| `firebaseStorageProvider` | Firebase Storage. |
+| `supabaseStorageProvider` | Supabase Storage. |
+| `s3StorageProvider` | R2, MinIO, AWS S3, etc. |
+| `neonStorageProvider` | Placeholder / custom Neon-related storage. |
+
+Also override **`cloudEnvProvider`** (from `core_env`) with `CloudEnv.fromEnvironment()` so adapters can read optional URLs and keys.
+
+## Minimal read
+
+```dart
+import 'package:core_cloud/core_cloud.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+void readDb(WidgetRef ref) {
+  final db = ref.read(firebaseDatabaseProvider);
+  // Use CloudDatabase API after override.
+}
+```
+
+## More examples
+
+**Storage upload** (after `firebaseStorageProvider` is overridden):
+
+```dart
+import 'dart:typed_data';
+
+import 'package:core_cloud/core_cloud.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+Future<String?> saveAvatar(WidgetRef ref, List<int> bytes) async {
+  final storage = ref.read(firebaseStorageProvider);
+  final result = await storage.upload(
+    CloudUploadConfig(
+      path: 'users/me/avatar.jpg',
+      bytes: Uint8List.fromList(bytes),
+      mimeType: 'image/jpeg',
+    ),
+  );
+  return switch (result) {
+    CloudSuccess(:final data) => data.url,
+    CloudError(:final message) => throw StateError(message),
+  };
+}
+```
+
+## Mixins
+
+`core_cloud` does **not** ship UI or Riverpod mixins. Repositories often wrap provider reads:
+
+```dart
+import 'package:core_cloud/core_cloud.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+mixin CloudDatabaseMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
+  CloudDatabase get cloudDb => ref.read(firebaseDatabaseProvider);
+}
+```
+
+Then call `cloudDb.collection<MyModel>(...)` with your `fromJson` / `toJson` from a method on the state class. Keep collection names and query shapes in repositories, not widgets.
+
+Many apps import **`package:core_di/core_di.dart`** instead, which re-exports `core_cloud`.
+
+## preppy_app today
+
+`apps/preppy_app/lib/bootstrap/bootstrap.dart` overrides env and HTTP auth but **does not** yet override `core_cloud` providers. Add overrides when you wire a backend.
+
+## Use in a new app or package
+
+1. Add `core_cloud` (or depend only on **`core_di`** if you only need types/providers from the barrel).
+
+2. Initialize vendor SDKs (`Firebase.initializeApp`, `Supabase.initialize`, …) **before** `runApp`.
+
+3. Add `ProviderScope` overrides for each provider your features will `read`/`watch`.
+
+4. Put optional keys in your define JSON for `CloudEnv` (`SUPABASE_URL`, `SUPABASE_ANON_KEY`, …).
+
+---
+
+**See also:** [`core_env`](/packages/core-env/) · [`core_di`](/packages/core-di/) · [Bootstrap](/app/bootstrap/) · [Package overview](/packages/)
