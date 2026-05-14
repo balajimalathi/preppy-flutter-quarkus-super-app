@@ -1,5 +1,5 @@
 name: core_cloud
-description: Backend-agnostic cloud contracts with Firebase, Supabase, and Neon adapters.
+description: Backend-agnostic cloud contracts with Firebase, Supabase, Neon, and S3-compatible storage adapters.
 version: 0.1.0
 publish_to: 'none'
 
@@ -10,10 +10,14 @@ environment:
 resolution: workspace
 
 dependencies:
-  cloud_firestore: ^5.6.0
-  firebase_storage: ^12.4.0
   flutter:
     sdk: flutter
+  aws_common: ">=0.7.12 <0.8.0"
+  aws_signature_v4: ^0.6.10
+  cloud_firestore: ^5.6.0
+  core_env:
+    path: ../env
+  firebase_storage: ^12.4.0
   meta: ^1.16.0
   postgres: ^3.5.0
   riverpod: ^3.2.1

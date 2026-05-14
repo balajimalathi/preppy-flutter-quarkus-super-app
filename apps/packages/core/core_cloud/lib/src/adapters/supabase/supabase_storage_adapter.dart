@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../base/base_cloud_storage.dart';
+import '../../models/cloud_download_url_request.dart';
 import '../../models/cloud_result.dart';
 import '../../models/cloud_upload.dart';
 
@@ -40,12 +41,23 @@ final class SupabaseStorageAdapter extends BaseCloudStorage {
   }
 
   @override
-  Future<CloudResult<String>> getDownloadUrl(String path) async {
+  Future<CloudResult<String>> getDownloadUrl(
+    String path, {
+    CloudDownloadUrlRequest request = const CloudDownloadUrlRequest(),
+  }) async {
     try {
-      final url = await _client.storage
-          .from(bucket)
-          .createSignedUrl(path, 3600);
-      return CloudSuccess(url);
+      final from = _client.storage.from(bucket);
+      switch (request.kind) {
+        case CloudUrlKind.legacy:
+        case CloudUrlKind.signed:
+          final seconds = request.kind == CloudUrlKind.legacy
+              ? 3600
+              : request.expiresIn.inSeconds.clamp(1, 31536000);
+          final url = await from.createSignedUrl(path, seconds);
+          return CloudSuccess(url);
+        case CloudUrlKind.public:
+          return CloudSuccess(from.getPublicUrl(path));
+      }
     } catch (e) {
       return mapStorageException(e);
     }

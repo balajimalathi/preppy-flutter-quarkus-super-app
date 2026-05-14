@@ -1,3 +1,4 @@
+import '../models/cloud_download_url_request.dart';
 import '../models/cloud_result.dart';
 import '../models/cloud_upload.dart';
 
@@ -5,7 +6,12 @@ import '../models/cloud_upload.dart';
 abstract interface class CloudStorage {
   Future<CloudResult<CloudUploadResult>> upload(CloudUploadConfig config);
 
-  Future<CloudResult<String>> getDownloadUrl(String path);
+  /// Resolves a URL for [path]. Use [request] to request public vs signed URLs
+  /// where the backend supports it; default preserves each adapter’s legacy behavior.
+  Future<CloudResult<String>> getDownloadUrl(
+    String path, {
+    CloudDownloadUrlRequest request = const CloudDownloadUrlRequest(),
+  });
 
   Future<CloudResult<CloudUnit>> deleteFile(String path);
 

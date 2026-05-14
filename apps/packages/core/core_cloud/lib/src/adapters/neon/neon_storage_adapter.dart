@@ -1,4 +1,5 @@
 import '../../base/base_cloud_storage.dart';
+import '../../models/cloud_download_url_request.dart';
 import '../../models/cloud_result.dart';
 import '../../models/cloud_upload.dart';
 
@@ -10,15 +11,19 @@ final class NeonStorageAdapter extends BaseCloudStorage {
   ) async {
     return CloudError<CloudUploadResult>(
       message:
-          'NeonStorageAdapter.upload is not implemented — use S3/R2 or Supabase Storage.',
+          'NeonStorageAdapter.upload is not implemented — use S3CompatibleStorageAdapter or Supabase Storage.',
       code: CloudErrorCode.unsupported,
     );
   }
 
   @override
-  Future<CloudResult<String>> getDownloadUrl(String path) async {
+  Future<CloudResult<String>> getDownloadUrl(
+    String path, {
+    CloudDownloadUrlRequest request = const CloudDownloadUrlRequest(),
+  }) async {
     return CloudError<String>(
-      message: 'NeonStorageAdapter.getDownloadUrl is not implemented.',
+      message:
+          'NeonStorageAdapter.getDownloadUrl is not implemented for path: $path.',
       code: CloudErrorCode.unsupported,
     );
   }

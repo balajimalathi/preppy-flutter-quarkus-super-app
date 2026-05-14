@@ -1,6 +1,7 @@
 import 'package:firebase_storage/firebase_storage.dart';
 
 import '../../base/base_cloud_storage.dart';
+import '../../models/cloud_download_url_request.dart';
 import '../../models/cloud_result.dart';
 import '../../models/cloud_upload.dart';
 
@@ -50,8 +51,13 @@ final class FirebaseStorageAdapter extends BaseCloudStorage {
   }
 
   @override
-  Future<CloudResult<String>> getDownloadUrl(String path) async {
+  Future<CloudResult<String>> getDownloadUrl(
+    String path, {
+    CloudDownloadUrlRequest request = const CloudDownloadUrlRequest(),
+  }) async {
     try {
+      // Firebase returns a tokenized URL. [CloudUrlKind.public] / [signed] /
+      // [legacy] all use the same API; actual public access depends on rules.
       final url = await _storage.ref(path).getDownloadURL();
       return CloudSuccess(url);
     } catch (e) {
