@@ -1,13 +1,17 @@
-const { GoogleAuth } = require('google-auth-library');
-const path = require('path');
-const keyFilePath = path.join(__dirname, 'service-account.json');
-const auth = new GoogleAuth({
-    keyFile: keyFilePath,
-    scopes: 'https://www.googleapis.com/auth/firebase.messaging',
+/**
+ * @deprecated Use `npm run mint-id-token` — mints a Firebase ID token for API Bearer auth.
+ * This file remains as a thin wrapper for older Bruno/docs references.
+ */
+import { spawnSync } from 'node:child_process';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const scriptDir = dirname(fileURLToPath(import.meta.url));
+const mintScript = join(scriptDir, 'mint-firebase-id-token.mjs');
+
+const result = spawnSync(process.execPath, [mintScript], {
+    stdio: 'inherit',
+    env: process.env,
 });
-async function getAccessToken() {
-    const client = await auth.getClient();
-    const accessToken = await client.getAccessToken();
-    console.log('Access Token:', accessToken);
-}
-getAccessToken().catch(console.error);
+
+process.exit(result.status ?? 1);
