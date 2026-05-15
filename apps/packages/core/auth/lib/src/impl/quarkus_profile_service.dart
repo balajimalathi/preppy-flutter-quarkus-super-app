@@ -9,20 +9,15 @@ final class QuarkusProfileService implements ProfileContract {
 
   final Dio _dio;
 
-  static const _path = '/v1/auth/profile';
+  static const _path = '/users/me';
 
   @override
-  Future<AppProfile> syncProfile() async {
-    try {
-      final response = await _dio.post<dynamic>(_path);
-      return _parse(response.data);
-    } on DioException catch (e) {
-      throw ProfileSyncException(e.message ?? 'Profile sync failed', cause: e);
-    }
-  }
+  Future<AppProfile> syncProfile() => _fetch();
 
   @override
-  Future<AppProfile> fetchProfile() async {
+  Future<AppProfile> fetchProfile() => _fetch();
+
+  Future<AppProfile> _fetch() async {
     try {
       final response = await _dio.get<dynamic>(_path);
       return _parse(response.data);

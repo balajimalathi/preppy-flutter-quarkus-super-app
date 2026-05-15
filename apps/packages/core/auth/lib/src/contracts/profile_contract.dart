@@ -2,9 +2,9 @@ import '../models/app_profile.dart';
 
 /// Backend profile — uses shared [Dio] + [authTokenProvider] for Bearer injection.
 abstract interface class ProfileContract {
-  /// POST `/v1/auth/profile` — create or load profile for the current Firebase user.
+  /// `GET /users/me` — load or create profile for the current Firebase user (sign-in).
   Future<AppProfile> syncProfile();
 
-  /// GET `/v1/auth/profile` — refresh profile for boot / background sync.
+  /// `GET /users/me` — refresh profile for boot / background sync.
   Future<AppProfile> fetchProfile();
 }
