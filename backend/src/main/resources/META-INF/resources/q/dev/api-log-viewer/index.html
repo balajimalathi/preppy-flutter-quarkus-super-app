@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Preppy API Log Viewer</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a2332;
+      --border: #2d3a4d;
+      --text: #e6edf3;
+      --muted: #8b9cb3;
+      --accent: #3b82f6;
+      --ok: #22c55e;
+      --warn: #eab308;
+      --err: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+    }
+
+    header h1 {
+      margin: 0 0 0.25rem;
+      font-size: 1.25rem;
+    }
+
+    header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+    }
+
+    input,
+    select,
+    button {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.875rem;
+    }
+
+    button {
+      cursor: pointer;
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    button.secondary {
+      background: transparent;
+      border-color: var(--border);
+    }
+
+    .stats {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      padding: 0 1.25rem 0.75rem;
+    }
+
+    .stat {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr minmax(280px, 38%);
+      min-height: calc(100vh - 180px);
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 500;
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+    }
+
+    tr {
+      cursor: pointer;
+    }
+
+    tr:hover {
+      background: rgba(59, 130, 246, 0.08);
+    }
+
+    tr.selected {
+      background: rgba(59, 130, 246, 0.15);
+    }
+
+    .status {
+      font-weight: 600;
+    }
+
+    .status.s2xx {
+      color: var(--ok);
+    }
+
+    .status.s4xx {
+      color: var(--warn);
+    }
+
+    .status.s5xx {
+      color: var(--err);
+    }
+
+    .table-wrap {
+      overflow: auto;
+      max-height: calc(100vh - 180px);
+    }
+
+    .detail {
+      border-left: 1px solid var(--border);
+      padding: 1rem;
+      overflow: auto;
+      max-height: calc(100vh - 180px);
+      background: var(--panel);
+    }
+
+    .detail h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1rem;
+    }
+
+    .detail h3 {
+      margin: 1rem 0 0.35rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    pre {
+      margin: 0;
+      padding: 0.75rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: auto;
+      font-size: 0.75rem;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .empty {
+      color: var(--muted);
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .live {
+      color: var(--ok);
+      font-size: 0.75rem;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>API Log Viewer</h1>
+    <p>Reads <code>backend/.log</code> · <span class="live" id="liveLabel">loading</span></p>
+  </header>
+  <div class="toolbar">
+    <select id="methodFilter">
+      <option value="">All methods</option>
+      <option>GET</option>
+      <option>POST</option>
+      <option>PUT</option>
+      <option>PATCH</option>
+      <option>DELETE</option>
+    </select>
+    <input id="pathFilter" placeholder="Path contains…" />
+    <input id="statusFilter" placeholder="Status" type="number" min="100" max="599" style="width:5rem" />
+    <input id="qFilter" placeholder="Search body/path…" style="min-width:12rem" />
+    <button type="button" id="applyBtn">Apply</button>
+    <button type="button" class="secondary" id="pauseBtn">Pause</button>
+    <button type="button" class="secondary" id="clearBtn">Clear selection</button>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="layout">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Method</th>
+            <th>Path</th>
+            <th>Status</th>
+            <th>ms</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <p class="empty" id="emptyMsg" hidden>No API traffic in .log yet. Call an endpoint from the app (e.g. GET /status)
+        while quarkus:dev is running.</p>
+    </div>
+    <aside class="detail" id="detail">
+      <p class="empty">Select a row to inspect request and response.</p>
+    </aside>
+  </div>
+  <script>
+    const LOG_URL = '/q/dev/access.log';
+    const POLL_MS = 3000;
+    const SKIP_PATH_PREFIXES = [
+      '/q/dev/api-log-viewer',
+      '/q/dev/access.log',
+      '/q/dev/api-logs',
+    ];
+
+    let paused = false;
+    let selectedId = null;
+    let allEntries = [];
+
+    const rowsEl = document.getElementById('rows');
+    const detailEl = document.getElementById('detail');
+    const statsEl = document.getElementById('stats');
+    const emptyMsg = document.getElementById('emptyMsg');
+    const liveLabel = document.getElementById('liveLabel');
+
+    function shouldSkipPath(path) {
+      if (!path) return true;
+      return SKIP_PATH_PREFIXES.some(p => path === p || path.startsWith(p + '/'));
+    }
+
+    function parseLogLine(line) {
+      const idx = line.indexOf('{"phase"');
+      if (idx < 0) return null;
+      try {
+        return JSON.parse(line.slice(idx));
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function parseTimestamp(line) {
+      const m = line.match(/^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}),(\d{3})/);
+      if (!m) return Date.now();
+      const iso = m[1].replace(' ', 'T') + '.' + m[2] + 'Z';
+      const d = new Date(iso);
+      return Number.isNaN(d.getTime()) ? Date.now() : d.getTime();
+    }
+
+    function entryKey(event, lineIndex) {
+      if (event.requestId) {
+        return event.requestId;
+      }
+      return `orphan-${lineIndex}-${event.phase}-${event.method}-${event.path}`;
+    }
+
+    function mergeLogEvents(lines) {
+      const byId = new Map();
+      lines.forEach((line, lineIndex) => {
+        const event = parseLogLine(line);
+        if (!event || shouldSkipPath(event.path)) return;
+
+        const ts = parseTimestamp(line);
+        const key = entryKey(event, lineIndex);
+        let entry = byId.get(key);
+        if (!entry) {
+          entry = {
+            id: key,
+            timestamp: ts,
+            method: event.method,
+            path: event.path,
+            query: event.query || null,
+            requestHeaders: {},
+            requestBody: null,
+            status: 0,
+            durationMs: -1,
+            responseBody: null,
+            errorMessage: null,
+          };
+          byId.set(key, entry);
+        }
+
+        if (event.phase === 'request') {
+          entry.timestamp = ts;
+          entry.method = event.method;
+          entry.path = event.path;
+          entry.query = event.query || null;
+          entry.requestHeaders = event.requestHeaders || {};
+          entry.requestBody = event.requestBody ?? null;
+        } else if (event.phase === 'response') {
+          entry.status = event.status ?? entry.status;
+          entry.durationMs = event.durationMs ?? entry.durationMs;
+          entry.responseBody = event.responseBody ?? null;
+          entry.errorMessage = event.errorMessage ?? null;
+          if (event.requestHeaders) entry.requestHeaders = event.requestHeaders;
+          if (event.requestBody != null) entry.requestBody = event.requestBody;
+        }
+      });
+
+      return [...byId.values()]
+        .filter(e => e.status > 0 || e.responseBody != null || e.errorMessage != null)
+        .sort((a, b) => b.timestamp - a.timestamp);
+    }
+
+    function getFilters() {
+      return {
+        method: document.getElementById('methodFilter').value,
+        path: document.getElementById('pathFilter').value.trim().toLowerCase(),
+        status: document.getElementById('statusFilter').value,
+        q: document.getElementById('qFilter').value.trim().toLowerCase(),
+      };
+    }
+
+    function applyFilters(entries) {
+      const f = getFilters();
+      return entries.filter(e => {
+        if (f.method && e.method !== f.method) return false;
+        if (f.path && !e.path.toLowerCase().includes(f.path)) return false;
+        if (f.status && String(e.status) !== f.status) return false;
+        if (f.q) {
+          const hay = [e.path, e.query, e.requestBody, e.responseBody, e.errorMessage]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase();
+          if (!hay.includes(f.q)) return false;
+        }
+        return true;
+      });
+    }
+
+    function renderStats(entries) {
+      const counts = {};
+      for (const e of entries) {
+        const k = String(e.status);
+        counts[k] = (counts[k] || 0) + 1;
+      }
+      statsEl.innerHTML = Object.entries(counts)
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([k, v]) => `<span class="stat">${k}: ${v}</span>`)
+        .join('');
+    }
+
+    function statusClass(s) {
+      if (s >= 500) return 's5xx';
+      if (s >= 400) return 's4xx';
+      return 's2xx';
+    }
+
+    function fmtTime(ts) {
+      return new Date(ts).toLocaleTimeString();
+    }
+
+    function renderTable(entries) {
+      rowsEl.innerHTML = '';
+      if (!entries.length) {
+        emptyMsg.hidden = false;
+        return;
+      }
+      emptyMsg.hidden = true;
+      for (const e of entries) {
+        const tr = document.createElement('tr');
+        if (e.id === selectedId) tr.classList.add('selected');
+        tr.innerHTML = `
+          <td>${fmtTime(e.timestamp)}</td>
+          <td>${e.method}</td>
+          <td title="${escapeHtml(e.path)}${e.query ? '?' + escapeHtml(e.query) : ''}">${escapeHtml(e.path)}</td>
+          <td class="status ${statusClass(e.status)}">${e.status}</td>
+          <td>${e.durationMs >= 0 ? e.durationMs : '—'}</td>`;
+        tr.onclick = () => {
+          selectedId = e.id;
+          renderTable(entries);
+          renderDetail(e);
+        };
+        rowsEl.appendChild(tr);
+      }
+    }
+
+    function pretty(json) {
+      if (json == null) return '—';
+      try {
+        return JSON.stringify(JSON.parse(json), null, 2);
+      } catch (_) {
+        return json;
+      }
+    }
+
+    function renderDetail(e) {
+      const err = e.errorMessage
+        ? `<h3>Error</h3><pre>${escapeHtml(e.errorMessage)}</pre>`
+        : '';
+      detailEl.innerHTML = `
+        <h2>${escapeHtml(e.method)} ${escapeHtml(e.path)}</h2>
+        <p style="color:var(--muted);font-size:0.8rem">${escapeHtml(e.id)} · ${e.durationMs} ms · status ${e.status}</p>
+        <h3>Request headers</h3>
+        <pre>${escapeHtml(JSON.stringify(e.requestHeaders || {}, null, 2))}</pre>
+        <h3>Request body</h3>
+        <pre>${escapeHtml(pretty(e.requestBody))}</pre>
+        <h3>Response body</h3>
+        <pre>${escapeHtml(pretty(e.responseBody))}</pre>
+        ${err}`;
+    }
+
+    function escapeHtml(s) {
+      if (s == null) return '';
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    async function refresh() {
+      if (paused) return;
+      try {
+        const r = await fetch(LOG_URL, { cache: 'no-store' });
+        if (!r.ok) {
+          liveLabel.textContent = '.log unavailable (dev profile?)';
+          return;
+        }
+        const text = await r.text();
+        const lines = text.split('\n').filter(l => l.includes('{"phase"'));
+        allEntries = mergeLogEvents(lines);
+        const filtered = applyFilters(allEntries);
+        renderStats(filtered);
+        renderTable(filtered);
+        if (selectedId) {
+          const sel = filtered.find(e => e.id === selectedId) || allEntries.find(e => e.id === selectedId);
+          if (sel) renderDetail(sel);
+        }
+        const parsed = lines.filter(l => l.includes('{"phase"')).length;
+        liveLabel.textContent = filtered.length
+          ? `live · ${filtered.length} shown / ${allEntries.length} total`
+          : parsed
+            ? `live · 0 match filters (${parsed} log lines parsed)`
+            : 'live · waiting for traffic in backend/.log';
+      } catch (e) {
+        liveLabel.textContent = 'error: ' + e.message;
+      }
+    }
+
+    document.getElementById('applyBtn').onclick = refresh;
+    document.getElementById('pauseBtn').onclick = (ev) => {
+      paused = !paused;
+      ev.target.textContent = paused ? 'Resume' : 'Pause';
+      if (!paused) refresh();
+    };
+    document.getElementById('clearBtn').onclick = () => {
+      selectedId = null;
+      detailEl.innerHTML = '<p class="empty">Select a row to inspect request and response.</p>';
+      renderTable(applyFilters(allEntries));
+    };
+
+    setInterval(refresh, POLL_MS);
+    refresh();
+  </script>
+</body>
+
+</html>

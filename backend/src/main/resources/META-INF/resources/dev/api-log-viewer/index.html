@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Preppy API Log Viewer</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a2332;
+      --border: #2d3a4d;
+      --text: #e6edf3;
+      --muted: #8b9cb3;
+      --accent: #3b82f6;
+      --ok: #22c55e;
+      --warn: #eab308;
+      --err: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+    }
+
+    header h1 {
+      margin: 0 0 0.25rem;
+      font-size: 1.25rem;
+    }
+
+    header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+    }
+
+    input,
+    select,
+    button {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.875rem;
+    }
+
+    button {
+      cursor: pointer;
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    button.secondary {
+      background: transparent;
+      border-color: var(--border);
+    }
+
+    .stats {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      padding: 0 1.25rem 0.75rem;
+    }
+
+    .stat {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr minmax(280px, 38%);
+      min-height: calc(100vh - 180px);
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 500;
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+    }
+
+    tr {
+      cursor: pointer;
+    }
+
+    tr:hover {
+      background: rgba(59, 130, 246, 0.08);
+    }
+
+    tr.selected {
+      background: rgba(59, 130, 246, 0.15);
+    }
+
+    .status {
+      font-weight: 600;
+    }
+
+    .status.s2xx {
+      color: var(--ok);
+    }
+
+    .status.s4xx {
+      color: var(--warn);
+    }
+
+    .status.s5xx {
+      color: var(--err);
+    }
+
+    .table-wrap {
+      overflow: auto;
+      max-height: calc(100vh - 180px);
+    }
+
+    .detail {
+      border-left: 1px solid var(--border);
+      padding: 1rem;
+      overflow: auto;
+      max-height: calc(100vh - 180px);
+      background: var(--panel);
+    }
+
+    .detail h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1rem;
+    }
+
+    .detail h3 {
+      margin: 1rem 0 0.35rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    pre {
+      margin: 0;
+      padding: 0.75rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: auto;
+      font-size: 0.75rem;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .empty {
+      color: var(--muted);
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .live {
+      color: var(--ok);
+      font-size: 0.75rem;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>API Log Viewer</h1>
+    <p>Dev-only live request/response capture · <span class="live" id="liveLabel">polling</span></p>
+  </header>
+  <div class="toolbar">
+    <select id="methodFilter">
+      <option value="">All methods</option>
+      <option>GET</option>
+      <option>POST</option>
+      <option>PUT</option>
+      <option>PATCH</option>
+      <option>DELETE</option>
+    </select>
+    <input id="pathFilter" placeholder="Path contains…" />
+    <input id="statusFilter" placeholder="Status" type="number" min="100" max="599" style="width:5rem" />
+    <input id="qFilter" placeholder="Search body/path…" style="min-width:12rem" />
+    <button type="button" id="applyBtn">Apply</button>
+    <button type="button" class="secondary" id="pauseBtn">Pause</button>
+    <button type="button" class="secondary" id="clearBtn">Clear selection</button>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="layout">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Method</th>
+            <th>Path</th>
+            <th>Status</th>
+            <th>ms</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <p class="empty" id="emptyMsg" hidden>No entries match filters.</p>
+    </div>
+    <aside class="detail" id="detail">
+      <p class="empty">Select a row to inspect request and response.</p>
+    </aside>
+  </div>
+  <script>
+    const API = '/q/dev/api-logs';
+    let paused = false;
+    let lastSince = 0;
+    let selectedId = null;
+    let entries = [];
+
+    const rowsEl = document.getElementById('rows');
+    const detailEl = document.getElementById('detail');
+    const statsEl = document.getElementById('stats');
+    const emptyMsg = document.getElementById('emptyMsg');
+
+    function statusClass(s) {
+      if (s >= 500) return 's5xx';
+      if (s >= 400) return 's4xx';
+      return 's2xx';
+    }
+
+    function fmtTime(ts) {
+      return new Date(ts).toLocaleTimeString();
+    }
+
+    function buildQuery() {
+      const p = new URLSearchParams();
+      const method = document.getElementById('methodFilter').value;
+      const path = document.getElementById('pathFilter').value.trim();
+      const status = document.getElementById('statusFilter').value;
+      const q = document.getElementById('qFilter').value.trim();
+      if (method) p.set('method', method);
+      if (path) p.set('path', path);
+      if (status) p.set('status', status);
+      if (q) p.set('q', q);
+      if (lastSince > 0) p.set('since', String(lastSince - 5000));
+      return p.toString() ? '?' + p : '';
+    }
+
+    async function fetchStats() {
+      try {
+        const r = await fetch(API + '/stats');
+        if (!r.ok) return;
+        const data = await r.json();
+        statsEl.innerHTML = Object.entries(data)
+          .sort((a, b) => a[0].localeCompare(b[0]))
+          .map(([k, v]) => `<span class="stat">${k}: ${v}</span>`)
+          .join('');
+      } catch (_) { }
+    }
+
+    async function poll() {
+      if (paused) return;
+      try {
+        const r = await fetch(API + buildQuery());
+        if (!r.ok) {
+          document.getElementById('liveLabel').textContent = 'API unavailable (dev profile?)';
+          return;
+        }
+        const data = await r.json();
+        if (data.length) {
+          const newest = Math.max(...data.map(e => e.timestamp));
+          if (newest > lastSince) lastSince = newest;
+        }
+        mergeEntries(data);
+        renderTable();
+        if (selectedId) {
+          const sel = entries.find(e => e.id === selectedId);
+          if (sel) renderDetail(sel);
+        }
+        document.getElementById('liveLabel').textContent = 'live · ' + entries.length + ' entries';
+        fetchStats();
+      } catch (e) {
+        document.getElementById('liveLabel').textContent = 'error: ' + e.message;
+      }
+    }
+
+    function mergeEntries(incoming) {
+      const byId = new Map(entries.map(e => [e.id, e]));
+      for (const e of incoming) byId.set(e.id, e);
+      entries = [...byId.values()].sort((a, b) => b.timestamp - a.timestamp).slice(0, 500);
+    }
+
+    function renderTable() {
+      rowsEl.innerHTML = '';
+      if (!entries.length) {
+        emptyMsg.hidden = false;
+        return;
+      }
+      emptyMsg.hidden = true;
+      for (const e of entries) {
+        const tr = document.createElement('tr');
+        if (e.id === selectedId) tr.classList.add('selected');
+        tr.innerHTML = `
+          <td>${fmtTime(e.timestamp)}</td>
+          <td>${e.method}</td>
+          <td title="${e.path}${e.query ? '?' + e.query : ''}">${e.path}</td>
+          <td class="status ${statusClass(e.status)}">${e.status}</td>
+          <td>${e.durationMs}</td>`;
+        tr.onclick = () => {
+          selectedId = e.id;
+          renderTable();
+          renderDetail(e);
+        };
+        rowsEl.appendChild(tr);
+      }
+    }
+
+    function pretty(json) {
+      if (json == null) return '—';
+      try {
+        return JSON.stringify(JSON.parse(json), null, 2);
+      } catch (_) {
+        return json;
+      }
+    }
+
+    function renderDetail(e) {
+      const err = e.errorMessage
+        ? `<h3>Error</h3><pre>${escapeHtml(e.errorMessage)}</pre>`
+        : '';
+      detailEl.innerHTML = `
+        <h2>${e.method} ${escapeHtml(e.path)}</h2>
+        <p style="color:var(--muted);font-size:0.8rem">${e.id} · ${e.durationMs} ms · status ${e.status}</p>
+        <h3>Request headers</h3>
+        <pre>${escapeHtml(JSON.stringify(e.requestHeaders || {}, null, 2))}</pre>
+        <h3>Request body</h3>
+        <pre>${escapeHtml(pretty(e.requestBody))}</pre>
+        <h3>Response body</h3>
+        <pre>${escapeHtml(pretty(e.responseBody))}</pre>
+        ${err}`;
+    }
+
+    function escapeHtml(s) {
+      if (s == null) return '';
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    document.getElementById('applyBtn').onclick = () => { lastSince = 0; poll(); };
+    document.getElementById('pauseBtn').onclick = (ev) => {
+      paused = !paused;
+      ev.target.textContent = paused ? 'Resume' : 'Pause';
+    };
+    document.getElementById('clearBtn').onclick = () => {
+      selectedId = null;
+      detailEl.innerHTML = '<p class="empty">Select a row to inspect request and response.</p>';
+      renderTable();
+    };
+
+    setInterval(poll, 2000);
+    poll();
+  </script>
+</body>
+
+</html>
