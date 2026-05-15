@@ -1,0 +1,9 @@
+# Merged into the generated spec by SmallRye OpenAPI (Quarkus default behaviour).
+# Defines the Authorize control in Swagger UI.
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "Firebase ID token (dev: node backend/scripts/mint-firebase-id-token.mjs)"

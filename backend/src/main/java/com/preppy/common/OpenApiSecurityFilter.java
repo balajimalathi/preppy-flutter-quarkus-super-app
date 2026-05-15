@@ -1,19 +1,24 @@
 package com.preppy.common;
 
+import io.quarkus.arc.Unremovable;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.List;
 import java.util.Set;
 import org.eclipse.microprofile.openapi.OASFilter;
 import org.eclipse.microprofile.openapi.OASFactory;
+import org.eclipse.microprofile.openapi.models.Components;
 import org.eclipse.microprofile.openapi.models.OpenAPI;
 import org.eclipse.microprofile.openapi.models.Operation;
 import org.eclipse.microprofile.openapi.models.Paths;
 import org.eclipse.microprofile.openapi.models.security.SecurityRequirement;
+import org.eclipse.microprofile.openapi.models.security.SecurityScheme;
 
 /**
- * Attaches bearer auth to documented operations except public health/metrics paths.
+ * Registers the Bearer security scheme and attaches it to protected operations so Swagger UI
+ * shows the Authorize control.
  */
 @ApplicationScoped
+@Unremovable
 public class OpenApiSecurityFilter implements OASFilter {
 
     private static final String BEARER_AUTH = "bearerAuth";
@@ -22,13 +27,17 @@ public class OpenApiSecurityFilter implements OASFilter {
 
     @Override
     public void filterOpenAPI(final OpenAPI openAPI) {
+        final SecurityRequirement bearer =
+                OASFactory.createSecurityRequirement().addScheme(BEARER_AUTH);
+        final List<SecurityRequirement> security = List.of(bearer);
+
+        registerBearerScheme(openAPI);
+        openAPI.setSecurity(security);
+
         final Paths paths = openAPI.getPaths();
         if (paths == null) {
             return;
         }
-        final SecurityRequirement bearer =
-                OASFactory.createSecurityRequirement().addScheme(BEARER_AUTH);
-        final List<SecurityRequirement> security = List.of(bearer);
 
         paths.getPathItems().forEach((path, pathItem) -> {
             if (isPublicPath(path)) {
@@ -43,6 +52,25 @@ public class OpenApiSecurityFilter implements OASFilter {
             applySecurity(pathItem.getOPTIONS(), security);
             applySecurity(pathItem.getTRACE(), security);
         });
+    }
+
+    private static void registerBearerScheme(final OpenAPI openAPI) {
+        Components components = openAPI.getComponents();
+        if (components == null) {
+            components = OASFactory.createComponents();
+            openAPI.setComponents(components);
+        }
+        if (components.getSecuritySchemes() != null
+                && components.getSecuritySchemes().containsKey(BEARER_AUTH)) {
+            return;
+        }
+        final SecurityScheme scheme = OASFactory.createSecurityScheme();
+        scheme.setType(SecurityScheme.Type.HTTP);
+        scheme.setScheme("bearer");
+        scheme.setBearerFormat("JWT");
+        scheme.setDescription(
+                "Firebase ID token. Dev: run `node backend/scripts/mint-firebase-id-token.mjs`");
+        components.addSecurityScheme(BEARER_AUTH, scheme);
     }
 
     private static void applySecurity(final Operation operation, final List<SecurityRequirement> security) {

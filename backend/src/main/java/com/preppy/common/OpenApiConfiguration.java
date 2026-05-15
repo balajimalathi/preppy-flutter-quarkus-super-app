@@ -1,11 +1,13 @@
 package com.preppy.common;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
 import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
 import org.eclipse.microprofile.openapi.annotations.info.Info;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 
+@ApplicationScoped
 @OpenAPIDefinition(
         info = @Info(title = "Preppy API", version = "1.0.0-SNAPSHOT"),
         security = @SecurityRequirement(name = "bearerAuth"))

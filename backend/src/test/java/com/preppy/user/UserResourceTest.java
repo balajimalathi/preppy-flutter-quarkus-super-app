@@ -1,4 +1,4 @@
-package com.preppy.auth;
+package com.preppy.user;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.preppy.auth.firebase.FirebaseAuthService;
-import com.preppy.user.UserRepository;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
@@ -20,7 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 @QuarkusTest
-class AuthProfileResourceTest {
+class UserResourceTest {
 
     @InjectMock
     FirebaseAuthService firebaseAuthService;
@@ -42,50 +41,39 @@ class AuthProfileResourceTest {
     }
 
     @Test
-    void healthIsPublic() {
-        given().when()
-                .get("/health")
-                .then()
-                .statusCode(200)
-                .body("status", equalTo("UP"));
+    void meRequiresBearerToken() {
+        given().when().get("/users/me").then().statusCode(401);
     }
 
     @Test
-    void profileRequiresBearerToken() {
-        given().when()
-                .get("/v1/auth/profile")
-                .then()
-                .statusCode(401)
-                .body("message", equalTo("Missing or invalid Bearer token"));
-    }
-
-    @Test
-    void syncProfileCreatesUser() {
+    void meCreatesUserOnFirstRequest() {
         given().header("Authorization", "Bearer test-token")
                 .when()
-                .post("/v1/auth/profile")
+                .get("/users/me")
                 .then()
                 .statusCode(200)
                 .contentType(ContentType.JSON)
                 .body("profileId", notNullValue())
                 .body("email", equalTo("test@example.com"))
-                .body("fullName", equalTo("Test User"))
-                .body("avatarUrl", equalTo("https://example.com/avatar.png"))
-                .body("metadata", notNullValue());
+                .body("fullName", equalTo("Test User"));
     }
 
     @Test
-    void getProfileAfterSync() {
-        given().header("Authorization", "Bearer test-token")
-                .post("/v1/auth/profile")
+    void meReturnsExistingUserOnSecondRequest() {
+        final String profileId = given().header("Authorization", "Bearer test-token")
+                .when()
+                .get("/users/me")
                 .then()
-                .statusCode(200);
+                .statusCode(200)
+                .extract()
+                .path("profileId");
 
         given().header("Authorization", "Bearer test-token")
                 .when()
-                .get("/v1/auth/profile")
+                .get("/users/me")
                 .then()
                 .statusCode(200)
+                .body("profileId", equalTo(profileId))
                 .body("email", equalTo("test@example.com"));
     }
 }

@@ -1,6 +1,7 @@
 package com.preppy.user;
 
 import com.preppy.auth.CurrentUser;
+import com.preppy.auth.UserPrincipal;
 import com.preppy.auth.dto.ProfileResponse;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -24,6 +25,8 @@ public class UserResource {
     @GET
     @Path("/me")
     public ProfileResponse me() {
-        return userService.getByUserId(currentUser.requireUserId());
+        final UserPrincipal principal = currentUser.requirePrincipal();
+        return userService.getOrSyncProfile(
+                principal.origin(), principal.externalUid(), currentUser.requireFirebaseToken());
     }
 }

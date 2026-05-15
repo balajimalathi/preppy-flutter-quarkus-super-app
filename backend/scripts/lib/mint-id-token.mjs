@@ -13,12 +13,14 @@ const IDENTITY_TOOLKIT_URL =
  * @param {string} options.serviceAccountPath - Path to Firebase service account JSON
  * @param {string} options.webApiKey - Firebase Web API key (from client config)
  * @param {string} [options.uid] - Firebase Auth UID for the test user
+ * @param {string} [options.email] - Resolve or create user by email (sets email claim on ID token)
  * @returns {Promise<{ idToken: string, expiresIn: string, uid: string }>}
  */
 export async function mintFirebaseIdToken({
     serviceAccountPath,
     webApiKey,
     uid = 'dev-swagger-test',
+    email,
 }) {
     if (!webApiKey?.trim()) {
         throw new Error(
@@ -46,7 +48,27 @@ export async function mintFirebaseIdToken({
     );
 
     try {
-        const customToken = await admin.auth(app).createCustomToken(uid);
+        const auth = admin.auth(app);
+        let resolvedUid = uid;
+        if (email?.trim()) {
+            const normalizedEmail = email.trim();
+            try {
+                const existing = await auth.getUserByEmail(normalizedEmail);
+                resolvedUid = existing.uid;
+            } catch (err) {
+                if (err.code !== 'auth/user-not-found') {
+                    throw err;
+                }
+                const created = await auth.createUser({
+                    uid: uid === 'dev-swagger-test' ? undefined : uid,
+                    email: normalizedEmail,
+                    emailVerified: true,
+                });
+                resolvedUid = created.uid;
+            }
+        }
+
+        const customToken = await auth.createCustomToken(resolvedUid);
         const response = await fetch(
             `${IDENTITY_TOOLKIT_URL}?key=${encodeURIComponent(webApiKey.trim())}`,
             {
@@ -77,10 +99,10 @@ export async function mintFirebaseIdToken({
         return {
             idToken: body.idToken,
             expiresIn: body.expiresIn ?? '3600',
-            uid,
+            uid: resolvedUid,
         };
     } finally {
-        await app.delete().catch(() => {});
+        await app.delete().catch(() => { });
     }
 }
 

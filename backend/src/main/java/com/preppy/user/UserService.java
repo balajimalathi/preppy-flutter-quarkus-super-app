@@ -54,19 +54,12 @@ public class UserService {
         return ProfileMapper.toResponse(user);
     }
 
-    public ProfileResponse getByOriginAndExternalUid(
-            final AuthOrigin origin, final String externalUid) {
+    @Transactional
+    public ProfileResponse getOrSyncProfile(
+            final AuthOrigin origin, final String externalUid, final FirebaseToken token) {
         return userRepository
                 .findByOriginAndExternalUid(origin, externalUid)
                 .map(ProfileMapper::toResponse)
-                .orElseThrow(() ->
-                        AppException.notFound("Profile not found for authenticated user"));
-    }
-
-    public ProfileResponse getByUserId(final java.util.UUID userId) {
-        return userRepository
-                .findByIdOptional(userId)
-                .map(ProfileMapper::toResponse)
-                .orElseThrow(() -> AppException.notFound("User not found with id " + userId));
+                .orElseGet(() -> syncFromFirebaseToken(token));
     }
 }

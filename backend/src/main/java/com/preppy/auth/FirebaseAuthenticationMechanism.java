@@ -50,7 +50,10 @@ public class FirebaseAuthenticationMechanism implements HttpAuthenticationMechan
                     try {
                         return buildIdentity(verifyToken(token));
                     } catch (final FirebaseAuthException e) {
-                        LOG.debugf("Firebase token verification failed: %s", e.getMessage());
+                        LOG.warnf(
+                                "Firebase token verification failed: %s (ensure FIREBASE_PROJECT_ID matches"
+                                        + " the token project and service-account.json project_id)",
+                                e.getMessage());
                         throw new AuthenticationFailedException("Missing or invalid Bearer token", e);
                     }
                 });
@@ -69,8 +72,6 @@ public class FirebaseAuthenticationMechanism implements HttpAuthenticationMechan
         return QuarkusSecurityIdentity.builder()
                 .setPrincipal(principal)
                 .addRoles(Set.of("user"))
-                .addAttribute(SecurityAttributes.AUTH_ORIGIN, AuthOrigin.FIREBASE)
-                .addAttribute(SecurityAttributes.EXTERNAL_UID, firebaseToken.getUid())
                 .addAttribute(SecurityAttributes.FIREBASE_TOKEN, firebaseToken)
                 .build();
     }

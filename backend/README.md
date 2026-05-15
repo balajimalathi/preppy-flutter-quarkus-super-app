@@ -8,12 +8,14 @@ If you want to learn more about Quarkus, please visit its website: <https://quar
 
 The backend verifies Firebase ID tokens via the Firebase Admin SDK. For local dev, copy `src/main/resources/firebase/service-account.json.example` to `service-account.json` (gitignored) or set `FIREBASE_SERVICE_ACCOUNT_PATH`.
 
-For real token verification, set:
+For production or non-dev profiles, set when needed:
 
 ```shell
 export FIREBASE_SERVICE_ACCOUNT_PATH=/path/to/your/service-account.json
-export FIREBASE_PROJECT_ID=your-firebase-project-id
+export FIREBASE_PROJECT_ID=your-firebase-project-id   # optional if service account JSON has project_id
 ```
+
+Dev profile (`quarkus:dev`) sets `firebase.project-id=hlp-chat` in `application-dev.properties`.
 
 Do not commit production service account JSON files to git. For local overrides, use `backend/firebase-service-account.json` (gitignored) and set `FIREBASE_SERVICE_ACCOUNT_PATH` to that path.
 
@@ -26,27 +28,35 @@ Swagger UI is at <http://localhost:8080/q/swagger-ui>. Protected routes require 
 ### 1. Start the backend
 
 ```shell
-export FIREBASE_PROJECT_ID=hlp-chat   # must match your service account project_id
 ./mvnw quarkus:dev
 ```
 
+Uses `firebase.project-id=hlp-chat` from `application-dev.properties` (must match your service account `project_id`).
+
 ### 2. Mint an ID token
+
+The mint script signs in via a **custom token** (Admin SDK), not email/password. It impersonates a Firebase Auth **UID**; set `FIREBASE_TEST_EMAIL` or `FIREBASE_TEST_UID` to a user that has an **email** in Firebase (required for `GET /users/me` to provision a profile).
 
 From `backend/scripts` (uses `src/main/resources/firebase/service-account.json` by default):
 
 ```shell
 cd backend/scripts
 npm install
-export FIREBASE_WEB_API_KEY=...   # Web API key from apps/preppy_app/lib/firebase/dev/firebase_options.dart
+# FIREBASE_WEB_API_KEY defaults to the hlp-chat dev Android key from firebase_options.dart
+export FIREBASE_TEST_EMAIL=your-test@example.com   # optional; ensures email claim on the ID token
 npm run mint-id-token
 ```
+
+ID tokens expire after about **1 hour**; re-run the mint script when Swagger returns `401`.
 
 The script prints the JWT to stdout; metadata (`uid`, `expiresIn`) goes to stderr. Optional env vars:
 
 | Variable | Default |
 |----------|---------|
 | `FIREBASE_SERVICE_ACCOUNT_PATH` | `../src/main/resources/firebase/service-account.json` |
+| `FIREBASE_WEB_API_KEY` | hlp-chat dev Android key (see `firebase_options.dart`) |
 | `FIREBASE_TEST_UID` | `dev-swagger-test` |
+| `FIREBASE_TEST_EMAIL` | — (looks up UID by email, or creates user with that email) |
 
 Same flow from Bruno: `cd bruno/auth && npm run mint-id-token` (defaults to `bruno/auth/service-account.json`).
 
@@ -61,9 +71,7 @@ export ID_TOKEN=$(FIREBASE_WEB_API_KEY=... npm run mint-id-token 2>/dev/null)
 1. Open <http://localhost:8080/q/swagger-ui>
 2. Click **Authorize**
 3. Paste the token only (no `Bearer ` prefix)
-4. Call protected endpoints (e.g. `POST /v1/auth/profile` to provision the user, then `GET /v1/auth/profile`)
-
-ID tokens expire after about an hour; re-run the mint script when you get `401`.
+4. Call `GET /users/me` — returns your profile, creating the DB user on first call if needed
 
 ## Running the application in dev mode
 
