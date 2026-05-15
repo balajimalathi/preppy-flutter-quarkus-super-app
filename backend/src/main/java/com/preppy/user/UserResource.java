@@ -1,5 +1,7 @@
 package com.preppy.user;
 
+import com.preppy.auth.CurrentUser;
+import com.preppy.auth.dto.ProfileResponse;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -14,11 +16,14 @@ import jakarta.ws.rs.core.MediaType;
 public class UserResource {
 
     @Inject
+    CurrentUser currentUser;
+
+    @Inject
     UserService userService;
 
     @GET
     @Path("/me")
-    public Object me() {
-        return userService.currentUser();
+    public ProfileResponse me() {
+        return userService.getByUserId(currentUser.requireUserId());
     }
 }

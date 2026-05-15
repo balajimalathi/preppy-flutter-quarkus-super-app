@@ -1,18 +1,72 @@
 package com.preppy.user;
 
+import com.google.firebase.auth.FirebaseToken;
+import com.preppy.auth.ProfileMapper;
+import com.preppy.auth.dto.ProfileResponse;
+import com.preppy.common.AppException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
-/**
- * Business logic for user profile management.
- */
 @ApplicationScoped
 public class UserService {
 
     @Inject
     UserRepository userRepository;
 
-    public Object currentUser() {
-        return null; // TODO: resolve from SecurityContext via UserPrincipal.
+    @Transactional
+    public ProfileResponse syncFromFirebaseToken(final FirebaseToken token) {
+        final String externalUid = token.getUid();
+        final String email = token.getEmail();
+        if (email == null || email.isBlank()) {
+            throw AppException.badRequest("Firebase token does not contain an email claim");
+        }
+
+        final String displayName = token.getName();
+        final String picture = (String) token.getClaims().get("picture");
+
+        User user = userRepository
+                .findByOriginAndExternalUid(AuthOrigin.FIREBASE, externalUid)
+                .orElse(null);
+        final boolean isNew = user == null;
+        if (isNew) {
+            user = new User();
+            user.setOrigin(AuthOrigin.FIREBASE.value());
+            user.setExternalUid(externalUid);
+        }
+
+        user.setEmail(email);
+        if (displayName != null && !displayName.isBlank()) {
+            user.setDisplayName(displayName);
+        }
+        if (picture != null && !picture.isBlank()) {
+            user.setAvatarUrl(picture);
+        }
+
+        if (isNew) {
+            userRepository.persist(user);
+            userRepository.getEntityManager().flush();
+            user.setCreatedBy(user.getId());
+        }
+        user.setUpdatedBy(user.getId());
+
+        userRepository.getEntityManager().flush();
+        return ProfileMapper.toResponse(user);
+    }
+
+    public ProfileResponse getByOriginAndExternalUid(
+            final AuthOrigin origin, final String externalUid) {
+        return userRepository
+                .findByOriginAndExternalUid(origin, externalUid)
+                .map(ProfileMapper::toResponse)
+                .orElseThrow(() ->
+                        AppException.notFound("Profile not found for authenticated user"));
+    }
+
+    public ProfileResponse getByUserId(final java.util.UUID userId) {
+        return userRepository
+                .findByIdOptional(userId)
+                .map(ProfileMapper::toResponse)
+                .orElseThrow(() -> AppException.notFound("User not found with id " + userId));
     }
 }

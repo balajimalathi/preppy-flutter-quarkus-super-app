@@ -4,6 +4,21 @@ This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
 If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
 
+## Firebase authentication
+
+The backend verifies Firebase ID tokens via the Firebase Admin SDK. By default, dev mode uses a placeholder service account at `src/main/resources/firebase/service-account.json`.
+
+For real token verification, set:
+
+```shell
+export FIREBASE_SERVICE_ACCOUNT_PATH=/path/to/your/service-account.json
+export FIREBASE_PROJECT_ID=your-firebase-project-id
+```
+
+Do not commit production service account JSON files to git.
+
+Public (unauthenticated) routes are configured in `application.properties` via `preppy.security.public-paths`.
+
 ## Running the application in dev mode
 
 You can run your application in dev mode that enables live coding using:
