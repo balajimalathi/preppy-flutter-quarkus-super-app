@@ -42,6 +42,9 @@ ios/Runner.xcodeproj/xcuserdata
 .env.local
 infra/.env
 backend/firebase-service-account.json
+backend/src/main/resources/firebase/service-account.json
+backend/scripts/node_modules/
+bruno/auth/node_modules/
 
 # Coverage
 coverage/

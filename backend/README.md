@@ -6,7 +6,7 @@ If you want to learn more about Quarkus, please visit its website: <https://quar
 
 ## Firebase authentication
 
-The backend verifies Firebase ID tokens via the Firebase Admin SDK. By default, dev mode uses a placeholder service account at `src/main/resources/firebase/service-account.json`.
+The backend verifies Firebase ID tokens via the Firebase Admin SDK. For local dev, copy `src/main/resources/firebase/service-account.json.example` to `service-account.json` (gitignored) or set `FIREBASE_SERVICE_ACCOUNT_PATH`.
 
 For real token verification, set:
 
@@ -15,9 +15,55 @@ export FIREBASE_SERVICE_ACCOUNT_PATH=/path/to/your/service-account.json
 export FIREBASE_PROJECT_ID=your-firebase-project-id
 ```
 
-Do not commit production service account JSON files to git.
+Do not commit production service account JSON files to git. For local overrides, use `backend/firebase-service-account.json` (gitignored) and set `FIREBASE_SERVICE_ACCOUNT_PATH` to that path.
 
-Public (unauthenticated) routes are configured in `application.properties` via `preppy.security.public-paths`.
+Public (unauthenticated) routes are configured in `application.properties` via `quarkus.http.auth.permission.public.paths` (e.g. `/q/*`, `/health`, `/metrics`).
+
+## Test APIs in Swagger UI (dev)
+
+Swagger UI is at <http://localhost:8080/q/swagger-ui>. Protected routes require a **Firebase ID token** (not a Google OAuth access token).
+
+### 1. Start the backend
+
+```shell
+export FIREBASE_PROJECT_ID=hlp-chat   # must match your service account project_id
+./mvnw quarkus:dev
+```
+
+### 2. Mint an ID token
+
+From `backend/scripts` (uses `src/main/resources/firebase/service-account.json` by default):
+
+```shell
+cd backend/scripts
+npm install
+export FIREBASE_WEB_API_KEY=...   # Web API key from apps/preppy_app/lib/firebase/dev/firebase_options.dart
+npm run mint-id-token
+```
+
+The script prints the JWT to stdout; metadata (`uid`, `expiresIn`) goes to stderr. Optional env vars:
+
+| Variable | Default |
+|----------|---------|
+| `FIREBASE_SERVICE_ACCOUNT_PATH` | `../src/main/resources/firebase/service-account.json` |
+| `FIREBASE_TEST_UID` | `dev-swagger-test` |
+
+Same flow from Bruno: `cd bruno/auth && npm run mint-id-token` (defaults to `bruno/auth/service-account.json`).
+
+Pipe into a shell variable:
+
+```shell
+export ID_TOKEN=$(FIREBASE_WEB_API_KEY=... npm run mint-id-token 2>/dev/null)
+```
+
+### 3. Authorize in Swagger UI
+
+1. Open <http://localhost:8080/q/swagger-ui>
+2. Click **Authorize**
+3. Paste the token only (no `Bearer ` prefix)
+4. Call protected endpoints (e.g. `POST /v1/auth/profile` to provision the user, then `GET /v1/auth/profile`)
+
+ID tokens expire after about an hour; re-run the mint script when you get `401`.
 
 ## Running the application in dev mode
 
