@@ -3,9 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "mint-id-token": "node mint-firebase-id-token.mjs"
+    "mint-id-token": "node generateAccessToken.js"
   },
   "dependencies": {
-    "firebase-admin": "^13.4.0"
+    "firebase-admin": "^13.4.0",
+    "google-auth-library": "^10.6.2"
   }
 }

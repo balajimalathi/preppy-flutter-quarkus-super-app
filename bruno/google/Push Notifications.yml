@@ -14,16 +14,23 @@ http:
     data: |-
       {
         "message": {
-          "token": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImVlYzIxN2Q0MThjYjhlNWEzMTQzMThhMGQyZmZhNGUwY2ViMmU0Y2MiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiUmsgUmFiYml0dCIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NMN0p3OEtabVBob3JsaXFxOWZuZ3k2Mlc1YzhDYmxsVlI3T1dGYk9BMXJNZ3BSM1JJPXM5Ni1jIiwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL2hscC1jaGF0IiwiYXVkIjoiaGxwLWNoYXQiLCJhdXRoX3RpbWUiOjE3Nzg4Mjg0MDIsInVzZXJfaWQiOiJXQ1VidkNJM1hwVzM2UmhMUzhRMFl6eDY0UzgyIiwic3ViIjoiV0NVYnZDSTNYcFczNlJoTFM4UTBZeng2NFM4MiIsImlhdCI6MTc3ODgyODQwMiwiZXhwIjoxNzc4ODMyMDAyLCJlbWFpbCI6ImVtYWlsdG9yYWJiaXR0QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7Imdvb2dsZS5jb20iOlsiMTE3NTQ0ODEwODk0NzY3Mzk3NTg3Il0sImVtYWlsIjpbImVtYWlsdG9yYWJiaXR0QGdtYWlsLmNvbSJdfSwic2lnbl9pbl9wcm92aWRlciI6Imdvb2dsZS5jb20ifX0.Kt45_fmFSm4QVAqK1JBFHjvQzxDIT5eEbt8rzGBQ62YyTuYQglWhtSbQjoiEK2ERB_IYwDR7slyq115dqueH9zDN7_y5oTXTkAxt1JXj3b0t0w3-mrXfxvQCCjABUGUwyhvcl-vuIFHBmQOOoNyv0hmO4jwlhXo0yaVco1gf5RWLFNHD2aTeMDuAIEzEWgyOiXS4nthi_1ATubaGvKzOyGx-roqIMP_RAfEL8xWymgY7bNXC8bkJV6B3CTz6ESvrSWCRuTGBjwkTqgfm9dS9o1z7NhCYuHqj-I2-T82rDN5kwNDMXrSr_cQH5lZzuQSUiu17Mds-8CpGV7d3nfQ4fA",
+          "token": "exJrPO89Rjm9ixAUknpnil:APA91bG4ok49WBugxfCAhQv5D0SNoOUlhf0V6IfIdrBsIRgYFJI-CKRSzzE4cXTxH2lp9qYpIFuSQVDkjOk5hBseJgOf3kJEt6mQcfV4EmeM7WrM3n3kIHk",
+          "android": {
+            "priority": "high"
+          },
           "data": {
-            "key1": "value1",
-            "key2": "value2"
+            "content.id": "1",
+            "content.channelKey": "general",
+            "content.title": "Preppy test",
+            "content.body": "Awesome Notifications payload",
+            "content.displayOnForeground": "true",
+            "content.displayOnBackground": "true"
           }
         }
       }
   auth:
     type: bearer
-    token: ya29.c.c0AZ4bNpabhv8zZmUq7meBUW0imQj_uLDO3jVoll6fLXGMfeafCkCQfJL70BqSjU3GaDSF7MsPuCKbhI_smHB_XjEiwFHAt-EUKs7AadX_exvoyORP2pjSRhsvM4thFMxxG90Jetrx0EvpSiRd3p79Bb-l2TJiaC-Lrdm-ySNcgNV7RiuG8GoKVZZMaA1RrThX1OXM9HFKjU9RsyF2C32h2hDbeUxzou0zr5YYxneeXzR1bCYa_mbW8OF8Qy2EY6vviOw0H0fu1wNjf5VjDVPQKW3LxNAe4HgkHifXzP43xgRnq6iNb8KXqqV1OysBNhwPK2JcnNdhJ-7_zVpnmqRX-RDL8avVZDa4ZmoBzd4Ym-j5esan7pQrDMIH384AmaaSYV1BiuqUBZomcUr977dcQsxM9avjb8v-WtJ0ic5h2_wpvxma0Oju9lVraBt4VIzn1B0gnl5opmU3xUv9IoxOdbZxvOgBffxkkktgguZXOsid1hd3VfzU5tiqnRZmpnzMBMd709zYMp48jMaWzvZYIb6YUWpRmUvMlMnVhFp3xpcxvlUBJxc35-r6d__ciU5I1WhIFJ-fRiey2xtz4u5jj7nIW75kQZQJfcsl3jXdowB-ZeIXftvd8v29leqybj_ijRzrgg8Mykk6y9yO1RvmqjFWWiWcFmlckX47hiIe11pmfge2s16kYp5k8o6l3x_jZi-oo6J4chwxgty4XB1ts8w5RoZh-8Fu1Z0M985FqjnfWfn28gqhu6B_ua4fM8ZzBdwV0IRZymsj0x4Ui6d6f8utrwRYk_IWWBukkBhkZv5Wff628hRpu0uFYlpv9oQvRd97QcnQ1ndedtfli6ziVoU_pfjx0ZnSbrijxeoyl6Vl3erRqoMQi77Y-YV07rXIml922mp9MFnQt8UBm_r7VFoRifWYO3wwk0vJS_YvgWq4uhr02p5z_aFl5Xk5hfwgdh55XSc_cfk23lXz57SIiaS4J5YjMsJtlOcpQrkVr3tjRVqQc5bhIgp
+    token: ya29.c.c0AZ4bNpa14bnDtbbMp0CHK56SHYSy8TuLRVXk3-3L1b0ncRwtLfN5w3vj6ocq4ykZOyAlymHWBTMO95AAafy3w3pNwkD6nb5NqqT-6h_Rnh2LoLekNbslaCrEMi71HQoUwpOZNHFx5RcHP4u9uqWZrUvloX-rz5m1_xB44oaplSuynj5Lolb7WsInTgTf_DVexKCYFM3-HbZz_9l1pg9g0QkQbWGx7xU6K7rzElFh-w9dzsOwwiDIsALNWj6QtaKi1sD7XsyOLlMy7K_1UQs9ksQyj7FKsD174_rC_d1cGrO-HNO4cHGv0BA9XX7mHLNgGi2khMPrm9t4FI6rPqsLFbP78GZ_FHA8McoPHHIk29hXbs9mVLQ4d33sN385DsVSgz_xaq7iV7_68b8FbM8mxlnpWhBreUryldX76Jj-5cg5nJ_XS0vhtOmb8XIvcQpumxeyZY3uFpXgc22XZMQ35kRnO36qppZsus_q0Wqrfnd7cR6XuUBnJMb9nQco4SaoS61h2WV_9zw18M9kVdqthwpOtB86sa1fgyzF3Sxc2M2qfFz4cXddSMbo8jyZSqroz2zs4MfFa_sg9qZIQZo6zwiV_3MQugza7cb5S2ei-Y79V7e0QikSO_5xwjQSduI6B5uVSVrd7hRBlcvkaB9v_ln8FvdiBdItpybcBFY8BfWn-SStS1__U-Qn7UlIfthFVqYVi5ug79uOjjksMwjhZM0Ql5tQMbMO2o3gzoROIJhprlXBBwOfr-hOOof5ltpXIhqp0OmaWUWnUfZUXwV_fO3ZWzkR7MY6vMrB3M3F3x96Inikge6sn3IJRgxlnueg1X7MMV4JsJSyOIWZ4IFkguu4UIym3VRbeubMatdBisoYtpkvgg50iYdYX0Ybwa7vFb1bbXO6jJiWW1JFo8SkjJ04sle04-RJ4FJfR2yYSq0W_75UJ9FMxifnlnuRI_cghnVZQdYe4wf0lxr2IrSSi8l28YeRv_zJ6wxlXn2y8Q_U13hOk6yw5n8
 
 settings:
   encodeUrl: true
