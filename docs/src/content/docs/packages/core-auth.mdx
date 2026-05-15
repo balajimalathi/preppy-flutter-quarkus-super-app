@@ -1,0 +1,45 @@
+---
+title: core_auth
+description: Firebase auth, profile sync, and authProvider — cross-cutting clean architecture example.
+---
+
+Package path: `apps/packages/core/auth` · pub name: **`core_auth`**
+
+## Purpose
+
+Authentication and profile hydration used by the shell and the **auth** feature. This package is the **reference** for cross-cutting clean architecture in Preppy: contracts, implementations, Riverpod providers, and a notifier — not CRUD inside a feature package.
+
+## Layout
+
+| Layer | Location |
+|-------|----------|
+| Contracts | `lib/src/contracts/auth_contract.dart`, `profile_contract.dart` |
+| Implementations | `lib/src/impl/firebase_auth_service.dart`, `quarkus_profile_service.dart` |
+| Models | `lib/src/models/` (`AppProfile`, `AuthState`, …) |
+| Providers | `lib/src/providers/auth_providers.dart` |
+| Orchestration | `lib/src/auth_notifier.dart` → `authProvider` |
+| UI | `apps/packages/features/auth` — `LoginScreen` watches `authProvider` only |
+
+## Minimal usage
+
+```dart
+import 'package:core_auth/core_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+// In a ConsumerWidget:
+final auth = ref.watch(authProvider);
+await ref.read(authProvider.notifier).signIn(credentials);
+```
+
+Import through [`core_di`](/packages/core-di/) if you also need env, Dio, or connectivity in the same file.
+
+## When to use `core_auth` vs a feature repository
+
+| Use `core_auth` | Use a feature `domain/` + `data/` repository |
+|-----------------|---------------------------------------------|
+| Sign-in, tokens, session, profile bootstrap | Syllabus, practice sets, ingestion jobs, etc. |
+| Shell redirects and `authTokenProvider` | One vertical slice owns the CRUD API |
+
+---
+
+**See also:** [Clean architecture & CRUD](/guides/clean-architecture-crud/) · [Architecture](/architecture/) · [core_di](/packages/core-di/)

@@ -5,6 +5,8 @@ description: Overview of Preppy Dart packages — core infrastructure and shared
 
 This section documents **core** packages under `apps/packages/core/` and the **`shared_ui`** design system. Feature packages (`auth`, `dashboard`, `ingestion`, `practice`, `pyq`, `syllabus`) are vertical slices consumed by `preppy_app`; they typically depend on `shared_ui`, `go_router`, `flutter_riverpod`, and selected core libraries.
 
+**Building a CRUD feature?** Start with [Example CRUD application](/guides/example-crud-application/), then [Clean architecture & CRUD](/guides/clean-architecture-crud/) for layer rules and checklists.
+
 ## Quick reference
 
 | Package name | Path | Role |
@@ -13,7 +15,7 @@ This section documents **core** packages under `apps/packages/core/` and the **`
 | `core_models` | `core/models` | Pure-Dart domain types (`Question`, `Flashcard`, etc.) |
 | `core_network` | `core/network` | `Dio`, SSE, GraphQL/gRPC helpers, connectivity |
 | `core_storage` | `core/storage` | `StorageContract` + Hive / secure / shared_preferences impls |
-| `core_auth` | `core/auth` | Firebase auth + Quarkus profile; `authProvider` |
+| `core_auth` | `core/auth` | Firebase auth + Quarkus profile; `authProvider` — [docs](/packages/core-auth/) |
 | `core_analytics` | `core/analytics` | `AnalyticsContract` + Firebase / composite backends |
 | `core_cloud` | `core/cloud` | Backend-agnostic cloud DB/storage contracts + adapters |
 | `core_di` | `core/di` | Barrel re-exporting cross-cutting providers |
@@ -23,5 +25,7 @@ Import names match **`name:`** in each package’s `pubspec.yaml`. The cloud pac
 
 ## Further reading
 
+- [Example CRUD application](/guides/example-crud-application/) — Syllabus tutorial with existing packages
+- [Clean architecture & CRUD](/guides/clean-architecture-crud/) — layers, decision tree, checklists
 - [Core packages hub](/packages/core/) — table linking to each core topic page
 - [shared_ui](/packages/shared-ui/) — design system usage

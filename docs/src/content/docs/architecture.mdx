@@ -90,6 +90,12 @@ flowchart TB
 
 `shared_ui` is the **visual layer** shared by the shell and features: `ThemeNotifier` / `themeProvider`, color and typography tokens, component themes (buttons, app bar, text fields), and `PreppyScaffold`. Features should use these instead of ad hoc `ThemeData` so the product stays visually consistent.
 
+## Clean architecture & CRUD
+
+Feature packages today are mostly **screens and routes**; for new CRUD work, grow each feature with `domain/`, `data/`, `application/`, and `presentation/` under `lib/src/`. Shared entities live in [`core_models`](/packages/core-models/); HTTP, auth, and env stay in **`core_*`** (see [`core_auth`](/packages/core-auth/) for the cross-cutting pattern).
+
+For a hands-on Syllabus example, see **[Example CRUD application](/guides/example-crud-application/)**. For layer map, decision tree, and checklists, see **[Clean architecture & CRUD](/guides/clean-architecture-crud/)**.
+
 ## Assumptions
 
 - **Workspace tooling**: This doc reflects the `workspace:` list in the root `pubspec.yaml`. There is no separate `melos.yaml`; Melos configuration lives under `melos:` in that file.

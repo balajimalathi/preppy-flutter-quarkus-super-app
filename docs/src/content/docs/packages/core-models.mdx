@@ -7,7 +7,9 @@ Package path: `apps/packages/core/models` · pub name: **`core_models`**
 
 ## Purpose
 
-**Pure Dart** DTOs and helpers so features agree on JSON-shaped entities **without** depending on Flutter. Typical exports include `ApiResult`, `Question`, `Flashcard`, `DailyPlan`, `SyllabusItem` (see `apps/packages/core/models/lib/core_models.dart`).
+**Pure Dart** shared **entities** and `ApiResult` so features agree on domain types **without** depending on Flutter. Typical exports include `ApiResult`, `Question`, `Flashcard`, `DailyPlan`, `SyllabusItem` (see `apps/packages/core/models/lib/core_models.dart`).
+
+Entities here are **data shapes only** — no `fromJson` in this package by default. JSON mapping, repositories, and UI state belong in the feature **data** / **application** layers. For a step-by-step CRUD app, see **[Example CRUD application](/guides/example-crud-application/)**.
 
 ## Minimal usage
 
@@ -80,10 +82,10 @@ class QuestionRepository with QuestionMapping {
 
 1. Add `core_models` as a `path:` dependency from any feature or core package.
 
-2. Keep **JSON parsing** and domain types here; keep Flutter widgets in feature packages.
+2. Keep **entity classes** here; keep **JSON parsing** in feature `data/` mappers (or `core_*` when shared). Keep Flutter widgets in feature packages.
 
 3. Prefer **`ApiResult`** (or your repository layer) for progressive UI state as documented in `api_result.dart`.
 
 ---
 
-**See also:** [Architecture](/architecture/) · [Package overview](/packages/)
+**See also:** [Clean architecture & CRUD](/guides/clean-architecture-crud/) · [Architecture](/architecture/) · [Package overview](/packages/)
