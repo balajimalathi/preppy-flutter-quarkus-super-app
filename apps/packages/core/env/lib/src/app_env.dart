@@ -1,5 +1,6 @@
 import 'package:riverpod/riverpod.dart';
 
+import 'auth_backend.dart';
 import 'environment.dart';
 
 /// Single place that reads `--dart-define` / `--dart-define-from-file` values.
@@ -8,6 +9,7 @@ final class AppEnv {
     required this.environment,
     required this.baseUrl,
     required this.firebaseProjectId,
+    required this.authBackend,
     required this.analyticsEnabled,
     required this.crashlyticsEnabled,
     required this.analyticsBackends,
@@ -20,6 +22,9 @@ final class AppEnv {
   final Environment environment;
   final String baseUrl;
   final String firebaseProjectId;
+
+  /// Active auth IdP (`AUTH_BACKEND`, default [AuthBackend.firebase]).
+  final AuthBackend authBackend;
   final bool analyticsEnabled;
   final bool crashlyticsEnabled;
 
@@ -49,6 +54,10 @@ final class AppEnv {
       defaultValue: '443',
     );
     const grpcTlsRaw = String.fromEnvironment('GRPC_TLS', defaultValue: 'true');
+    const authBackendRaw = String.fromEnvironment(
+      'AUTH_BACKEND',
+      defaultValue: 'firebase',
+    );
     return AppEnv(
       environment: switch (env) {
         'prod' => const ProdEnvironment(),
@@ -57,6 +66,7 @@ final class AppEnv {
       },
       baseUrl: const String.fromEnvironment('BASE_URL'),
       firebaseProjectId: const String.fromEnvironment('FIREBASE_PROJECT_ID'),
+      authBackend: AuthBackend.parse(authBackendRaw),
       analyticsEnabled:
           const String.fromEnvironment('ANALYTICS_ENABLED') == 'true',
       crashlyticsEnabled:

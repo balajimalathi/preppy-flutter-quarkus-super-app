@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:developer' as developer;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
@@ -30,6 +31,20 @@ Future<void> bootstrap(AppEnv env) async {
     options: env.firebaseOptionsFor(env.environment),
   );
 
+  if (kDebugMode) {
+    FirebaseAuth.instance.idTokenChanges().listen((User? user) async {
+      if (user == null) {
+        developer.log(
+          'No Firebase user (ID token cleared)',
+          name: 'PreppyAuth',
+        );
+        return;
+      }
+      final token = await user.getIdToken();
+      developer.log(token ?? '(null)', name: 'PreppyAuth.IDToken');
+    });
+  }
+
   await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(
     env.analyticsEnabled,
   );
@@ -50,6 +65,8 @@ Future<void> bootstrap(AppEnv env) async {
         baseUrlProvider.overrideWithValue(env.baseUrl),
         authTokenProvider.overrideWith(
           (ref) => () async {
+            // Keep Firebase here (not authServiceProvider.getValidToken) to avoid a
+            // circular dependency: authServiceProvider → dioProvider → authTokenProvider.
             final user = FirebaseAuth.instance.currentUser;
             if (user == null) {
               return null;

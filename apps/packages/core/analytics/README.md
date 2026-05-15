@@ -90,6 +90,7 @@ await tester.pumpWidget(
           environment: DevEnvironment(),
           baseUrl: 'https://test',
           firebaseProjectId: 'test',
+          authBackend: AuthBackend.firebase,
           analyticsEnabled: false,
           crashlyticsEnabled: false,
           analyticsBackends: ['firebase'],
