@@ -9,7 +9,7 @@ final class QuarkusProfileService implements ProfileContract {
 
   final Dio _dio;
 
-  static const _path = '/users/me';
+  static const _path = '/v1/users/me';
 
   @override
   Future<AppProfile> syncProfile() => _fetch();
@@ -22,11 +22,43 @@ final class QuarkusProfileService implements ProfileContract {
       final response = await _dio.get<dynamic>(_path);
       return _parse(response.data);
     } on DioException catch (e) {
-      throw ProfileFetchException(
-        e.message ?? 'Profile fetch failed',
-        cause: e,
-      );
+      throw _mapDioException(e);
     }
+  }
+
+  ProfileFetchException _mapDioException(DioException e) {
+    final status = e.response?.statusCode;
+    final serverMessage = _readServerMessage(e.response?.data);
+    final baseUrl = e.requestOptions.baseUrl;
+
+    final message = switch (status) {
+      401 || 403 =>
+        serverMessage ??
+            'Server rejected your sign-in token. '
+                'Ensure the API uses the same Firebase project as the app.',
+      400 => serverMessage ?? 'Profile request was invalid',
+      null when e.type == DioExceptionType.connectionError =>
+        'Cannot reach API at $baseUrl. '
+            'Start the backend and check BASE_URL (Android emulator: http://10.0.2.2:8080).',
+      null
+          when e.type == DioExceptionType.connectionTimeout ||
+              e.type == DioExceptionType.sendTimeout ||
+              e.type == DioExceptionType.receiveTimeout =>
+        'API request timed out ($baseUrl)',
+      _ => serverMessage ?? e.message ?? 'Profile fetch failed',
+    };
+
+    return ProfileFetchException(message, cause: e, statusCode: status);
+  }
+
+  String? _readServerMessage(dynamic data) {
+    if (data is Map) {
+      final message = data['message'];
+      if (message is String && message.isNotEmpty) {
+        return message;
+      }
+    }
+    return null;
   }
 
   AppProfile _parse(dynamic data) {

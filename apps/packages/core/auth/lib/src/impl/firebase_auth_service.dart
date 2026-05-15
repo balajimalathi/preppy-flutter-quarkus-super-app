@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:core_storage/core_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -5,10 +7,10 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../auth_storage_keys.dart';
 import '../contracts/auth_contract.dart';
 import '../contracts/profile_contract.dart';
-import '../models/app_profile.dart';
 import '../models/auth_credentials.dart';
 import '../models/auth_result.dart';
 import '../models/signed_in_user.dart';
+import 'profile_exceptions.dart';
 
 final class FirebaseAuthService implements AuthContract {
   FirebaseAuthService({
@@ -55,6 +57,38 @@ final class FirebaseAuthService implements AuthContract {
     );
   }
 
+  Future<AuthResult> _completeSignIn(User user) async {
+    await user.getIdToken();
+
+    try {
+      final profile = await _profile.syncProfile();
+      await _storage.write(AuthStorageKeys.userProfile, profile.toJsonString());
+      return AuthSuccess(user: _mapUser(user), profile: profile);
+    } on ProfileFetchException catch (e) {
+      return _profileSyncFailure(e);
+    }
+  }
+
+  AuthResult _profileSyncFailure(ProfileFetchException e) {
+    if (e.isAuthFailure) {
+      unawaited(_firebase.signOut());
+      unawaited(_google.signOut());
+      return AuthFailure(
+        message: e.message,
+        code: AuthErrorCode.profileFetchFailed,
+      );
+    }
+    if (e.isNetworkFailure) {
+      return AuthFailure(message: e.message, code: AuthErrorCode.networkError);
+    }
+    unawaited(_firebase.signOut());
+    unawaited(_google.signOut());
+    return AuthFailure(
+      message: e.message,
+      code: AuthErrorCode.profileFetchFailed,
+    );
+  }
+
   @override
   Future<AuthResult> signIn(AuthCredentials credentials) async {
     try {
@@ -89,23 +123,7 @@ final class FirebaseAuthService implements AuthContract {
         );
       }
 
-      await user.getIdToken();
-
-      late final AppProfile profile;
-      try {
-        profile = await _profile.syncProfile();
-      } catch (_) {
-        await _firebase.signOut();
-        await _google.signOut();
-        return const AuthFailure(
-          message: 'Could not sync profile with server',
-          code: AuthErrorCode.profileFetchFailed,
-        );
-      }
-
-      await _storage.write(AuthStorageKeys.userProfile, profile.toJsonString());
-
-      return AuthSuccess(user: _mapUser(user), profile: profile);
+      return _completeSignIn(user);
     } on FirebaseAuthException catch (e) {
       return AuthFailure(
         message: e.message ?? e.code,
@@ -131,23 +149,7 @@ final class FirebaseAuthService implements AuthContract {
         );
       }
 
-      await user.getIdToken();
-
-      late final AppProfile profile;
-      try {
-        profile = await _profile.syncProfile();
-      } catch (_) {
-        await _firebase.signOut();
-        await _google.signOut();
-        return const AuthFailure(
-          message: 'Could not sync profile with server',
-          code: AuthErrorCode.profileFetchFailed,
-        );
-      }
-
-      await _storage.write(AuthStorageKeys.userProfile, profile.toJsonString());
-
-      return AuthSuccess(user: _mapUser(user), profile: profile);
+      return _completeSignIn(user);
     } on FirebaseAuthException catch (e) {
       return AuthFailure(
         message: e.message ?? e.code,

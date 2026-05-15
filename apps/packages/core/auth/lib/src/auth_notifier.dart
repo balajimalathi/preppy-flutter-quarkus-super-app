@@ -9,6 +9,7 @@ import 'models/app_profile.dart';
 import 'models/auth_credentials.dart';
 import 'models/auth_result.dart';
 import 'models/auth_state.dart';
+import 'impl/profile_exceptions.dart';
 import 'providers/auth_providers.dart';
 
 /// Boot hydration, background profile refresh, and sign-in / sign-out.
@@ -44,6 +45,11 @@ final class AuthNotifier extends AsyncNotifier<AuthState> {
       final profile = await profileSvc.fetchProfile();
       await storage.write(AuthStorageKeys.userProfile, profile.toJsonString());
       return AuthAuthenticated(profile: profile);
+    } on ProfileFetchException catch (e) {
+      if (e.isAuthFailure) {
+        await auth.signOut();
+      }
+      return const AuthUnauthenticated();
     } on Object {
       await auth.signOut();
       return const AuthUnauthenticated();

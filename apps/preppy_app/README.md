@@ -20,7 +20,7 @@ Always pass **`--dart-define-from-file`** so `AppEnv.fromEnvironment()` receives
 
 | Command | Flavor | Env file |
 |---------|--------|----------|
-| `melos run run:dev` | `dev` | `apps/preppy_app/config/env.dev.json` |
+| `melos run run:dev` | `dev` | `apps/preppy_app/config/env.dev.local.json` (copy from `env.dev.local.example.json`) |
 | `melos run run:staging` | `staging` | `apps/preppy_app/config/env.staging.json` |
 | `melos run run:prod` | `prod` | `apps/preppy_app/config/env.prod.json` |
 
@@ -28,7 +28,7 @@ Equivalent shape:
 
 ```bash
 cd apps/preppy_app
-flutter run --flavor dev --dart-define-from-file=config/env.dev.json -t lib/main_dev.dart
+flutter run --flavor dev --dart-define-from-file=config/env.dev.local.json -t lib/main_dev.dart
 ```
 
 Copy `config/env.*.example.json` to the matching `env.*.json` (or use a local untracked JSON) and fill in URLs and project ids. See `config/README.md`.

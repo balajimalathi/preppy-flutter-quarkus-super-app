@@ -12,7 +12,7 @@ import jakarta.ws.rs.core.MediaType;
 /**
  * REST entry point for the authenticated user profile (exam, language, etc.).
  */
-@Path("/users")
+@Path("/v1/users")
 @Produces(MediaType.APPLICATION_JSON)
 public class UserResource {
 
