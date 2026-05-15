@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:core_notifications/core_notifications.dart';
 
 /// Default FCM / local notification channels for Preppy.
@@ -23,13 +25,12 @@ Future<void> initializePreppyNotifications({required bool debug}) async {
   CoreNotificationsBridge.instance.configure(
     CoreNotificationsCallbacks(
       onFcmToken: (token) async {
-        assert(() {
-          // ignore: avoid_print
-          print(
-            'core_notifications: FCM token updated (${token.isEmpty ? 'cleared' : 'set'})',
-          );
-          return true;
-        }());
+        if (!debug) return;
+        if (token.isEmpty) {
+          developer.log('FCM token cleared', name: 'PreppyFCM');
+          return;
+        }
+        developer.log(token, name: 'PreppyFCM.Token');
       },
       onNativeToken: (token) async {
         assert(() {
@@ -38,32 +39,23 @@ Future<void> initializePreppyNotifications({required bool debug}) async {
           return true;
         }());
       },
-      onFcmSilentData: (data) async {
-        assert(() {
-          // ignore: avoid_print
-          print('core_notifications: silent data ${data.data}');
-          return true;
-        }());
-      },
-      onActionReceived: (action) async {
-        assert(() {
-          // ignore: avoid_print
-          print(
-            'core_notifications: action ${action.id} ${action.buttonKeyPressed}',
-          );
-          return true;
-        }());
-      },
+      // Payload logging is handled in @pragma entry points (main + background isolates).
     ),
   );
 
   await CoreNotificationsFacade.instance.initializeLocal(
     channels: preppyNotificationChannels,
-    defaultIcon: null,
+    defaultIcon: 'resource://mipmap/ic_launcher',
     debug: debug,
   );
   await CoreNotificationsFacade.instance.initializeRemote(debug: debug);
   await CoreNotificationsFacade.instance.attachListeners();
   await CoreNotificationsFacade.instance.requestPermission();
   await CoreNotificationsFacade.instance.getInitialNotificationAction();
+
+  if (debug) {
+    final token = await CoreNotificationsFacade.instance
+        .requestFirebaseAppToken();
+    developer.log(token ?? '(null)', name: 'PreppyFCM.Token');
+  }
 }

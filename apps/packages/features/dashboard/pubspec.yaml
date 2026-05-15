@@ -12,6 +12,10 @@ resolution: workspace
 dependencies:
   core_models:
     path: ../../core/models
+  core_di:
+    path: ../../core/di
+  core_notifications:
+    path: ../../core/notifications
   flutter:
     sdk: flutter
   flutter_riverpod: ^3.3.1

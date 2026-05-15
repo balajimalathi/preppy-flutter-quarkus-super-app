@@ -1,2 +1,2 @@
 export 'src/feature_syllabus_routes.dart';
-export 'src/syllabus_screen.dart';
+export 'src/presentation/syllabus_list_screen.dart';

@@ -7,6 +7,8 @@ import 'fcm_entry_points.dart';
 import 'listener_entry_points.dart';
 import 'notification_preferences_store.dart';
 import 'push_payload_mapper.dart';
+import 'push_display_relay.dart';
+import 'push_receive_debug_log.dart';
 
 /// Host-agnostic Awesome Notifications + FCM setup.
 ///
@@ -43,6 +45,7 @@ class CoreNotificationsFacade {
     List<NotificationChannelGroup>? channelGroups,
   }) async {
     await preferences.open();
+    await PushReceiveDebugLog.instance.open();
     final notificationChannels = channels
         .map((c) => c.toNotificationChannel())
         .toList(growable: false);
@@ -55,6 +58,9 @@ class CoreNotificationsFacade {
       debug: debug,
     );
     _localReady = ok;
+    if (ok) {
+      PushDisplayRelay.instance.install(showLocalFromDataIfEnabled);
+    }
     return ok;
   }
 

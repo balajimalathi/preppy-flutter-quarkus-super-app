@@ -13,26 +13,36 @@ class PushPayloadMapper {
   final Map<String, NotificationChannelDefinition> _channelsByKey;
 
   /// Parses [data] values as strings (typical FCM data map).
+  ///
+  /// Supports flat README keys (`channel_key`, `title`, …) and Awesome FCM
+  /// flattened keys (`content.channelKey`, `content.title`, …).
   NotificationContent? toNotificationContent(Map<String, String> data) {
+    final normalized = normalizeFcmData(data);
+
     final channelKey =
-        data['channel_key'] ?? data['channelKey'] ?? data['android_channel_id'];
+        normalized['channel_key'] ??
+        normalized['channelKey'] ??
+        normalized['android_channel_id'];
     if (channelKey == null || channelKey.isEmpty) {
       return null;
     }
     final channel = _channelsByKey[channelKey];
-    final id = int.tryParse(data['id'] ?? '') ?? channelKey.hashCode.abs();
+    final id =
+        int.tryParse(normalized['id'] ?? '') ?? channelKey.hashCode.abs();
 
     final layout =
-        _parseLayout(data['layout'] ?? data['notification_layout']) ??
+        _parseLayout(
+          normalized['layout'] ?? normalized['notification_layout'],
+        ) ??
         channel?.defaultLayout ??
         NotificationLayout.Default;
 
-    final lines = _parseLines(data['lines'] ?? data['inbox_lines']);
+    final lines = _parseLines(normalized['lines'] ?? normalized['inbox_lines']);
     final body =
-        data['body'] ??
+        normalized['body'] ??
         (lines != null && lines.isNotEmpty ? lines.join('\n') : null);
 
-    final rawPayload = data['payload'];
+    final rawPayload = normalized['payload'];
     Map<String, String?>? payloadMap;
     if (rawPayload != null && rawPayload.isNotEmpty) {
       payloadMap = {'raw': rawPayload};
@@ -41,36 +51,68 @@ class PushPayloadMapper {
     return NotificationContent(
       id: id,
       channelKey: channelKey,
-      title: data['title'],
+      title: normalized['title'],
       body: body,
-      summary: data['summary'],
-      largeIcon: data['large_icon'] ?? data['largeIcon'],
-      bigPicture: data['big_picture'] ?? data['bigPicture'],
-      icon: data['icon'],
-      customSound: data['custom_sound'] ?? data['customSound'],
+      summary: normalized['summary'],
+      largeIcon: normalized['large_icon'] ?? normalized['largeIcon'],
+      bigPicture: normalized['big_picture'] ?? normalized['bigPicture'],
+      icon: normalized['icon'],
+      customSound: normalized['custom_sound'] ?? normalized['customSound'],
       payload: payloadMap,
-      category: _parseCategory(data['category']),
-      groupKey: data['group_key'] ?? data['groupKey'],
-      badge: int.tryParse(data['badge'] ?? ''),
-      ticker: data['ticker'],
+      category: _parseCategory(normalized['category']),
+      groupKey: normalized['group_key'] ?? normalized['groupKey'],
+      badge: int.tryParse(normalized['badge'] ?? ''),
+      ticker: normalized['ticker'],
       notificationLayout: layout,
       displayOnForeground:
-          (data['display_on_foreground'] ?? data['displayOnForeground']) !=
+          (normalized['display_on_foreground'] ??
+              normalized['displayOnForeground']) !=
           'false',
       displayOnBackground:
-          (data['display_on_background'] ?? data['displayOnBackground']) !=
+          (normalized['display_on_background'] ??
+              normalized['displayOnBackground']) !=
           'false',
-      locked: data['locked'] == 'true',
-      hideLargeIconOnExpand: data['hide_large_icon_on_expand'] == 'true',
-      progress: double.tryParse(data['progress'] ?? ''),
-      color: _parseColor(data['color']),
+      locked: normalized['locked'] == 'true',
+      hideLargeIconOnExpand: normalized['hide_large_icon_on_expand'] == 'true',
+      progress: double.tryParse(normalized['progress'] ?? ''),
+      color: _parseColor(normalized['color']),
       backgroundColor: _parseColor(
-        data['background_color'] ?? data['backgroundColor'],
+        normalized['background_color'] ?? normalized['backgroundColor'],
       ),
-      wakeUpScreen: data['wake_up_screen'] == 'true',
-      fullScreenIntent: data['full_screen_intent'] == 'true',
+      wakeUpScreen: normalized['wake_up_screen'] == 'true',
+      fullScreenIntent: normalized['full_screen_intent'] == 'true',
     );
   }
+
+  /// Merges Awesome Notifications FCM flattened keys into flat mapper keys.
+  static Map<String, String> normalizeFcmData(Map<String, String> data) {
+    final out = Map<String, String>.from(data);
+
+    final jsonContent = data['content'];
+    if (jsonContent != null && jsonContent.startsWith('{')) {
+      try {
+        final decoded = jsonDecode(jsonContent);
+        if (decoded is Map) {
+          for (final entry in decoded.entries) {
+            out.putIfAbsent(entry.key.toString(), () => entry.value.toString());
+          }
+        }
+      } catch (_) {}
+    }
+
+    for (final entry in data.entries) {
+      const prefix = 'content.';
+      if (entry.key.startsWith(prefix)) {
+        out.putIfAbsent(entry.key.substring(prefix.length), () => entry.value);
+      }
+    }
+
+    return out;
+  }
+
+  /// Whether [channelKey] is registered in [PushPayloadMapper].
+  bool isKnownChannel(String channelKey) =>
+      _channelsByKey.containsKey(channelKey);
 
   /// JSON map suitable for [AwesomeNotifications.createNotificationFromJsonData].
   Map<String, dynamic>? toJsonData(Map<String, String> data) {

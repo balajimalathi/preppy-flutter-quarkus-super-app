@@ -1,6 +1,20 @@
 import 'package:awesome_notifications_fcm/awesome_notifications_fcm.dart';
 
 import 'core_notifications_bridge.dart';
+import 'push_local_display.dart';
+import 'push_receive_debug_log.dart';
+
+Map<String, String> _fcmDataStrings(FcmSilentData data) {
+  final raw = data.data;
+  if (raw == null || raw.isEmpty) {
+    return const {};
+  }
+  return Map<String, String>.fromEntries(
+    raw.entries
+        .where((e) => e.value != null)
+        .map((e) => MapEntry(e.key, e.value!)),
+  );
+}
 
 @pragma('vm:entry-point')
 Future<void> coreNotificationsOnFcmToken(String token) async {
@@ -10,6 +24,13 @@ Future<void> coreNotificationsOnFcmToken(String token) async {
 @pragma('vm:entry-point')
 Future<void> coreNotificationsOnFcmSilentData(FcmSilentData data) async {
   await CoreNotificationsBridge.instance.onFcmSilentData(data);
+
+  final payload = _fcmDataStrings(data);
+  if (payload.isNotEmpty) {
+    await PushLocalDisplay.showFromFcmData(payload);
+  }
+
+  PushReceiveDebugLog.instance.ingestSilentData(data);
 }
 
 @pragma('vm:entry-point')

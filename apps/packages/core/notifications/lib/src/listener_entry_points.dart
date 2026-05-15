@@ -1,6 +1,7 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 
 import 'core_notifications_bridge.dart';
+import 'push_receive_debug_log.dart';
 
 @pragma('vm:entry-point')
 Future<void> coreNotificationsOnActionReceived(ReceivedAction action) async {
@@ -8,6 +9,7 @@ Future<void> coreNotificationsOnActionReceived(ReceivedAction action) async {
     action,
     CoreNotificationsBridge.actionPortName,
   );
+  PushReceiveDebugLog.instance.ingestAction(PushReceiveKind.action, action);
 }
 
 @pragma('vm:entry-point')
@@ -15,6 +17,10 @@ Future<void> coreNotificationsOnNotificationCreated(
   ReceivedNotification notification,
 ) async {
   await CoreNotificationsBridge.instance.onNotificationCreated(notification);
+  PushReceiveDebugLog.instance.ingestNotification(
+    PushReceiveKind.created,
+    notification,
+  );
 }
 
 @pragma('vm:entry-point')
@@ -22,6 +28,10 @@ Future<void> coreNotificationsOnNotificationDisplayed(
   ReceivedNotification notification,
 ) async {
   await CoreNotificationsBridge.instance.onNotificationDisplayed(notification);
+  PushReceiveDebugLog.instance.ingestNotification(
+    PushReceiveKind.displayed,
+    notification,
+  );
 }
 
 @pragma('vm:entry-point')
@@ -32,4 +42,5 @@ Future<void> coreNotificationsOnDismissActionReceived(
     action,
     CoreNotificationsBridge.actionPortName,
   );
+  PushReceiveDebugLog.instance.ingestAction(PushReceiveKind.dismissed, action);
 }

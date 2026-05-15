@@ -12,6 +12,9 @@ resolution: workspace
 dependencies:
   core_models:
     path: ../../core/models
+  core_network:
+    path: ../../core/network
+  dio: ^5.9.2
   flutter:
     sdk: flutter
   flutter_riverpod: ^3.3.1
