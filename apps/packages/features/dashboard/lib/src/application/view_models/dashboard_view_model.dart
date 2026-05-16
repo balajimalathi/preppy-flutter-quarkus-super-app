@@ -1,24 +1,48 @@
-import 'package:core_models/core_models.dart';
 import 'package:core_state/core_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/entities/dashboard_summary.dart';
 import '../providers/dashboard_providers.dart';
+import '../state/dashboard_screen_state.dart';
 
-class DashboardViewModel extends BaseViewModel<DashboardSummary> {
-  
+class DashboardViewModel
+    extends BaseViewModel<DashboardSummary, DashboardScreenState> {
   @override
-  Future<DashboardSummary> buildInitial() async {
-    final result = await ref.read(getDashboardSummaryUseCaseProvider).execute();
-    return switch (result) {
-      ApiSuccess(:final data) => data,
-      ApiError(:final message) => throw StateError(message),
-      _ => throw StateError('Unexpected result'),
-    };
-  }
+  DashboardScreenState initialState() => const DashboardScreenState.initial();
 
-  Future<void> refresh() async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(buildInitial);
+  @override
+  void initialize() => Future.microtask(load);
+
+  Future<void> load() => runAction(() async {
+    state = state.copyWith(phase: LoadPhase.loading);
+    final summary = await ref
+        .read(getDashboardSummaryUseCaseProvider)
+        .execute();
+    return state.copyWith(
+      data: summary,
+      phase: LoadPhase.idle,
+      clearError: true,
+    );
+  });
+
+  Future<void> refresh() => runAction(() async {
+    state = state.copyWith(phase: LoadPhase.refreshing);
+    final summary = await ref
+        .read(getDashboardSummaryUseCaseProvider)
+        .execute();
+    return state.copyWith(
+      data: summary,
+      phase: LoadPhase.idle,
+      clearError: true,
+    );
+  });
+
+  void selectTab(int index) {
+    state = state.copyWith(selectedTabIndex: index);
   }
 }
+
+final dashboardViewModelProvider =
+    NotifierProvider<DashboardViewModel, DashboardScreenState>(
+      DashboardViewModel.new,
+    );

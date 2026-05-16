@@ -1,5 +1,5 @@
 name: core_state
-description: Thin AsyncNotifier base helpers for Riverpod feature ViewModels.
+description: ScreenState and Notifier base helpers for Riverpod feature ViewModels.
 version: 0.1.0
 publish_to: 'none'
 
@@ -9,6 +9,9 @@ environment:
 resolution: workspace
 
 dependencies:
+  core_models:
+    path: ../models
+  meta: ^1.17.0
   riverpod: ^3.2.1
 
 dev_dependencies:

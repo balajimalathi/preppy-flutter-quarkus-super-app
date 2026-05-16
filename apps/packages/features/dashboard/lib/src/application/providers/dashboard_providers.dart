@@ -6,10 +6,8 @@ import '../../data/datasources/dashboard_local_data_source_impl.dart';
 import '../../data/datasources/dashboard_remote_data_source.dart';
 import '../../data/datasources/dashboard_remote_data_source_impl.dart';
 import '../../data/repositories/dashboard_repository_impl.dart';
-import '../../domain/entities/dashboard_summary.dart';
 import '../../domain/repositories/dashboard_repository.dart';
 import '../use_cases/get_dashboard_summary_use_case.dart';
-import '../view_models/dashboard_view_model.dart';
 
 final dashboardRemoteDataSourceProvider = Provider<DashboardRemoteDataSource>((
   ref,
@@ -36,8 +34,3 @@ final getDashboardSummaryUseCaseProvider = Provider<GetDashboardSummaryUseCase>(
     return GetDashboardSummaryUseCase(ref.watch(dashboardRepositoryProvider));
   },
 );
-
-final dashboardViewModelProvider =
-    AsyncNotifierProvider<DashboardViewModel, DashboardSummary>(
-      DashboardViewModel.new,
-    );

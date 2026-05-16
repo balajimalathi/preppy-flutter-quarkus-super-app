@@ -22,15 +22,15 @@ void main() {
   );
 
   group('GetDashboardSummaryUseCase', () {
-    test('maps success to ApiResult.success', () async {
+    test('returns summary on success', () async {
       final useCase = GetDashboardSummaryUseCase(
         _FakeRepository(const Result.success(summary)),
       );
       final result = await useCase.execute();
-      expect(result, const ApiResult<DashboardSummary>.success(summary));
+      expect(result, summary);
     });
 
-    test('rejects negative coverage', () async {
+    test('throws ValidationError for negative coverage', () async {
       final useCase = GetDashboardSummaryUseCase(
         _FakeRepository(
           const Result.success(
@@ -43,19 +43,16 @@ void main() {
           ),
         ),
       );
-      final result = await useCase.execute();
-      expect(result, isA<ApiError<DashboardSummary>>());
+      await expectLater(useCase.execute(), throwsA(isA<ValidationError>()));
     });
 
-    test('maps repository failure to ApiResult.error', () async {
+    test('throws AppError on repository failure', () async {
       final useCase = GetDashboardSummaryUseCase(
         _FakeRepository(
           const Result.failure(CacheFailure(message: 'no cache')),
         ),
       );
-      final result = await useCase.execute();
-      expect(result, isA<ApiError<DashboardSummary>>());
-      expect((result as ApiError).message, 'no cache');
+      await expectLater(useCase.execute(), throwsA(isA<NetworkError>()));
     });
   });
 }

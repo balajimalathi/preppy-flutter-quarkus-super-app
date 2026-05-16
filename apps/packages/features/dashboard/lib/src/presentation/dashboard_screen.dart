@@ -1,10 +1,12 @@
 import 'package:auth/feature_auth.dart';
+import 'package:core_models/core_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_ui/shared_ui.dart';
 
-import '../application/providers/dashboard_providers.dart';
+import '../application/state/dashboard_screen_state.dart';
+import '../application/view_models/dashboard_view_model.dart';
 import '../domain/entities/dashboard_summary.dart';
 
 class DashboardScreen extends ConsumerWidget {
@@ -12,19 +14,11 @@ class DashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncState = ref.watch(dashboardViewModelProvider);
+    final state = ref.watch(dashboardViewModelProvider);
 
     return PreppyScaffold(
       title: 'Dashboard',
-      body: switch (asyncState) {
-        AsyncLoading() => const Center(child: CircularProgressIndicator()),
-        AsyncError(:final error) => _ErrorBody(
-          message: error.toString(),
-          onRetry: () =>
-              ref.read(dashboardViewModelProvider.notifier).refresh(),
-        ),
-        AsyncData(:final value) => _SummaryContent(summary: value),
-      },
+      body: _buildBody(context, ref, state),
       actions: [
         TextButton(
           onPressed: () => context.push('/status'),
@@ -33,19 +27,74 @@ class DashboardScreen extends ConsumerWidget {
       ],
     );
   }
+
+  Widget _buildBody(
+    BuildContext context,
+    WidgetRef ref,
+    DashboardScreenState state,
+  ) {
+    if (state.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (state.hasError && !state.hasData) {
+      return ErrorBody(
+        error: state.error!,
+        onRetry: () => ref.read(dashboardViewModelProvider.notifier).load(),
+      );
+    }
+
+    if (!state.hasData) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return RefreshIndicator(
+      onRefresh: () => ref.read(dashboardViewModelProvider.notifier).refresh(),
+      child: _SummaryContent(
+        summary: state.data!,
+        isRefreshing: state.isRefreshing,
+        error: state.error,
+        onRetry: () => ref.read(dashboardViewModelProvider.notifier).load(),
+      ),
+    );
+  }
 }
 
 class _SummaryContent extends StatelessWidget {
-  const _SummaryContent({required this.summary});
+  const _SummaryContent({
+    required this.summary,
+    required this.isRefreshing,
+    required this.error,
+    required this.onRetry,
+  });
 
   final DashboardSummary summary;
+  final bool isRefreshing;
+  final AppError? error;
+  final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(24),
       children: [
+        if (isRefreshing)
+          const Padding(
+            padding: EdgeInsets.only(bottom: 16),
+            child: LinearProgressIndicator(),
+          ),
+        if (error != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: MaterialBanner(
+              content: Text(resolveErrorMessage(error!)),
+              actions: [
+                TextButton(onPressed: onRetry, child: const Text('Retry')),
+              ],
+            ),
+          ),
         Text(summary.greeting, style: theme.textTheme.headlineSmall),
         const SizedBox(height: 24),
         _StatCard(label: 'Streak', value: '${summary.streakDays} days'),
@@ -76,30 +125,6 @@ class _StatCard extends StatelessWidget {
       child: ListTile(
         title: Text(label),
         trailing: Text(value, style: Theme.of(context).textTheme.titleMedium),
-      ),
-    );
-  }
-}
-
-class _ErrorBody extends StatelessWidget {
-  const _ErrorBody({required this.message, required this.onRetry});
-
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(message, textAlign: TextAlign.center),
-            const SizedBox(height: 16),
-            FilledButton(onPressed: onRetry, child: const Text('Retry')),
-          ],
-        ),
       ),
     );
   }

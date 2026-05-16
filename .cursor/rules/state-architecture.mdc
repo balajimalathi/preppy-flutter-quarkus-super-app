@@ -1,0 +1,369 @@
+---
+description: State architecture rules for Flutter super app using Riverpod 3
+globs: apps/packages/**/*.dart
+alwaysApply: true
+---
+
+# State Architecture Rules
+
+## Core Philosophy
+
+- `AsyncValue<S>` is a **data-fetching primitive**, not a UI state model
+- Every screen owns a typed `ScreenState<S>` that separates domain data from UI-specific state
+- Widgets **never** pattern-match on raw `AsyncValue` for full screens — only for isolated sub-widgets
+- Errors are **typed and sealed**, never strings
+- A screen watches **one provider** — a coordinator merges multiple async sources before the widget sees them
+
+---
+
+## 1. ScreenState — The Required State Wrapper
+
+Every feature ViewModel must use `ScreenState<S>` as its state type, not the bare domain entity.
+
+```dart
+// core_state/lib/src/screen_state.dart
+
+enum LoadPhase { idle, loading, refreshing, loadingMore }
+
+@immutable
+class ScreenState<S> {
+  final S? data;
+  final AppError? error;
+  final LoadPhase phase;
+
+  // UI-specific fields live here, not in the domain entity
+  const ScreenState({
+    this.data,
+    this.error,
+    this.phase = LoadPhase.idle,
+  });
+
+  const ScreenState.initial() : this(phase: LoadPhase.loading);
+
+  bool get isLoading => phase == LoadPhase.loading;
+  bool get isRefreshing => phase == LoadPhase.refreshing;
+  bool get hasData => data != null;
+  bool get hasError => error != null;
+
+  ScreenState<S> copyWith({
+    S? data,
+    AppError? error,
+    LoadPhase? phase,
+  }) =>
+      ScreenState(
+        data: data ?? this.data,
+        error: error,                  // nullable: null clears the error
+        phase: phase ?? this.phase,
+      );
+}
+```
+
+**Rule:** `S` is always a plain domain entity or a lightweight UI projection of one. Never add `isDialogOpen`, `selectedIndex`, etc. to `S` — those go directly into `ScreenState` as additional fields on the feature's own subclass (see section 4).
+
+---
+
+## 2. AppError — Sealed Typed Errors
+
+Never use `StateError(message)` or pass strings as errors. All errors must be typed.
+
+```dart
+// core_models/lib/src/errors/app_error.dart
+
+sealed class AppError {
+  const AppError();
+}
+
+final class NetworkError extends AppError {
+  final int? statusCode;
+  final String message;
+  const NetworkError({this.statusCode, required this.message});
+}
+
+final class NotFoundError extends AppError {
+  final String resource;
+  const NotFoundError(this.resource);
+}
+
+final class UnauthorizedError extends AppError {
+  const UnauthorizedError();
+}
+
+final class ValidationError extends AppError {
+  final Map<String, String> fieldErrors;
+  const ValidationError(this.fieldErrors);
+}
+
+final class UnknownError extends AppError {
+  final Object cause;
+  const UnknownError(this.cause);
+}
+```
+
+**Rule:** `ApiError` from the data layer must be mapped to a concrete `AppError` subtype **inside the use case**, before it reaches the ViewModel. The ViewModel never sees raw strings.
+
+---
+
+## 3. BaseViewModel — Revised Contract
+
+`BaseViewModel` now uses `Notifier<ScreenState<S>>` instead of `AsyncNotifier<S>`. You own the full state shape.
+
+```dart
+// core_state/lib/src/vm/base_view_model.dart
+
+abstract class BaseViewModel<S> extends Notifier<ScreenState<S>> {
+  @override
+  ScreenState<S> build() {
+    initialize();
+    return const ScreenState.initial();
+  }
+
+  /// Called once on build. Subclasses trigger their initial load here.
+  void initialize();
+
+  /// Current domain data, safe to call from actions.
+  S? get currentData => state.data;
+
+  S dataOr(S fallback) => state.data ?? fallback;
+
+  /// Standard guarded action wrapper.
+  Future<void> runAction(Future<ScreenState<S>> Function() action) async {
+    try {
+      final next = await action();
+      state = next;
+    } catch (e) {
+      state = state.copyWith(
+        phase: LoadPhase.idle,
+        error: UnknownError(e),
+      );
+    }
+  }
+}
+```
+
+**Rule:** Subclasses call `runAction` for every async mutation. No bare `try/catch` blocks in ViewModels.
+
+---
+
+## 4. Feature ScreenState Extension Pattern
+
+When a screen needs UI-specific state beyond data/error/phase, extend `ScreenState` at the feature level — do not pollute the domain entity.
+
+```dart
+// features/dashboard/lib/src/application/state/dashboard_screen_state.dart
+
+@immutable
+class DashboardScreenState extends ScreenState<DashboardSummary> {
+  final int selectedTabIndex;
+  final bool isFilterDrawerOpen;
+
+  const DashboardScreenState({
+    super.data,
+    super.error,
+    super.phase,
+    this.selectedTabIndex = 0,
+    this.isFilterDrawerOpen = false,
+  });
+
+  const DashboardScreenState.initial()
+      : selectedTabIndex = 0,
+        isFilterDrawerOpen = false,
+        super(phase: LoadPhase.loading);
+
+  @override
+  DashboardScreenState copyWith({
+    DashboardSummary? data,
+    AppError? error,
+    LoadPhase? phase,
+    int? selectedTabIndex,
+    bool? isFilterDrawerOpen,
+  }) =>
+      DashboardScreenState(
+        data: data ?? this.data,
+        error: error,
+        phase: phase ?? this.phase,
+        selectedTabIndex: selectedTabIndex ?? this.selectedTabIndex,
+        isFilterDrawerOpen: isFilterDrawerOpen ?? this.isFilterDrawerOpen,
+      );
+}
+```
+
+---
+
+## 5. ViewModel Implementation
+
+```dart
+// features/dashboard/lib/src/application/view_models/dashboard_view_model.dart
+
+class DashboardViewModel extends BaseViewModel<DashboardSummary> {
+
+  @override
+  void initialize() {
+    // Kick off async load without blocking build()
+    Future.microtask(load);
+  }
+
+  Future<void> load() => runAction(() async {
+    state = state.copyWith(phase: LoadPhase.loading);
+    final summary = await ref.read(getDashboardSummaryUseCaseProvider).execute();
+    return state.copyWith(data: summary, phase: LoadPhase.idle);
+  });
+
+  Future<void> refresh() => runAction(() async {
+    state = state.copyWith(phase: LoadPhase.refreshing);
+    final summary = await ref.read(getDashboardSummaryUseCaseProvider).execute();
+    return state.copyWith(data: summary, phase: LoadPhase.idle);
+  });
+
+  void selectTab(int index) {
+    state = (state as DashboardScreenState).copyWith(selectedTabIndex: index);
+  }
+}
+
+final dashboardViewModelProvider =
+    NotifierProvider<DashboardViewModel, DashboardScreenState>(
+  DashboardViewModel.new,
+);
+```
+
+**Rule:** `initialize()` always defers async work with `Future.microtask`. Never `await` inside `build()`.
+
+---
+
+## 6. Multi-Source Screens — Coordinator Provider
+
+When a screen needs data from more than one provider, create a coordinator. The widget watches only the coordinator.
+
+```dart
+// features/dashboard/lib/src/application/providers/dashboard_coordinator_provider.dart
+
+@riverpod
+Future<DashboardCoordinatedData> dashboardCoordinator(Ref ref) async {
+  // Watch multiple async providers; if any fail, the coordinator fails
+  final summary = await ref.watch(dashboardSummaryProvider.future);
+  final announcements = await ref.watch(announcementsProvider.future);
+
+  return DashboardCoordinatedData(
+    summary: summary,
+    announcements: announcements,
+  );
+}
+
+@immutable
+class DashboardCoordinatedData {
+  final DashboardSummary summary;
+  final List<Announcement> announcements;
+  const DashboardCoordinatedData({
+    required this.summary,
+    required this.announcements,
+  });
+}
+```
+
+**Rule:** Coordinator providers are `@riverpod` functions (code-gen), not ViewModels. They are read-only data mergers. Mutations still go through the ViewModel.
+
+---
+
+## 7. Presentation Layer Rules
+
+```dart
+// features/dashboard/lib/src/presentation/dashboard_screen.dart
+
+class DashboardScreen extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(dashboardViewModelProvider);
+
+    // Full-screen loading: only on initial load, not refresh
+    if (state.isLoading) return const _LoadingScaffold();
+
+    // Full-screen error: only when there is no prior data to show
+    if (state.hasError && !state.hasData) {
+      return _ErrorScaffold(
+        error: state.error!,
+        onRetry: () => ref.read(dashboardViewModelProvider.notifier).load(),
+      );
+    }
+
+    // Render with data; refresh indicator and inline error handled inside
+    return _DashboardContent(state: state as DashboardScreenState);
+  }
+}
+```
+
+**Strict rules for widgets:**
+
+- `ref.watch` is allowed in `build()` only for **the single screen provider** or small, isolated sub-widgets
+- `ref.read` is used inside callbacks (`onTap`, `onPressed`, `onRefresh`) — never in `build()`
+- `ref.listen` is used for one-shot side effects (navigation, snackbars) — always in `build()`, never inside async callbacks
+- Pattern-matching `AsyncValue` directly is only acceptable for sub-widgets smaller than ~50 lines — never for a full screen
+
+---
+
+## 8. Error Display Contract
+
+Errors must be pattern-matched by type. No `.toString()` on errors in widgets.
+
+```dart
+// shared_ui/lib/src/widgets/error_display.dart
+
+String resolveErrorMessage(AppError error) => switch (error) {
+  NetworkError(:final statusCode, :final message) =>
+    statusCode == 503 ? 'Service unavailable. Try again later.' : message,
+  UnauthorizedError() => 'Session expired. Please log in again.',
+  NotFoundError(:final resource) => '$resource could not be found.',
+  ValidationError(:final fieldErrors) => fieldErrors.values.first,
+  UnknownError() => 'Something went wrong. Please try again.',
+};
+```
+
+**Rule:** `resolveErrorMessage` lives in `shared_ui`. No feature widget contains its own error string logic.
+
+---
+
+## 9. Use Case Error Mapping Contract
+
+Use cases are responsible for mapping data-layer `ApiResult` to domain types or throwing typed `AppError`. ViewModels never see `ApiError`.
+
+```dart
+// Correct use case pattern
+Future<DashboardSummary> execute() async {
+  final result = await _repository.getDashboardSummary();
+  return switch (result) {
+    ApiSuccess(:final data) => data,
+    ApiError(:final statusCode, :final message) => throw switch (statusCode) {
+      401 => const UnauthorizedError(),
+      404 => const NotFoundError('Dashboard'),
+      503 => NetworkError(statusCode: 503, message: message),
+      _ => NetworkError(statusCode: statusCode, message: message),
+    },
+  };
+}
+```
+
+---
+
+## 10. What Is Explicitly Forbidden
+
+| Pattern | Why |
+|---|---|
+| `throw StateError(message)` in a ViewModel | Loses type info; use `AppError` subtypes |
+| `AsyncNotifier<DomainEntity>` for full screens | No room for UI state; use `Notifier<ScreenState<S>>` |
+| `ref.watch` on multiple providers inside a screen's `build()` | Creates fragile multi-async UI; use a coordinator provider |
+| `.toString()` on `AsyncError.error` in widgets | Untyped; use `resolveErrorMessage(error as AppError)` |
+| UI flags (`isDialogOpen`, `selectedIndex`) on domain entities | Pollutes domain; these belong in feature `ScreenState` subclass |
+| `await` inside `build()` or `initialize()` directly | Blocks the frame; always defer with `Future.microtask` |
+| `BaseViewModel` skipped for "simple" screens | Consistency across the super app is non-negotiable |
+
+---
+
+## Package Responsibility Map
+
+| Package | Owns |
+|---|---|
+| `core_state` | `BaseViewModel`, `ScreenState<S>`, `LoadPhase` |
+| `core_models` | `AppError` hierarchy, `ApiResult` |
+| `shared_ui` | `resolveErrorMessage`, shared loading/error widgets |
+| Feature `application/` | `ScreenState` subclass, ViewModel, coordinator providers |
+| Feature `presentation/` | Widgets only — no business logic, no error string construction |
+| Feature `domain/` | Entities, use case interfaces, repository interfaces |
+| Feature `data/` | Repository impl, data sources — maps to `ApiResult` only |

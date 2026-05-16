@@ -1,30 +1,29 @@
 # core_state
 
-Minimal Riverpod helpers for feature ViewModels:
+Riverpod helpers for feature ViewModels using `ScreenState<S>`:
 
-- [`BaseViewModel`](lib/src/vm/base_view_model.dart) — `AsyncNotifier` with `currentValue` / `valueOr` for safe reads during `AsyncLoading`
-
-Loading, errors, and UI side effects stay in feature state (`ApiResult`, `AsyncValue`, `ref.listen`, etc.).
+- [`ScreenState`](lib/src/screen/screen_state.dart) — domain `data`, typed `AppError`, and `LoadPhase`
+- [`BaseViewModel`](lib/src/vm/base_view_model.dart) — `Notifier` with `runAction`, `currentData`, and `dataOr`
 
 ## Usage
 
 ```dart
 import 'package:core_state/core_state.dart';
 
-class DashboardViewModel extends BaseViewModel<DashboardSummary> {
+class DashboardViewModel extends BaseViewModel<DashboardSummary, DashboardScreenState> {
   @override
-  Future<DashboardSummary> buildInitial() async {
-    final result = await ref.read(getDashboardSummaryUseCaseProvider).execute();
-    return switch (result) {
-      ApiSuccess(:final data) => data,
-      ApiError(:final message) => throw StateError(message),
-      _ => throw StateError('Unexpected result'),
-    };
-  }
+  DashboardScreenState initialState() => const DashboardScreenState.initial();
 
-  Future<void> refresh() async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(buildInitial);
-  }
+  @override
+  void initialize() => Future.microtask(load);
+
+  Future<void> load() => runAction(() async {
+    state = state.copyWith(phase: LoadPhase.loading) as DashboardScreenState;
+    final summary = await ref.read(getDashboardSummaryUseCaseProvider).execute();
+    return state.copyWith(data: summary, phase: LoadPhase.idle, error: null)
+        as DashboardScreenState;
+  });
 }
 ```
+
+Feature packages extend `ScreenState` for UI-only fields (tabs, drawers, etc.).

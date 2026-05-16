@@ -1,16 +1,38 @@
+import 'package:core_models/core_models.dart';
 import 'package:riverpod/riverpod.dart';
 
-/// Thin [AsyncNotifier] base with safe access while [state] is still loading.
-abstract class BaseViewModel<S> extends AsyncNotifier<S> {
-  /// Feature state when [state] is [AsyncData]; safe during [AsyncLoading].
-  S? get currentValue => state.asData?.value;
+import '../screen/load_phase.dart';
+import '../screen/screen_state.dart';
 
-  /// [currentValue] or [fallback] — use instead of [AsyncValue.requireValue] in actions.
-  S valueOr(S fallback) => currentValue ?? fallback;
+/// [Notifier] base for feature ViewModels backed by [ScreenState].
+abstract class BaseViewModel<S, T extends ScreenState<S>> extends Notifier<T> {
+  /// Subclasses return their feature [ScreenState] in loading phase.
+  T initialState();
+
+  /// Called once from [build]. Defer async work with [Future.microtask].
+  void initialize();
 
   @override
-  Future<S> build() async => buildInitial();
+  T build() {
+    initialize();
+    return initialState();
+  }
 
-  /// Subclasses return the initial value (often by fetching).
-  Future<S> buildInitial();
+  S? get currentData => state.data;
+
+  S dataOr(S fallback) => state.data ?? fallback;
+
+  /// Runs an async mutation and applies the returned [ScreenState].
+  Future<void> runAction(Future<T> Function() action) async {
+    try {
+      state = await action();
+    } catch (e, _) {
+      state =
+          state.copyWith(
+                phase: LoadPhase.idle,
+                error: e is AppError ? e : UnknownError(e),
+              )
+              as T;
+    }
+  }
 }
