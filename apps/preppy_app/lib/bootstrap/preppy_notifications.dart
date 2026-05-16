@@ -50,7 +50,6 @@ Future<void> initializePreppyNotifications({required bool debug}) async {
   );
   await CoreNotificationsFacade.instance.initializeRemote(debug: debug);
   await CoreNotificationsFacade.instance.attachListeners();
-  await CoreNotificationsFacade.instance.requestPermission();
   await CoreNotificationsFacade.instance.getInitialNotificationAction();
 
   if (debug) {

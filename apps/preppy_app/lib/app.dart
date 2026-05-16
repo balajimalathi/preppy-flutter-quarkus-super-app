@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_ui/shared_ui.dart';
+import 'package:core_notifications/core_notifications.dart';
 
 import 'bootstrap/router.dart';
 
@@ -41,6 +42,16 @@ class _ConnectivitySnackBarScope extends ConsumerStatefulWidget {
 class _ConnectivitySnackBarScopeState
     extends ConsumerState<_ConnectivitySnackBarScope> {
   static const _sticky = Duration(days: 365);
+
+  @override
+  void initState() {
+    super.initState();
+    // Request notification permissions after the app has started and the 
+    // Activity is fully visible, otherwise the prompt won't show on Android 13+.
+    Future.microtask(() {
+      CoreNotificationsFacade.instance.requestPermission();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
