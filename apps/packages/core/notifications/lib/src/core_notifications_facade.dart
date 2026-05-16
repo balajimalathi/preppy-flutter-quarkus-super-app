@@ -45,10 +45,10 @@ class CoreNotificationsFacade {
     List<NotificationChannelGroup>? channelGroups,
   }) async {
     await preferences.open();
+    await preferences.saveInitializationConfig(channels, defaultIcon);
     await PushReceiveDebugLog.instance.open();
-    final notificationChannels = channels
-        .map((c) => c.toNotificationChannel())
-        .toList(growable: false);
+    final notificationChannels =
+        channels.map((c) => c.toNotificationChannel()).toList(growable: false);
     _mapper = PushPayloadMapper({for (final c in channels) c.channelKey: c});
 
     final ok = await AwesomeNotifications().initialize(

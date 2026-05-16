@@ -1,6 +1,7 @@
 import 'package:awesome_notifications_fcm/awesome_notifications_fcm.dart';
 
 import 'core_notifications_bridge.dart';
+import 'push_display_relay.dart';
 import 'push_local_display.dart';
 import 'push_receive_debug_log.dart';
 
@@ -21,13 +22,17 @@ Future<void> coreNotificationsOnFcmToken(String token) async {
   await CoreNotificationsBridge.instance.onFcmToken(token);
 }
 
+
 @pragma('vm:entry-point')
 Future<void> coreNotificationsOnFcmSilentData(FcmSilentData data) async {
   await CoreNotificationsBridge.instance.onFcmSilentData(data);
 
   final payload = _fcmDataStrings(data);
   if (payload.isNotEmpty) {
-    await PushLocalDisplay.showFromFcmData(payload);
+    final relayed = await PushDisplayRelay.instance.requestDisplayAndWait(payload);
+    if (!relayed) {
+      await PushLocalDisplay.showFromFcmData(payload);
+    }
   }
 
   PushReceiveDebugLog.instance.ingestSilentData(data);

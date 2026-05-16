@@ -50,11 +50,11 @@ class _StatusScreenState extends ConsumerState<StatusScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final response = await network.get('/status');
-          if (!context.mounted) return;
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(response.data.toString())));
+          // final response = await network.get('/status');
+          // if (!context.mounted) return;
+          // ScaffoldMessenger.of(
+          //   context,
+          // ).showSnackBar(SnackBar(content: Text(response.data.toString())));
         },
         child: const Icon(Icons.refresh),
       ),

@@ -1,25 +1,11 @@
 import 'dart:developer' as developer;
 
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 
 import 'channel_definition.dart';
+import 'notification_preferences_store.dart';
 import 'push_payload_mapper.dart';
-
-/// Channels used when showing FCM payloads from the background Dart isolate.
-/// Must match channels registered in the host app ([initializeLocal]).
-const List<NotificationChannelDefinition> kDefaultFcmDisplayChannels = [
-  NotificationChannelDefinition(
-    channelKey: 'general',
-    channelName: 'General',
-    channelDescription: 'General alerts and updates.',
-    importance: NotificationImportance.High,
-  ),
-  NotificationChannelDefinition(
-    channelKey: 'content',
-    channelName: 'Content',
-    channelDescription: 'Study content, uploads, and ingestion.',
-  ),
-];
 
 /// Shows a tray notification from FCM data inside the FCM background isolate.
 ///
@@ -29,6 +15,7 @@ class PushLocalDisplay {
   PushLocalDisplay._();
 
   static bool _backgroundReady = false;
+  static List<NotificationChannelDefinition> _cachedChannels = [];
 
   static Future<bool> showFromFcmData(Map<String, String> data) async {
     if (data.isEmpty) {
@@ -38,7 +25,7 @@ class PushLocalDisplay {
       await _ensureBackgroundAwesomeReady();
 
       final mapper = PushPayloadMapper({
-        for (final c in kDefaultFcmDisplayChannels) c.channelKey: c,
+        for (final c in _cachedChannels) c.channelKey: c,
       });
       final content = mapper.toNotificationContent(data);
       if (content == null) {
@@ -74,14 +61,25 @@ class PushLocalDisplay {
     if (_backgroundReady) {
       return;
     }
-    final channels = kDefaultFcmDisplayChannels
-        .map((c) => c.toNotificationChannel())
-        .toList(growable: false);
+
+    await Hive.initFlutter();
+    final prefs = NotificationPreferencesStore();
+    await prefs.open();
+
+    _cachedChannels = prefs.getSavedChannels();
+    final defaultIcon =
+        prefs.getSavedDefaultIcon() ?? 'resource://mipmap/ic_launcher';
+
+    final channels =
+        _cachedChannels.map((c) => c.toNotificationChannel()).toList(growable: false);
+
     await AwesomeNotifications().initialize(
-      'resource://mipmap/ic_launcher',
+      defaultIcon,
       channels,
       debug: false,
     );
+
+    await prefs.close();
     _backgroundReady = true;
   }
 }
