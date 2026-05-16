@@ -2,6 +2,10 @@ info:
   name: Push Notifications
   type: http
   seq: 1
+  notes: >-
+    Data-only payload for awesome_notifications_fcm. Refresh FCM token from app
+    Status screen and OAuth bearer (gcloud auth print-access-token) before each run.
+    Use a Google Play Android emulator image for reliable delivery.
 
 http:
   method: POST
@@ -19,7 +23,7 @@ http:
             "priority": "high"
           },
           "data": {
-            "content.id": "2",
+            "content.id": "32",
             "content.channelKey": "general",
             "content.title": "Test",
             "content.body": "Awesome Notifications payload",
@@ -30,7 +34,7 @@ http:
       }
   auth:
     type: bearer
-    token: ya29.c.c0AZ4bNpb485VMB-sRNY1fTjrQc2lX6o3vGBnuIvCKdgwgiSS6ljyWJFg6pK-rMBeD6o20_I4GbfuviIhMbbCZ2nYv-x49q6YpC2KWsWQsL0AdNpxYqg0HanXNRnBQfc2yBR_kIusR-kx1oRqduNWTVbnme_T9o2E-aTblh73XVUlf0_6vy1wHh5KUBpB4JSB8xtm1KtqPZwQ5NrZ_vIMSkPFu-Or_XzxxSVuhSA2RvIhZlIWWi97K3yNFvhTZDGSpWgJ8cGdeSQQRqCXlKEq0klDfFEkGqNsRX4A4qfvj-fyzKkjcLX0hQH4RyRImg2QQ0J_hJKbKhy8Dw7fKd0ji2gRCtfYctWd9gjpZbriw9Xk4zK6E3Nzhf1Da8wH387D60uYBI3Xskj_p4YfpehvWeIh28Mb1aJRmchnyp_xrnhO9gIe7t-h-ZYJZpUI9zahYc2xoe4M3h648vSW--JorStwYRfIrBdhxk7BORrWugVuQVakkYds9f-ZdYpsy0gV2kXgmcZxSdXhdrQk6JecQdh8ddgtn2lJ14Jy4k3q3nk-4f5w7MnW2z4I5d5acZQeS5BqkrvMjp7hwMU9nWjS9edUpRydQFzaJOzM82_iv-mkfmFUf1kuVie-plI_eoYJoWYBSIzrecnY3wd32frcphoa4uuk2UbMrqiMk9xs6U6lySXowRRdj8Qb_kyMaOieQY8dokn8O0xiMqjB8uJqXi1I30zuinhie0f9ZaBlwf2Fcx9a1SWJcOkhBc5zwsWFejmFeuSpj2zBRYex72lwh_g12BqFByu-9jrm5eBy9jo7oxVgtS8ywegqw624BnUwMUR09b23-hRmFtVuR1RqzcvXv7lSyunZaScB6h-FSSYMOll4Rhcl00abiQ8qjsBBy9_tZ78Mo0tZYe4U7kJOuSnYQdIj622q06Xyf7Wbk84kWjSitXmY4qgp0JhmuySIidlSp1YIjyh_Sfhbo5jfWkaO4S5Qh35cBgW3ijI-1aewX83mYkOSkQYw
+    token: ya29.c.c0AZ4bNpbIGXY9cbykLdoBS6qNGkz3mqxCOHLToaTZ0KTOYyafUdMd2Ew-slBRmLFa9PO1hrQ8Mz3d36AxEhiiBFu9sof-AgSsNOkqHtJYoV6-hcom8WspNGA2ug6_-DK1RmD9nCLvuU0oMyzr53hrU0J6FFLHj8X-CCeKxLWxt21-x2BRmmSxgfsX3mNIMjXaHEZ5pDAMtBef7AOvAD11lQcgVVoETila1lpxZJlEFckPE2A6qLMkDTqlBkBPdwsRbL1OlTE9yyEmNKDdXbL7n2H44r473mSDDoa5eBnb-jeo594eb4GgqXu1RwtdXBU-ZizgSVT68ZzPAsD89giAmPYXLDpKstNctijJkBvmSCVHgTNtWQn7yAAL384PtihihpZF0idd_0s5UWybnd0wmiqOIkZgcUnv3Fri6J_qphz3vile8SS--Zvsm9as2u4qQI6uM3QB_cMjJUFzq025b3mJVUFR4B-k7Zmo1ldny7iqF2h61Bae4-rViBbwS6wJhJi_xr-hOOfSvFfjeXsegIjqlnFwtJ1ifrQ7gJhcMRhoxh62wgIdabkv0943bJMo8iveXe6clruSecdw-dzYvzcJnIpQRdxRvbg5QgB0UrkjizRpQI5sXe4VtbsOe_mk3hg1dhsQhw_1o3B21cm1WkRz-BtgrYIJ8MnSIxds3w26yugfwrg4huIQhji35zU5XfuRaZtJYMII68hz5aX0qVlb9cm3zfIf73oS-lVmia2FX_QIbZoU_t2h7U0JrZZpn75mv_By3bhgFl_q5oX1hBf_RJYQXi98J0e68ahvpxwlvY14edy62W66shb2R4wORS-FZUx1zRryBitR6X32Zupkir55I2gioWrbBV_J9-S6XXMXOUs7zFS0-d9UzMSesekXhIdww6pUs5f6Y4qbWrnFpejfqdr-F6kewYg2WdQ9Wo2k3YZJUyt1QvmpVxfI38hQjv37UYnMpvIm9fp8x555jM0jdXZIRu9xkuXrq5rnletun3lxfuo
 
 settings:
   encodeUrl: true
