@@ -63,7 +63,7 @@ class PushReceiveDebugLog {
       developer.log(event.summary, name: 'PreppyPush.${event.kind}');
       developer.log(event.prettyJson, name: 'PreppyPush.raw');
       // ignore: avoid_print
-      print('[PreppyPush.${event.kindLabel}] ${event.summary}');
+      developer.log('[PreppyPush.${event.kindLabel}] ${event.summary}');
 
       final relay = IsolateNameServer.lookupPortByName(_relayPortName);
       if (relay != null) {

@@ -2,6 +2,8 @@ import 'dart:developer' as developer;
 
 import 'package:core_notifications/core_notifications.dart';
 
+import 'preppy_fcm_token_sync.dart';
+
 /// Default FCM / local notification channels for Preppy.
 const List<NotificationChannelDefinition> preppyNotificationChannels = [
   NotificationChannelDefinition(
@@ -25,17 +27,21 @@ Future<void> initializePreppyNotifications({required bool debug}) async {
   CoreNotificationsBridge.instance.configure(
     CoreNotificationsCallbacks(
       onFcmToken: (token) async {
-        if (!debug) return;
+        PreppyFcmTokenSync.onTokenUpdated(token);
         if (token.isEmpty) {
-          developer.log('FCM token cleared', name: 'PreppyFCM');
+          if (debug) {
+            developer.log('FCM token cleared', name: 'PreppyFCM');
+          }
           return;
         }
-        developer.log(token, name: 'PreppyFCM.Token');
+        if (debug) {
+          developer.log(token, name: 'PreppyFCM.Token');
+        }
       },
       onNativeToken: (token) async {
         assert(() {
           // ignore: avoid_print
-          print('core_notifications: native push token updated');
+          developer.log('core_notifications: native push token updated');
           return true;
         }());
       },

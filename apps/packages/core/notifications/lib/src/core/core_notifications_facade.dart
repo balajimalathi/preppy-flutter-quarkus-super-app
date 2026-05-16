@@ -3,6 +3,7 @@ import 'package:awesome_notifications_fcm/awesome_notifications_fcm.dart';
 
 import '../debug/push_receive_debug_log.dart';
 import '../display/push_display_relay.dart';
+import '../display/push_local_display.dart';
 import '../display/push_payload_mapper.dart';
 import '../handlers/fcm_entry_points.dart';
 import '../handlers/listener_entry_points.dart';
@@ -47,9 +48,12 @@ class CoreNotificationsFacade {
     await preferences.open();
     await preferences.saveInitializationConfig(channels, defaultIcon);
     await PushReceiveDebugLog.instance.open();
-    final notificationChannels =
-        channels.map((c) => c.toNotificationChannel()).toList(growable: false);
+    final notificationChannels = channels
+        .map((c) => c.toNotificationChannel())
+        .toList(growable: false);
     _mapper = PushPayloadMapper({for (final c in channels) c.channelKey: c});
+    PushLocalDisplay.hostFallbackChannels =
+        List<NotificationChannelDefinition>.from(channels);
 
     final ok = await AwesomeNotifications().initialize(
       defaultIcon,
@@ -125,6 +129,10 @@ class CoreNotificationsFacade {
       permissions: permissions,
     );
   }
+
+  /// Whether the user has granted permission to show notifications.
+  Future<bool> isNotificationAllowed() =>
+      AwesomeNotifications().isNotificationAllowed();
 
   Future<String?> requestFirebaseAppToken() async {
     final token = await AwesomeNotificationsFcm().requestFirebaseAppToken();

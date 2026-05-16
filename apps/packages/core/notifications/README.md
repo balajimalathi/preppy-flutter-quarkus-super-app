@@ -61,6 +61,15 @@ All values are **strings** (typical FCM data map).
 - **`POST_NOTIFICATIONS`** is declared in the host app for API 33+; still request permission in Dart via `CoreNotificationsFacade.requestPermission()`.
 - Plugin manifests merge **INTERNET**, **FCM**, and boot receivers.
 
+### Testing push on the Android emulator
+
+1. Use an AVD with a **Google Play** system image (FCM needs Play services).
+2. Copy a fresh FCM token from the app **Status** screen before each test batch (tokens rotate).
+3. Send **data-only** messages with Awesome keys (`content.channelKey`, `content.title`, …). See `bruno/google/Push Notifications.yml` in the repo root.
+4. Do not **Force stop** the app; swipe away is fine. Re-open the app if pushes stop after an emulator cold boot.
+5. On the Status screen, confirm **silent** (FCM received) and **created/displayed** (tray pipeline) events. `silent` without `displayed` usually means permission, payload, or channel issues.
+6. Refresh OAuth for HTTP sends (`gcloud auth print-access-token`); expired bearer tokens fail at FCM HTTP, not in the app.
+
 ## iOS
 
 - **Minimum iOS 15** (required by Awesome Notifications 0.11.x).

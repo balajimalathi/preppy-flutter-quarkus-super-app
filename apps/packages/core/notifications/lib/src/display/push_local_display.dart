@@ -17,6 +17,11 @@ class PushLocalDisplay {
   static bool _backgroundReady = false;
   static List<NotificationChannelDefinition> _cachedChannels = [];
 
+  /// Channels from the last [CoreNotificationsFacade.initializeLocal] call.
+  ///
+  /// Used when Hive has no persisted config in the FCM background isolate.
+  static List<NotificationChannelDefinition> hostFallbackChannels = const [];
+
   static Future<bool> showFromFcmData(Map<String, String> data) async {
     if (data.isEmpty) {
       return false;
@@ -30,15 +35,30 @@ class PushLocalDisplay {
       final content = mapper.toNotificationContent(data);
       if (content == null) {
         // ignore: avoid_print
-        print('[PreppyPush.display] no mappable channel in payload');
+        developer.log('[PreppyPush.display] no mappable channel in payload');
         return false;
+      }
+
+      final channelKey = content.channelKey;
+      if (channelKey != null) {
+        final prefs = NotificationPreferencesStore();
+        await prefs.open();
+        final enabled = prefs.isChannelEnabled(channelKey);
+        await prefs.close();
+        if (!enabled) {
+          developer.log(
+            '[PreppyPush.display] channel disabled in prefs: $channelKey',
+            name: 'PreppyPush.display',
+          );
+          return false;
+        }
       }
 
       final shown = await AwesomeNotifications().createNotification(
         content: content,
       );
       // ignore: avoid_print
-      print('[PreppyPush.display] createNotification=$shown');
+      developer.log('[PreppyPush.display] createNotification=$shown');
       developer.log(
         'createNotification=$shown channel=${content.channelKey}',
         name: 'PreppyPush.display',
@@ -46,7 +66,7 @@ class PushLocalDisplay {
       return shown;
     } catch (e, st) {
       // ignore: avoid_print
-      print('[PreppyPush.display] failed: $e');
+      developer.log('[PreppyPush.display] failed: $e');
       developer.log(
         'showFromFcmData failed',
         name: 'PreppyPush.display',
@@ -67,11 +87,21 @@ class PushLocalDisplay {
     await prefs.open();
 
     _cachedChannels = prefs.getSavedChannels();
+    if (_cachedChannels.isEmpty && hostFallbackChannels.isNotEmpty) {
+      _cachedChannels = List<NotificationChannelDefinition>.from(
+        hostFallbackChannels,
+      );
+      developer.log(
+        'using host fallback channels (${_cachedChannels.length})',
+        name: 'PreppyPush.display',
+      );
+    }
     final defaultIcon =
         prefs.getSavedDefaultIcon() ?? 'resource://mipmap/ic_launcher';
 
-    final channels =
-        _cachedChannels.map((c) => c.toNotificationChannel()).toList(growable: false);
+    final channels = _cachedChannels
+        .map((c) => c.toNotificationChannel())
+        .toList(growable: false);
 
     await AwesomeNotifications().initialize(
       defaultIcon,

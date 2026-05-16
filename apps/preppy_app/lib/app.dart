@@ -1,10 +1,14 @@
+import 'dart:developer' as developer;
+
 import 'package:core_di/core_di.dart';
+import 'package:core_notifications/core_notifications.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_ui/shared_ui.dart';
-import 'package:core_notifications/core_notifications.dart';
 
+import 'bootstrap/preppy_fcm_token_sync.dart';
 import 'bootstrap/router.dart';
 
 class PreppyApp extends ConsumerWidget {
@@ -21,8 +25,11 @@ class PreppyApp extends ConsumerWidget {
       themeMode: theme.themeMode,
       routerConfig: router,
       debugShowCheckedModeBanner: kDebugMode,
-      builder: (context, child) =>
-          _ConnectivitySnackBarScope(child: child ?? const SizedBox.shrink()),
+      builder: (context, child) => _FcmTokenSyncScope(
+        child: _ConnectivitySnackBarScope(
+          child: child ?? const SizedBox.shrink(),
+        ),
+      ),
     );
   }
 }
@@ -46,10 +53,17 @@ class _ConnectivitySnackBarScopeState
   @override
   void initState() {
     super.initState();
-    // Request notification permissions after the app has started and the 
+    // Request notification permissions after the app has started and the
     // Activity is fully visible, otherwise the prompt won't show on Android 13+.
-    Future.microtask(() {
-      CoreNotificationsFacade.instance.requestPermission();
+    Future.microtask(() async {
+      final granted = await CoreNotificationsFacade.instance
+          .requestPermission();
+      if (kDebugMode) {
+        developer.log(
+          'notification permission: ${granted ? "granted" : "denied"}',
+          name: 'PreppyPush',
+        );
+      }
     });
   }
 
@@ -109,4 +123,43 @@ class _ConnectivitySnackBarScopeState
 
     return widget.child;
   }
+}
+
+/// Syncs FCM token to the backend after sign-in and when the token refreshes.
+class _FcmTokenSyncScope extends ConsumerStatefulWidget {
+  const _FcmTokenSyncScope({required this.child});
+
+  final Widget child;
+
+  @override
+  ConsumerState<_FcmTokenSyncScope> createState() => _FcmTokenSyncScopeState();
+}
+
+class _FcmTokenSyncScopeState extends ConsumerState<_FcmTokenSyncScope> {
+  @override
+  void initState() {
+    super.initState();
+    PreppyFcmTokenSync.onTokenPendingSync = _syncToken;
+    FirebaseAuth.instance.authStateChanges().listen((_) {
+      _syncToken();
+    });
+    Future.microtask(_syncToken);
+  }
+
+  @override
+  void dispose() {
+    PreppyFcmTokenSync.onTokenPendingSync = null;
+    super.dispose();
+  }
+
+  Future<void> _syncToken() async {
+    if (!mounted) {
+      return;
+    }
+    final dio = ref.read(dioProvider);
+    await PreppyFcmTokenSync.trySync(dio);
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
