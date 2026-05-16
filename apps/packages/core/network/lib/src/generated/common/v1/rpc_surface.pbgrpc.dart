@@ -32,24 +32,33 @@ class RpcSurfaceClient extends $grpc.Client {
 
   RpcSurfaceClient(super.channel, {super.options, super.interceptors});
 
-  $grpc.ResponseFuture<$0.PingResponse> ping($0.PingRequest request, {$grpc.CallOptions? options,}) {
+  $grpc.ResponseFuture<$0.PingResponse> ping(
+    $0.PingRequest request, {
+    $grpc.CallOptions? options,
+  }) {
     return $createUnaryCall(_$ping, request, options: options);
   }
 
-  $grpc.ResponseStream<$0.JobStatusEvent> watchJobStatus($0.WatchJobStatusRequest request, {$grpc.CallOptions? options,}) {
-    return $createStreamingCall(_$watchJobStatus, $async.Stream.fromIterable([request]), options: options);
+  $grpc.ResponseStream<$0.JobStatusEvent> watchJobStatus(
+    $0.WatchJobStatusRequest request, {
+    $grpc.CallOptions? options,
+  }) {
+    return $createStreamingCall(
+        _$watchJobStatus, $async.Stream.fromIterable([request]),
+        options: options);
   }
 
-    // method descriptors
+  // method descriptors
 
   static final _$ping = $grpc.ClientMethod<$0.PingRequest, $0.PingResponse>(
       '/common.v1.RpcSurface/Ping',
       ($0.PingRequest value) => value.writeToBuffer(),
       $0.PingResponse.fromBuffer);
-  static final _$watchJobStatus = $grpc.ClientMethod<$0.WatchJobStatusRequest, $0.JobStatusEvent>(
-      '/common.v1.RpcSurface/WatchJobStatus',
-      ($0.WatchJobStatusRequest value) => value.writeToBuffer(),
-      $0.JobStatusEvent.fromBuffer);
+  static final _$watchJobStatus =
+      $grpc.ClientMethod<$0.WatchJobStatusRequest, $0.JobStatusEvent>(
+          '/common.v1.RpcSurface/WatchJobStatus',
+          ($0.WatchJobStatusRequest value) => value.writeToBuffer(),
+          $0.JobStatusEvent.fromBuffer);
 }
 
 @$pb.GrpcServiceName('common.v1.RpcSurface')
@@ -69,20 +78,24 @@ abstract class RpcSurfaceServiceBase extends $grpc.Service {
         watchJobStatus_Pre,
         false,
         true,
-        ($core.List<$core.int> value) => $0.WatchJobStatusRequest.fromBuffer(value),
+        ($core.List<$core.int> value) =>
+            $0.WatchJobStatusRequest.fromBuffer(value),
         ($0.JobStatusEvent value) => value.writeToBuffer()));
   }
 
-  $async.Future<$0.PingResponse> ping_Pre($grpc.ServiceCall $call, $async.Future<$0.PingRequest> $request) async {
+  $async.Future<$0.PingResponse> ping_Pre(
+      $grpc.ServiceCall $call, $async.Future<$0.PingRequest> $request) async {
     return ping($call, await $request);
   }
 
-  $async.Future<$0.PingResponse> ping($grpc.ServiceCall call, $0.PingRequest request);
+  $async.Future<$0.PingResponse> ping(
+      $grpc.ServiceCall call, $0.PingRequest request);
 
-  $async.Stream<$0.JobStatusEvent> watchJobStatus_Pre($grpc.ServiceCall $call, $async.Future<$0.WatchJobStatusRequest> $request) async* {
+  $async.Stream<$0.JobStatusEvent> watchJobStatus_Pre($grpc.ServiceCall $call,
+      $async.Future<$0.WatchJobStatusRequest> $request) async* {
     yield* watchJobStatus($call, await $request);
   }
 
-  $async.Stream<$0.JobStatusEvent> watchJobStatus($grpc.ServiceCall call, $0.WatchJobStatusRequest request);
-
+  $async.Stream<$0.JobStatusEvent> watchJobStatus(
+      $grpc.ServiceCall call, $0.WatchJobStatusRequest request);
 }

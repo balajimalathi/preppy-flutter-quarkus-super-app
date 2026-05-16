@@ -35,7 +35,10 @@ class PushLocalDisplay {
       final content = mapper.toNotificationContent(data);
       if (content == null) {
         // ignore: avoid_print
-        developer.log('No mappable channel in payload', name: 'PreppyPush.display');
+        developer.log(
+          'No mappable channel in payload',
+          name: 'PreppyPush.display',
+        );
         return false;
       }
 

@@ -1,7 +1,7 @@
 import 'package:dashboard/src/status_screen.dart';
 import 'package:go_router/go_router.dart';
 
-import 'dashboard_screen.dart';
+import 'presentation/dashboard_screen.dart';
 
 final List<RouteBase> featureDashboardRoutes = [
   GoRoute(

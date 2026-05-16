@@ -23,8 +23,8 @@ const PingRequest$json = {
 };
 
 /// Descriptor for `PingRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List pingRequestDescriptor = $convert.base64Decode(
-    'CgtQaW5nUmVxdWVzdBIWCgZjbGllbnQYASABKAlSBmNsaWVudA==');
+final $typed_data.Uint8List pingRequestDescriptor = $convert
+    .base64Decode('CgtQaW5nUmVxdWVzdBIWCgZjbGllbnQYASABKAlSBmNsaWVudA==');
 
 @$core.Deprecated('Use pingResponseDescriptor instead')
 const PingResponse$json = {
@@ -35,8 +35,8 @@ const PingResponse$json = {
 };
 
 /// Descriptor for `PingResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List pingResponseDescriptor = $convert.base64Decode(
-    'CgxQaW5nUmVzcG9uc2USGAoHbWVzc2FnZRgBIAEoCVIHbWVzc2FnZQ==');
+final $typed_data.Uint8List pingResponseDescriptor = $convert
+    .base64Decode('CgxQaW5nUmVzcG9uc2USGAoHbWVzc2FnZRgBIAEoCVIHbWVzc2FnZQ==');
 
 @$core.Deprecated('Use watchJobStatusRequestDescriptor instead')
 const WatchJobStatusRequest$json = {
@@ -47,8 +47,9 @@ const WatchJobStatusRequest$json = {
 };
 
 /// Descriptor for `WatchJobStatusRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List watchJobStatusRequestDescriptor = $convert.base64Decode(
-    'ChVXYXRjaEpvYlN0YXR1c1JlcXVlc3QSFQoGam9iX2lkGAEgASgJUgVqb2JJZA==');
+final $typed_data.Uint8List watchJobStatusRequestDescriptor =
+    $convert.base64Decode(
+        'ChVXYXRjaEpvYlN0YXR1c1JlcXVlc3QSFQoGam9iX2lkGAEgASgJUgVqb2JJZA==');
 
 @$core.Deprecated('Use jobStatusEventDescriptor instead')
 const JobStatusEvent$json = {
@@ -63,4 +64,3 @@ const JobStatusEvent$json = {
 final $typed_data.Uint8List jobStatusEventDescriptor = $convert.base64Decode(
     'Cg5Kb2JTdGF0dXNFdmVudBIUCgVwaGFzZRgBIAEoCVIFcGhhc2USFgoGZGV0YWlsGAIgASgJUg'
     'ZkZXRhaWw=');
-

@@ -1,11 +1,7 @@
 import 'package:dio/dio.dart';
 
 final class ProfileFetchException implements Exception {
-  ProfileFetchException(
-    this.message, {
-    this.cause,
-    this.statusCode,
-  });
+  ProfileFetchException(this.message, {this.cause, this.statusCode});
 
   final String message;
   final Object? cause;

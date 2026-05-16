@@ -12,6 +12,6 @@ export 'package:core_network/core_connectivity.dart'
         ConnectivityContract,
         ConnectivityNotifier,
         ConnectivityState,
-        connectivityServiceProvider,  
+        connectivityServiceProvider,
         connectivityStateProvider;
 export 'package:core_network/core_network.dart';

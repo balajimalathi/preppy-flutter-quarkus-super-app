@@ -27,18 +27,26 @@ class PingRequest extends $pb.GeneratedMessage {
 
   PingRequest._();
 
-  factory PingRequest.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
-  factory PingRequest.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
+  factory PingRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory PingRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PingRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'common.v1'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'PingRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'common.v1'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'client')
-    ..hasRequiredFields = false
-  ;
+    ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
   PingRequest clone() => PingRequest()..mergeFromMessage(this);
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  PingRequest copyWith(void Function(PingRequest) updates) => super.copyWith((message) => updates(message as PingRequest)) as PingRequest;
+  PingRequest copyWith(void Function(PingRequest) updates) =>
+      super.copyWith((message) => updates(message as PingRequest))
+          as PingRequest;
 
   @$core.override
   $pb.BuilderInfo get info_ => _i;
@@ -49,7 +57,8 @@ class PingRequest extends $pb.GeneratedMessage {
   PingRequest createEmptyInstance() => create();
   static $pb.PbList<PingRequest> createRepeated() => $pb.PbList<PingRequest>();
   @$core.pragma('dart2js:noInline')
-  static PingRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PingRequest>(create);
+  static PingRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<PingRequest>(create);
   static PingRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -73,18 +82,26 @@ class PingResponse extends $pb.GeneratedMessage {
 
   PingResponse._();
 
-  factory PingResponse.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
-  factory PingResponse.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
+  factory PingResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory PingResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PingResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'common.v1'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'PingResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'common.v1'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'message')
-    ..hasRequiredFields = false
-  ;
+    ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
   PingResponse clone() => PingResponse()..mergeFromMessage(this);
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  PingResponse copyWith(void Function(PingResponse) updates) => super.copyWith((message) => updates(message as PingResponse)) as PingResponse;
+  PingResponse copyWith(void Function(PingResponse) updates) =>
+      super.copyWith((message) => updates(message as PingResponse))
+          as PingResponse;
 
   @$core.override
   $pb.BuilderInfo get info_ => _i;
@@ -93,9 +110,11 @@ class PingResponse extends $pb.GeneratedMessage {
   static PingResponse create() => PingResponse._();
   @$core.override
   PingResponse createEmptyInstance() => create();
-  static $pb.PbList<PingResponse> createRepeated() => $pb.PbList<PingResponse>();
+  static $pb.PbList<PingResponse> createRepeated() =>
+      $pb.PbList<PingResponse>();
   @$core.pragma('dart2js:noInline')
-  static PingResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PingResponse>(create);
+  static PingResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<PingResponse>(create);
   static PingResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -119,18 +138,28 @@ class WatchJobStatusRequest extends $pb.GeneratedMessage {
 
   WatchJobStatusRequest._();
 
-  factory WatchJobStatusRequest.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
-  factory WatchJobStatusRequest.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
+  factory WatchJobStatusRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory WatchJobStatusRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'WatchJobStatusRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'common.v1'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'WatchJobStatusRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'common.v1'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'jobId')
-    ..hasRequiredFields = false
-  ;
+    ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  WatchJobStatusRequest clone() => WatchJobStatusRequest()..mergeFromMessage(this);
+  WatchJobStatusRequest clone() =>
+      WatchJobStatusRequest()..mergeFromMessage(this);
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  WatchJobStatusRequest copyWith(void Function(WatchJobStatusRequest) updates) => super.copyWith((message) => updates(message as WatchJobStatusRequest)) as WatchJobStatusRequest;
+  WatchJobStatusRequest copyWith(
+          void Function(WatchJobStatusRequest) updates) =>
+      super.copyWith((message) => updates(message as WatchJobStatusRequest))
+          as WatchJobStatusRequest;
 
   @$core.override
   $pb.BuilderInfo get info_ => _i;
@@ -139,9 +168,11 @@ class WatchJobStatusRequest extends $pb.GeneratedMessage {
   static WatchJobStatusRequest create() => WatchJobStatusRequest._();
   @$core.override
   WatchJobStatusRequest createEmptyInstance() => create();
-  static $pb.PbList<WatchJobStatusRequest> createRepeated() => $pb.PbList<WatchJobStatusRequest>();
+  static $pb.PbList<WatchJobStatusRequest> createRepeated() =>
+      $pb.PbList<WatchJobStatusRequest>();
   @$core.pragma('dart2js:noInline')
-  static WatchJobStatusRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<WatchJobStatusRequest>(create);
+  static WatchJobStatusRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<WatchJobStatusRequest>(create);
   static WatchJobStatusRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -167,19 +198,27 @@ class JobStatusEvent extends $pb.GeneratedMessage {
 
   JobStatusEvent._();
 
-  factory JobStatusEvent.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
-  factory JobStatusEvent.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
+  factory JobStatusEvent.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory JobStatusEvent.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'JobStatusEvent', package: const $pb.PackageName(_omitMessageNames ? '' : 'common.v1'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'JobStatusEvent',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'common.v1'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'phase')
     ..aOS(2, _omitFieldNames ? '' : 'detail')
-    ..hasRequiredFields = false
-  ;
+    ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
   JobStatusEvent clone() => JobStatusEvent()..mergeFromMessage(this);
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  JobStatusEvent copyWith(void Function(JobStatusEvent) updates) => super.copyWith((message) => updates(message as JobStatusEvent)) as JobStatusEvent;
+  JobStatusEvent copyWith(void Function(JobStatusEvent) updates) =>
+      super.copyWith((message) => updates(message as JobStatusEvent))
+          as JobStatusEvent;
 
   @$core.override
   $pb.BuilderInfo get info_ => _i;
@@ -188,9 +227,11 @@ class JobStatusEvent extends $pb.GeneratedMessage {
   static JobStatusEvent create() => JobStatusEvent._();
   @$core.override
   JobStatusEvent createEmptyInstance() => create();
-  static $pb.PbList<JobStatusEvent> createRepeated() => $pb.PbList<JobStatusEvent>();
+  static $pb.PbList<JobStatusEvent> createRepeated() =>
+      $pb.PbList<JobStatusEvent>();
   @$core.pragma('dart2js:noInline')
-  static JobStatusEvent getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<JobStatusEvent>(create);
+  static JobStatusEvent getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<JobStatusEvent>(create);
   static JobStatusEvent? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -212,6 +253,7 @@ class JobStatusEvent extends $pb.GeneratedMessage {
   void clearDetail() => $_clearField(2);
 }
 
-
-const $core.bool _omitFieldNames = $core.bool.fromEnvironment('protobuf.omit_field_names');
-const $core.bool _omitMessageNames = $core.bool.fromEnvironment('protobuf.omit_message_names');
+const $core.bool _omitFieldNames =
+    $core.bool.fromEnvironment('protobuf.omit_field_names');
+const $core.bool _omitMessageNames =
+    $core.bool.fromEnvironment('protobuf.omit_message_names');

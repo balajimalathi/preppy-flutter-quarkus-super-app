@@ -103,7 +103,9 @@ class NotificationChannelDefinition {
       ledColor: map['ledColor'] != null ? Color(map['ledColor'] as int) : null,
       groupKey: map['groupKey'] as String?,
       channelGroupKey: map['channelGroupKey'] as String?,
-      defaultColor: map['defaultColor'] != null ? Color(map['defaultColor'] as int) : null,
+      defaultColor: map['defaultColor'] != null
+          ? Color(map['defaultColor'] as int)
+          : null,
       defaultPrivacy: map['defaultPrivacy'] != null
           ? NotificationPrivacy.values.firstWhere(
               (e) => e.name == map['defaultPrivacy'],

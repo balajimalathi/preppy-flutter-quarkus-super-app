@@ -22,14 +22,15 @@ Future<void> coreNotificationsOnFcmToken(String token) async {
   await CoreNotificationsBridge.instance.onFcmToken(token);
 }
 
-
 @pragma('vm:entry-point')
 Future<void> coreNotificationsOnFcmSilentData(FcmSilentData data) async {
   await CoreNotificationsBridge.instance.onFcmSilentData(data);
 
   final payload = _fcmDataStrings(data);
   if (payload.isNotEmpty) {
-    final relayed = await PushDisplayRelay.instance.requestDisplayAndWait(payload);
+    final relayed = await PushDisplayRelay.instance.requestDisplayAndWait(
+      payload,
+    );
     if (!relayed) {
       await PushLocalDisplay.showFromFcmData(payload);
     }
