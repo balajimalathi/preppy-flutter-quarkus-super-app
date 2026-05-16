@@ -76,4 +76,36 @@ class UserResourceTest {
                 .body("profileId", equalTo(profileId))
                 .body("email", equalTo("test@example.com"));
     }
+
+    @Test
+    void updateFcmTokenRequiresBearerToken() {
+        given().contentType(ContentType.JSON)
+                .body("{\"fcmToken\":\"device-token-1\"}")
+                .when()
+                .put("/v1/users/me/fcm-token")
+                .then()
+                .statusCode(401);
+    }
+
+    @Test
+    void updateFcmTokenPersistsForExistingUser() {
+        given().header("Authorization", "Bearer test-token")
+                .when()
+                .get("/v1/users/me")
+                .then()
+                .statusCode(200);
+
+        given().header("Authorization", "Bearer test-token")
+                .contentType(ContentType.JSON)
+                .body("{\"fcmToken\":\"device-token-abc\"}")
+                .when()
+                .put("/v1/users/me/fcm-token")
+                .then()
+                .statusCode(204);
+
+        final User user = userRepository
+                .findByOriginAndExternalUid(AuthOrigin.FIREBASE, "test-firebase-uid")
+                .orElseThrow();
+        org.junit.jupiter.api.Assertions.assertEquals("device-token-abc", user.getFcmToken());
+    }
 }

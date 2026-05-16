@@ -62,4 +62,23 @@ public class UserService {
                 .map(ProfileMapper::toResponse)
                 .orElseGet(() -> syncFromFirebaseToken(token));
     }
+
+    @Transactional
+    public void updateFcmToken(
+            final AuthOrigin origin,
+            final String externalUid,
+            final String fcmToken,
+            final FirebaseToken token) {
+        User user = userRepository.findByOriginAndExternalUid(origin, externalUid).orElse(null);
+        if (user == null) {
+            syncFromFirebaseToken(token);
+            user = userRepository
+                    .findByOriginAndExternalUid(origin, externalUid)
+                    .orElseThrow(() -> AppException.notFound("User profile not found"));
+        }
+        final String normalized = fcmToken == null ? null : fcmToken.trim();
+        user.setFcmToken(normalized == null || normalized.isEmpty() ? null : normalized);
+        user.setUpdatedBy(user.getId());
+        userRepository.getEntityManager().flush();
+    }
 }
