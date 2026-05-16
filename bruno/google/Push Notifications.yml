@@ -19,9 +19,9 @@ http:
             "priority": "high"
           },
           "data": {
-            "content.id": "1",
+            "content.id": "2",
             "content.channelKey": "general",
-            "content.title": "Preppy test",
+            "content.title": "Test",
             "content.body": "Awesome Notifications payload",
             "content.displayOnForeground": "true",
             "content.displayOnBackground": "true"

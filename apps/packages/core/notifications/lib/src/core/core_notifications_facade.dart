@@ -1,14 +1,14 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:awesome_notifications_fcm/awesome_notifications_fcm.dart';
 
-import 'channel_definition.dart';
+import '../debug/push_receive_debug_log.dart';
+import '../display/push_display_relay.dart';
+import '../display/push_payload_mapper.dart';
+import '../handlers/fcm_entry_points.dart';
+import '../handlers/listener_entry_points.dart';
+import '../models/channel_definition.dart';
+import '../storage/notification_preferences_store.dart';
 import 'core_notifications_bridge.dart';
-import 'fcm_entry_points.dart';
-import 'listener_entry_points.dart';
-import 'notification_preferences_store.dart';
-import 'push_payload_mapper.dart';
-import 'push_display_relay.dart';
-import 'push_receive_debug_log.dart';
 
 /// Host-agnostic Awesome Notifications + FCM setup.
 ///

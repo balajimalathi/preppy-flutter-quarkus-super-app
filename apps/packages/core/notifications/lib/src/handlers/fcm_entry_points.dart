@@ -1,9 +1,9 @@
 import 'package:awesome_notifications_fcm/awesome_notifications_fcm.dart';
 
-import 'core_notifications_bridge.dart';
-import 'push_display_relay.dart';
-import 'push_local_display.dart';
-import 'push_receive_debug_log.dart';
+import '../core/core_notifications_bridge.dart';
+import '../debug/push_receive_debug_log.dart';
+import '../display/push_display_relay.dart';
+import '../display/push_local_display.dart';
 
 Map<String, String> _fcmDataStrings(FcmSilentData data) {
   final raw = data.data;

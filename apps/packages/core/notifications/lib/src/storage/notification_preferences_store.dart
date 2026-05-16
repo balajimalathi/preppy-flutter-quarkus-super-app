@@ -1,6 +1,6 @@
 import 'package:hive_ce/hive.dart';
 
-import 'channel_definition.dart';
+import '../models/channel_definition.dart';
 
 /// Per-channel opt-in and initialization config stored in Hive.
 class NotificationPreferencesStore {

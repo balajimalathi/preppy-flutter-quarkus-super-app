@@ -35,17 +35,6 @@ class PushDisplayRelay {
           reply.send(shown);
           return;
         }
-        if (message is Map) {
-          final data = _mapFromMessage(message);
-          if (data.isEmpty) {
-            return;
-          }
-          final shown = await _onDisplay!(data);
-          developer.log(
-            shown ? 'notification created' : 'not shown (mapper/prefs)',
-            name: 'PreppyPush.display',
-          );
-        }
       } catch (e, st) {
         developer.log(
           'display failed',

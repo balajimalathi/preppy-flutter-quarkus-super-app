@@ -7,7 +7,7 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:awesome_notifications_fcm/awesome_notifications_fcm.dart';
 import 'package:flutter/foundation.dart';
 
-import 'push_payload_history_store.dart';
+import '../storage/push_payload_history_store.dart';
 
 /// In-memory + Hive log of push / local notification events and raw payloads.
 ///

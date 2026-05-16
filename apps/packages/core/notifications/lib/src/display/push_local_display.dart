@@ -3,8 +3,8 @@ import 'dart:developer' as developer;
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 
-import 'channel_definition.dart';
-import 'notification_preferences_store.dart';
+import '../models/channel_definition.dart';
+import '../storage/notification_preferences_store.dart';
 import 'push_payload_mapper.dart';
 
 /// Shows a tray notification from FCM data inside the FCM background isolate.

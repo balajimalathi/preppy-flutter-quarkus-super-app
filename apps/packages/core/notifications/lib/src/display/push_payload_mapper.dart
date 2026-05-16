@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 
-import 'channel_definition.dart';
+import '../models/channel_definition.dart';
 
 /// Maps FCM `data` payloads into [NotificationContent] for local display
 /// (e.g. foreground) using keys documented in the package README.
@@ -113,12 +113,6 @@ class PushPayloadMapper {
   /// Whether [channelKey] is registered in [PushPayloadMapper].
   bool isKnownChannel(String channelKey) =>
       _channelsByKey.containsKey(channelKey);
-
-  /// JSON map suitable for [AwesomeNotifications.createNotificationFromJsonData].
-  Map<String, dynamic>? toJsonData(Map<String, String> data) {
-    final content = toNotificationContent(data);
-    return content?.toMap();
-  }
 
   NotificationLayout? _parseLayout(String? raw) {
     if (raw == null || raw.isEmpty) {
