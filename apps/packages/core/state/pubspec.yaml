@@ -1,0 +1,28 @@
+name: core_state
+description: Centralised state management for the app.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.11.5
+
+resolution: workspace
+
+dependencies:
+  core_analytics:
+    path: ../analytics
+  core_auth:
+    path: ../auth
+  core_cloud:
+    path: ../cloud
+  core_env:
+    path: ../env
+  core_network:
+    path: ../network
+  core_storage:
+    path: ../storage
+  riverpod: ^3.2.1
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.6
