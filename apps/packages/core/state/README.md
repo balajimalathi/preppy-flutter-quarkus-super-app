@@ -1,33 +1,30 @@
 # core_state
 
-Riverpod foundations and Flutter UI bridge for feature ViewModels:
+Minimal Riverpod helpers for feature ViewModels:
 
-- [`BaseViewModel`](lib/src/vm/base_view_model.dart) — `AsyncNotifier` with a scoped `UiEvent` stream
-- [`StateViewModel`](lib/src/vm/state_view_model.dart) — subscribes to events and handles navigation, snackbars, dialogs
-- [`UiEvent`](lib/src/events/ui_event.dart) — navigation, snackbars, dialogs (no `BuildContext` in the VM)
-- [`UiPhase`](lib/src/phase/ui_phase.dart) — screen lifecycle inside feature state
+- [`BaseViewModel`](lib/src/vm/base_view_model.dart) — `AsyncNotifier` with `currentValue` / `valueOr` for safe reads during `AsyncLoading`
+
+Loading, errors, and UI side effects stay in feature state (`ApiResult`, `AsyncValue`, `ref.listen`, etc.).
 
 ## Usage
 
 ```dart
 import 'package:core_state/core_state.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MyViewModel extends BaseViewModel<MyState> {
+class DashboardViewModel extends BaseViewModel<DashboardSummary> {
   @override
-  Future<MyState> buildInitial() async => MyState.initial();
-}
+  Future<DashboardSummary> buildInitial() async {
+    final result = await ref.read(getDashboardSummaryUseCaseProvider).execute();
+    return switch (result) {
+      ApiSuccess(:final data) => data,
+      ApiError(:final message) => throw StateError(message),
+      _ => throw StateError('Unexpected result'),
+    };
+  }
 
-class _MyScreenState extends StateViewModel<MyScreen, MyState, MyViewModel> {
-  @override
-  AsyncNotifierProvider<MyViewModel, MyState> get viewModelProvider =>
-      myViewModelProvider;
-
-  @override
-  void onViewInit() => viewModel.load();
+  Future<void> refresh() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(buildInitial);
+  }
 }
 ```
-
-## Dependencies
-
-`core_models`, `riverpod`, `flutter_riverpod`, `go_router`.

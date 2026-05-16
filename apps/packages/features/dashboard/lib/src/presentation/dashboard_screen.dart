@@ -1,40 +1,17 @@
 import 'package:auth/feature_auth.dart';
-import 'package:core_state/core_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_ui/shared_ui.dart';
 
 import '../application/providers/dashboard_providers.dart';
-import '../application/state/dashboard_summary_state.dart';
-import '../application/view_models/dashboard_view_model.dart';
 import '../domain/entities/dashboard_summary.dart';
 
-class DashboardScreen extends ConsumerStatefulWidget {
+class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
-  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
-}
-
-class _DashboardScreenState
-    extends
-        StateViewModel<
-          DashboardScreen,
-          DashboardSummaryState,
-          DashboardViewModel
-        > {
-  @override
-  AsyncNotifierProvider<DashboardViewModel, DashboardSummaryState>
-  get viewModelProvider => dashboardViewModelProvider;
-
-  @override
-  void onViewInit() {
-    viewModel.loadSummary();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final asyncState = ref.watch(dashboardViewModelProvider);
 
     return PreppyScaffold(
@@ -43,12 +20,10 @@ class _DashboardScreenState
         AsyncLoading() => const Center(child: CircularProgressIndicator()),
         AsyncError(:final error) => _ErrorBody(
           message: error.toString(),
-          onRetry: viewModel.loadSummary,
+          onRetry: () =>
+              ref.read(dashboardViewModelProvider.notifier).refresh(),
         ),
-        AsyncData(:final value) => _DashboardBody(
-          state: value,
-          onRetry: viewModel.loadSummary,
-        ),
+        AsyncData(:final value) => _SummaryContent(summary: value),
       },
       actions: [
         TextButton(
@@ -57,26 +32,6 @@ class _DashboardScreenState
         ),
       ],
     );
-  }
-}
-
-class _DashboardBody extends StatelessWidget {
-  const _DashboardBody({required this.state, required this.onRetry});
-
-  final DashboardSummaryState state;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return switch (state.phase) {
-      UiPhase.initial ||
-      UiPhase.loading => const Center(child: CircularProgressIndicator()),
-      UiPhase.error => _ErrorBody(
-        message: state.errorMessage ?? 'Something went wrong',
-        onRetry: onRetry,
-      ),
-      UiPhase.success => _SummaryContent(summary: state.summary!),
-    };
   }
 }
 
