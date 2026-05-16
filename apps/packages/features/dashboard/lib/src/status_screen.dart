@@ -50,25 +50,11 @@ class _StatusScreenState extends ConsumerState<StatusScreen> {
     final pushLog = PushReceiveDebugLog.instance;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Status'),
-        actions: [
-          IconButton(
-            tooltip: 'Clear push log',
-            onPressed: () => pushLog.clear(),
-            icon: const Icon(Icons.clear_all),
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Notification Tracker')),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          // final response = await network.get('/status');
-          // if (!context.mounted) return;
-          // ScaffoldMessenger.of(
-          //   context,
-          // ).showSnackBar(SnackBar(content: Text(response.data.toString())));
-        },
-        child: const Icon(Icons.refresh),
+        onPressed: () => pushLog.clear(),
+
+        child: const Icon(Icons.clear_all),
       ),
       body: ListenableBuilder(
         listenable: pushLog.events,

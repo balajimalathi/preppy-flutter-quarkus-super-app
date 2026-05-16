@@ -11,6 +11,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final _formKey = GlobalKey<FormBuilderState>();
   final _email = TextEditingController();
   final _password = TextEditingController();
 
@@ -46,53 +47,58 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: AutofillGroup(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextField(
-                controller: _email,
-                enabled: !busy,
-                keyboardType: TextInputType.emailAddress,
-                autofillHints: const [AutofillHints.email],
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
+          child: FormBuilder(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                FormBuilderTextField(
+                  name: 'email',
+                  controller: _email,
+                  enabled: !busy,
+                  keyboardType: TextInputType.emailAddress,
+                  autofillHints: const [AutofillHints.email],
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _password,
-                enabled: !busy,
-                obscureText: true,
-                autofillHints: const [AutofillHints.password],
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: 16),
+                FormBuilderTextField(
+                  name: 'password',
+                  controller: _password,
+                  enabled: !busy,
+                  obscureText: true,
+                  autofillHints: const [AutofillHints.password],
+                  decoration: const InputDecoration(
+                    labelText: 'Password',
+                    border: OutlineInputBorder(),
+                  ),
+                  onSubmitted: (_) => _submitEmailPassword(),
                 ),
-                onSubmitted: (_) => _submitEmailPassword(),
-              ),
-              const SizedBox(height: 24),
-              FilledButton(
-                onPressed: busy ? null : _submitEmailPassword,
-                child: busy
-                    ? const SizedBox(
-                        height: 22,
-                        width: 22,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Sign in'),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton(
-                onPressed: busy ? null : _google,
-                child: const Text('Continue with Google'),
-              ),
-              const SizedBox(height: 24),
-              TextButton(
-                onPressed: busy ? null : _signUp,
-                child: const Text('Create account'),
-              ),
-            ],
+                const SizedBox(height: 24),
+                FilledButton(
+                  onPressed: busy ? null : _submitEmailPassword,
+                  child: busy
+                      ? const SizedBox(
+                          height: 22,
+                          width: 22,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Sign in'),
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton(
+                  onPressed: busy ? null : _google,
+                  child: const Text('Continue with Google'),
+                ),
+                const SizedBox(height: 24),
+                TextButton(
+                  onPressed: busy ? null : _signUp,
+                  child: const Text('Create account'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

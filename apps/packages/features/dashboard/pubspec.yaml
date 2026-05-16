@@ -12,6 +12,8 @@ resolution: workspace
 dependencies:
   core_models:
     path: ../../core/models
+  auth:
+    path: ../../features/auth
   core_di:
     path: ../../core/di
   core_notifications:
