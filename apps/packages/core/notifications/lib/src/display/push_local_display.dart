@@ -35,7 +35,7 @@ class PushLocalDisplay {
       final content = mapper.toNotificationContent(data);
       if (content == null) {
         // ignore: avoid_print
-        developer.log('[PreppyPush.display] no mappable channel in payload');
+        developer.log('No mappable channel in payload', name: 'PreppyPush.display');
         return false;
       }
 
@@ -47,7 +47,7 @@ class PushLocalDisplay {
         await prefs.close();
         if (!enabled) {
           developer.log(
-            '[PreppyPush.display] channel disabled in prefs: $channelKey',
+            'Channel disabled in prefs: $channelKey',
             name: 'PreppyPush.display',
           );
           return false;
@@ -58,7 +58,7 @@ class PushLocalDisplay {
         content: content,
       );
       // ignore: avoid_print
-      developer.log('[PreppyPush.display] createNotification=$shown');
+      developer.log('createNotification=$shown', name: 'PreppyPush.display');
       developer.log(
         'createNotification=$shown channel=${content.channelKey}',
         name: 'PreppyPush.display',
@@ -66,7 +66,7 @@ class PushLocalDisplay {
       return shown;
     } catch (e, st) {
       // ignore: avoid_print
-      developer.log('[PreppyPush.display] failed: $e');
+      developer.log('failed: $e', name: 'PreppyPush.display');
       developer.log(
         'showFromFcmData failed',
         name: 'PreppyPush.display',
