@@ -13,29 +13,11 @@ class DashboardViewModel
   @override
   void initialize() => Future.microtask(load);
 
-  Future<void> load() => runAction(() async {
-    state = state.copyWith(phase: LoadPhase.loading);
-    final summary = await ref
-        .read(getDashboardSummaryUseCaseProvider)
-        .execute();
-    return state.copyWith(
-      data: summary,
-      phase: LoadPhase.idle,
-      clearError: true,
-    );
-  });
+  Future<void> load() =>
+      loadData(() => ref.read(getDashboardSummaryUseCaseProvider).execute());
 
-  Future<void> refresh() => runAction(() async {
-    state = state.copyWith(phase: LoadPhase.refreshing);
-    final summary = await ref
-        .read(getDashboardSummaryUseCaseProvider)
-        .execute();
-    return state.copyWith(
-      data: summary,
-      phase: LoadPhase.idle,
-      clearError: true,
-    );
-  });
+  Future<void> refresh() =>
+      refreshData(() => ref.read(getDashboardSummaryUseCaseProvider).execute());
 
   void selectTab(int index) {
     state = state.copyWith(selectedTabIndex: index);
