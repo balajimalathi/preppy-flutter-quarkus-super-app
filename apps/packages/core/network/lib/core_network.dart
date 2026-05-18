@@ -8,6 +8,8 @@ export 'src/grpc/grpc_providers.dart';
 export 'src/http/api_client.dart'
     show ApiClient, apiClientProvider, baseUrlProvider, dioProvider;
 export 'src/http/auth_token.dart' show authTokenProvider;
+export 'src/http/dio_result_client.dart'
+    show dioGetEnvelope, fetchWithOfflineCache;
 export 'src/http/multipart_helpers.dart' show singleFileFormData;
 export 'src/http/sse_client.dart' show SseClient, SseMessage;
 

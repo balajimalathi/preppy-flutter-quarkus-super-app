@@ -45,4 +45,34 @@ void main() {
     expect(values.last.hasValue, isTrue);
     expect(values.last.requireValue, ConnectivityState.online);
   });
+
+  test('currentStatus and stream can differ on fake implementation', () async {
+    final controller = StreamController<ConnectivityState>.broadcast();
+    addTearDown(controller.close);
+
+    final container = ProviderContainer(
+      overrides: [
+        connectivityServiceProvider.overrideWithValue(_Fake(controller)),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    expect(
+      await container.read(connectivityServiceProvider).currentStatus,
+      ConnectivityState.offline,
+    );
+
+    AsyncValue<ConnectivityState>? streamState;
+    final remove = container.listen(
+      connectivityStateProvider,
+      (_, next) => streamState = next,
+      fireImmediately: true,
+    );
+    addTearDown(remove.close);
+
+    controller.add(ConnectivityState.online);
+    await pumpEventQueue();
+
+    expect(streamState!.requireValue, ConnectivityState.online);
+  });
 }

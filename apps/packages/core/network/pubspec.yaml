@@ -13,6 +13,8 @@ dependencies:
   connectivity_plus: ^6.1.4
   core_env:
     path: ../env
+  core_models:
+    path: ../models
   dio: ^5.9.2
   gql: ^1.0.0+1
   graphql: ^5.2.0
