@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
+/// Canonical user profile returned by the app backend.
 @immutable
 final class AppProfile {
   const AppProfile({
@@ -20,6 +21,7 @@ final class AppProfile {
   final DateTime createdAt;
   final Map<String, dynamic> metadata;
 
+  /// Accepts either backend `profileId` or generic `id` fields.
   factory AppProfile.fromJson(Map<String, dynamic> json) {
     final created = json['createdAt'];
     return AppProfile(
@@ -48,6 +50,7 @@ final class AppProfile {
     'metadata': metadata,
   };
 
+  /// JSON string form used for local persistence.
   String toJsonString() => jsonEncode(toJson());
 
   @override

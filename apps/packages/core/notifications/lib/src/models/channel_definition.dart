@@ -23,8 +23,13 @@ class NotificationChannelDefinition {
     this.defaultRingtoneType,
   });
 
+  /// Stable identifier used by Awesome Notifications and payload mapping.
   final String channelKey;
+
+  /// User-visible channel name shown in system settings.
   final String channelName;
+
+  /// User-visible explanation of what this channel is used for.
   final String channelDescription;
   final NotificationImportance importance;
   final bool channelShowBadge;
@@ -44,6 +49,7 @@ class NotificationChannelDefinition {
   final String? soundSource;
   final DefaultRingtoneType? defaultRingtoneType;
 
+  /// Converts this definition into the plugin's runtime channel model.
   NotificationChannel toNotificationChannel() {
     return NotificationChannel(
       channelKey: channelKey,
@@ -65,6 +71,7 @@ class NotificationChannelDefinition {
     );
   }
 
+  /// Serializes this definition for Hive persistence.
   Map<String, dynamic> toMap() {
     return {
       'channelKey': channelKey,
@@ -87,6 +94,7 @@ class NotificationChannelDefinition {
     };
   }
 
+  /// Rehydrates a saved definition from [toMap].
   factory NotificationChannelDefinition.fromMap(Map<String, dynamic> map) {
     return NotificationChannelDefinition(
       channelKey: map['channelKey'] as String,

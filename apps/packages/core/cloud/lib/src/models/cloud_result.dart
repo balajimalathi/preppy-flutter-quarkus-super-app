@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 /// Sentinel value for successful operations with no payload.
 typedef CloudUnit = ();
+
 const CloudUnit cloudUnit = ();
 
 /// Portable error codes mapped from backend-specific failures.
@@ -19,6 +20,7 @@ enum CloudErrorCode {
 sealed class CloudResult<T> {
   const CloudResult();
 
+  /// Maps success and error branches into a single value.
   R fold<R>({
     required R Function(T data) onSuccess,
     required R Function(String message, CloudErrorCode code) onError,
@@ -32,6 +34,7 @@ sealed class CloudResult<T> {
 }
 
 @immutable
+/// Successful cloud operation containing [data].
 final class CloudSuccess<T> extends CloudResult<T> {
   const CloudSuccess(this.data);
 
@@ -46,6 +49,7 @@ final class CloudSuccess<T> extends CloudResult<T> {
 }
 
 @immutable
+/// Failed cloud operation containing a user-facing [message] and typed [code].
 final class CloudError<T> extends CloudResult<T> {
   const CloudError({required this.message, required this.code});
 

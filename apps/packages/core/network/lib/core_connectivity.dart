@@ -3,6 +3,7 @@
 
 library;
 
+export 'src/connectivity/connectivity_aware.dart';
 export 'src/connectivity/connectivity_contract.dart';
 export 'src/connectivity/connectivity_provider.dart';
 export 'src/connectivity/connectivity_state.dart';

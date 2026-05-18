@@ -1,7 +1,9 @@
+/// Credentials accepted by [AuthContract.signIn] and [AuthContract.signUp].
 sealed class AuthCredentials {
   const AuthCredentials();
 }
 
+/// Email + password credentials for direct auth providers.
 final class EmailCredentials extends AuthCredentials {
   const EmailCredentials({required this.email, required this.password});
 

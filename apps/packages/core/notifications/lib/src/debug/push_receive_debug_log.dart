@@ -17,12 +17,16 @@ import '../storage/push_payload_history_store.dart';
 class PushReceiveDebugLog {
   PushReceiveDebugLog._();
 
+  /// Global singleton used by notification handlers and debug UI.
   static final PushReceiveDebugLog instance = PushReceiveDebugLog._();
 
   static const int _maxEvents = 50;
   static const String _relayPortName = 'preppy_push_receive_log_port';
 
+  /// Persistent backing store for recent events.
   final PushPayloadHistoryStore historyStore = PushPayloadHistoryStore();
+
+  /// Current in-memory event list in newest-first order.
   final ValueNotifier<List<PushReceiveEvent>> events = ValueNotifier(const []);
 
   ReceivePort? _relayReceivePort;
@@ -103,6 +107,7 @@ class PushReceiveDebugLog {
     }
   }
 
+  /// Records a silent-data payload received from FCM.
   void ingestSilentData(FcmSilentData data) {
     ingest(
       PushReceiveEvent(
@@ -114,6 +119,7 @@ class PushReceiveDebugLog {
     );
   }
 
+  /// Records a notification lifecycle event from Awesome Notifications.
   void ingestNotification(
     PushReceiveKind kind,
     ReceivedNotification notification,
@@ -136,6 +142,7 @@ class PushReceiveDebugLog {
     );
   }
 
+  /// Records a notification action event from Awesome Notifications.
   void ingestAction(PushReceiveKind kind, ReceivedAction action) {
     ingest(
       PushReceiveEvent(
@@ -149,6 +156,7 @@ class PushReceiveDebugLog {
     );
   }
 
+  /// Clears both in-memory and persisted event history.
   Future<void> clear() async {
     events.value = const [];
     await historyStore.clear();
@@ -180,8 +188,10 @@ class PushReceiveDebugLog {
   }
 }
 
+/// Supported notification event categories recorded by [PushReceiveDebugLog].
 enum PushReceiveKind { created, displayed, silentData, action, dismissed }
 
+/// Serializable debug record for one push or local notification event.
 class PushReceiveEvent {
   PushReceiveEvent({
     required this.kind,
@@ -191,6 +201,7 @@ class PushReceiveEvent {
     DateTime? at,
   }) : at = at ?? DateTime.now();
 
+  /// Rehydrates an event from persisted JSON.
   factory PushReceiveEvent.fromJson(Map<String, dynamic> json) {
     return PushReceiveEvent(
       kind: PushReceiveKind.values.byName(json['kind'] as String),
@@ -201,10 +212,19 @@ class PushReceiveEvent {
     );
   }
 
+  /// Timestamp when the event was recorded.
   final DateTime at;
+
+  /// High-level lifecycle category for the event.
   final PushReceiveKind kind;
+
+  /// Short human-readable summary for logs and debug UI.
   final String summary;
+
+  /// Sanitized raw payload data captured from the plugin callback.
   final Map<String, dynamic> raw;
+
+  /// Source plugin/model type that produced this event.
   final String? source;
 
   String get kindLabel => switch (kind) {
@@ -227,6 +247,7 @@ class PushReceiveEvent {
     return result;
   }
 
+  /// Pretty-printed JSON for debug screens or console output.
   String get prettyJson {
     return const JsonEncoder.withIndent('  ').convert({
       'at': at.toIso8601String(),
@@ -237,6 +258,7 @@ class PushReceiveEvent {
     });
   }
 
+  /// Serializes this event for persistence.
   Map<String, dynamic> toJson() => {
     'at': at.toIso8601String(),
     'kind': kind.name,

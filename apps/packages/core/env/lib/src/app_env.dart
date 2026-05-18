@@ -43,6 +43,7 @@ final class AppEnv {
   /// Full GraphQL HTTP endpoint. When empty, derived as `<BASE_URL>/graphql`.
   final String graphqlUrl;
 
+  /// Reads all supported compile-time values and applies safe defaults.
   factory AppEnv.fromEnvironment() {
     const env = String.fromEnvironment('ENV', defaultValue: 'dev');
     const backendsRaw = String.fromEnvironment(
@@ -91,13 +92,19 @@ final class AppEnv {
     return List<String>.unmodifiable(parts);
   }
 
+  /// True when [environment] is [DevEnvironment].
   bool get isDev => environment is DevEnvironment;
+
+  /// True when [environment] is [StagingEnvironment].
   bool get isStaging => environment is StagingEnvironment;
+
+  /// True when [environment] is [ProdEnvironment].
   bool get isProd => environment is ProdEnvironment;
 
   /// REST API origin (same as [baseUrl], normalized for clarity in multi-protocol setups).
   Uri get restBaseUri => Uri.parse(baseUrl);
 
+  /// Host used by gRPC transports after applying the optional [grpcHost] override.
   String get effectiveGrpcHost {
     if (grpcHost.isNotEmpty) {
       return grpcHost;
@@ -105,7 +112,7 @@ final class AppEnv {
     return restBaseUri.host;
   }
 
-  /// HttpLink URI for GraphQL over HTTP POST.
+  /// GraphQL HTTP endpoint after applying the optional [graphqlUrl] override.
   String get graphqlHttpUrl {
     if (graphqlUrl.isNotEmpty) {
       return graphqlUrl;

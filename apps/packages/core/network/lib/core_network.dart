@@ -1,3 +1,9 @@
+/// HTTP, GraphQL, gRPC, and SSE package entrypoint.
+///
+/// Import this library when features need shared API clients or transport-level
+/// helpers that are configured from the app environment.
+library;
+
 import 'package:riverpod/riverpod.dart';
 
 import 'src/http/api_client.dart';
@@ -7,6 +13,7 @@ export 'src/graphql/graphql_providers.dart';
 export 'src/grpc/grpc_providers.dart';
 export 'src/http/api_client.dart'
     show ApiClient, apiClientProvider, baseUrlProvider, dioProvider;
+export 'src/http/dio_aware.dart';
 export 'src/http/auth_token.dart' show authTokenProvider;
 export 'src/http/dio_result_client.dart'
     show dioGetEnvelope, fetchWithOfflineCache;

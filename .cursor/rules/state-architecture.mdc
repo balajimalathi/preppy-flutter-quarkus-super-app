@@ -322,27 +322,51 @@ String resolveErrorMessage(AppError error) => switch (error) {
 
 ## 9. Use Case Error Mapping Contract
 
-Use cases are responsible for mapping data-layer `ApiResult` to domain types or throwing typed `AppError`. ViewModels never see `ApiError`.
+Use cases are **plain classes** in `application/use_cases/`. They must import `core_models` only — **never** `core_state`. Map repository `Result` failures with `Result.getOrThrow()` (throws `AppError` via `failure.toAppError()`). Throw `AppError` subtypes directly for domain validation.
 
 ```dart
-// Correct use case pattern
-Future<DashboardSummary> execute() async {
-  final result = await _repository.getDashboardSummary();
-  return switch (result) {
-    ApiSuccess(:final data) => data,
-    ApiError(:final statusCode, :final message) => throw switch (statusCode) {
-      401 => const UnauthorizedError(),
-      404 => const NotFoundError('Dashboard'),
-      503 => NetworkError(statusCode: 503, message: message),
-      _ => NetworkError(statusCode: statusCode, message: message),
-    },
-  };
+class GetDashboardSummaryUseCase {
+  GetDashboardSummaryUseCase(this._repository);
+  final DashboardRepository _repository;
+
+  Future<DashboardSummary> execute() async {
+    final summary = (await _repository.getSummary()).getOrThrow();
+    // optional validation — throw ValidationError, etc.
+    return summary;
+  }
 }
 ```
 
+ViewModels use `loadData` / `refreshData` on `BaseViewModel` — do not duplicate load/refresh bodies.
+
 ---
 
-## 10. What Is Explicitly Forbidden
+## 10. Simple read features (boilerplate reduction)
+
+For a single GET + optional offline cache, **you write**:
+
+| Layer | What to author |
+|--------|----------------|
+| `domain/entities/` | Entity only |
+| `data/mappers/` | JSON ↔ entity |
+| `data/repositories/` | One **concrete** `XRepository` (no `domain/repositories` port, no `*_impl`, no remote/local data-source pairs) |
+| `application/use_cases/` | Plain class with `execute()`; `Result.getOrThrow()` |
+| `application/` | `ScreenState` subclass (if UI flags), ViewModel, 2 providers (`repository`, `useCase`) |
+| `presentation/` | Screen |
+
+**Packages provide:**
+
+- `core_network`: `dioGetEnvelope`, `fetchWithOfflineCache`
+- `core_state`: `BaseViewModel.loadData` / `refreshData` (presentation only)
+- `core_models`: `Result.getOrThrow()` for use-case error mapping
+
+**Keep a domain repository port only when** you have multiple production implementations (fake backend, A/B sources, swappable plugins). Otherwise navigation should land on the concrete repository in `data/repositories/`.
+
+Reference: `features/dashboard`.
+
+---
+
+## 11. What Is Explicitly Forbidden
 
 | Pattern | Why |
 |---|---|
@@ -353,6 +377,7 @@ Future<DashboardSummary> execute() async {
 | UI flags (`isDialogOpen`, `selectedIndex`) on domain entities | Pollutes domain; these belong in feature `ScreenState` subclass |
 | `await` inside `build()` or `initialize()` directly | Blocks the frame; always defer with `Future.microtask` |
 | `BaseViewModel` skipped for "simple" screens | Consistency across the super app is non-negotiable |
+| `core_state` imported from `application/use_cases/` | Blurs MVVM and application layers; use `core_models` only |
 
 ---
 
@@ -360,10 +385,11 @@ Future<DashboardSummary> execute() async {
 
 | Package | Owns |
 |---|---|
-| `core_state` | `BaseViewModel`, `ScreenState<S>`, `LoadPhase` |
-| `core_models` | `AppError` hierarchy, `ApiResult` |
+| `core_state` | `BaseViewModel`, `ScreenState<S>`, `LoadPhase` (presentation / MVVM only) |
+| `core_network` | `dioGetEnvelope`, `fetchWithOfflineCache`, Dio/connectivity providers |
+| `core_models` | `AppError` hierarchy, `Result` / `Failure`, `Result.getOrThrow()` |
 | `shared_ui` | `resolveErrorMessage`, shared loading/error widgets |
 | Feature `application/` | `ScreenState` subclass, ViewModel, coordinator providers |
 | Feature `presentation/` | Widgets only — no business logic, no error string construction |
-| Feature `domain/` | Entities, use case interfaces, repository interfaces |
-| Feature `data/` | Repository impl, data sources — maps to `ApiResult` only |
+| Feature `domain/` | Entities (ports only when multiple prod implementations) |
+| Feature `data/` | Concrete repositories, mappers — returns `Result<T>` |

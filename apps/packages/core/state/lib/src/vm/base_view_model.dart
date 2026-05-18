@@ -18,7 +18,7 @@ abstract class BaseViewModel<S, T extends ScreenState<S>> extends Notifier<T> {
     return initialState();
   }
 
-  /// Runs an async mutation and applies the returned [ScreenState].
+  /// Runs an async mutation and stores its returned [ScreenState].
   Future<void> runAction(Future<T> Function() action) async {
     try {
       state = await action();
@@ -40,10 +40,7 @@ abstract class BaseViewModel<S, T extends ScreenState<S>> extends Notifier<T> {
   Future<void> refreshData(Future<S> Function() fetch) =>
       _fetchWithPhase(LoadPhase.refreshing, fetch);
 
-  Future<void> _fetchWithPhase(
-    LoadPhase phase,
-    Future<S> Function() fetch,
-  ) =>
+  Future<void> _fetchWithPhase(LoadPhase phase, Future<S> Function() fetch) =>
       runAction(() async {
         state = state.copyWith(phase: phase) as T;
         final data = await fetch();

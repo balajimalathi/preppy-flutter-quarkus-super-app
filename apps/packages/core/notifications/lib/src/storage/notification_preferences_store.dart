@@ -6,6 +6,7 @@ import '../models/channel_definition.dart';
 class NotificationPreferencesStore {
   NotificationPreferencesStore({this.boxName = 'core_notifications_prefs'});
 
+  /// Hive box name used for per-channel enabled flags.
   final String boxName;
   Box<bool>? _box;
   Box<dynamic>? _configBox;
@@ -13,11 +14,13 @@ class NotificationPreferencesStore {
   static const _keyPrefix = 'channel_enabled:';
   static const configBoxName = 'core_notifications_config';
 
+  /// Opens all required Hive boxes.
   Future<void> open() async {
     _box = await Hive.openBox<bool>(boxName);
     _configBox = await Hive.openBox<dynamic>(configBoxName);
   }
 
+  /// Returns whether notifications are enabled for [channelKey].
   bool isChannelEnabled(String channelKey) {
     final box = _box;
     if (box == null) {
@@ -26,6 +29,7 @@ class NotificationPreferencesStore {
     return box.get('$_keyPrefix$channelKey', defaultValue: true) ?? true;
   }
 
+  /// Persists the enabled state for [channelKey].
   Future<void> setChannelEnabled(String channelKey, bool enabled) async {
     final box = _box;
     if (box == null) {
@@ -34,6 +38,7 @@ class NotificationPreferencesStore {
     await box.put('$_keyPrefix$channelKey', enabled);
   }
 
+  /// Removes the stored preference for [channelKey], restoring the default behavior.
   Future<void> clearChannel(String channelKey) async {
     final box = _box;
     if (box == null) {
@@ -42,6 +47,7 @@ class NotificationPreferencesStore {
     await box.delete('$_keyPrefix$channelKey');
   }
 
+  /// Persists the last local-initialization channel set and default icon.
   Future<void> saveInitializationConfig(
     List<NotificationChannelDefinition> channels,
     String? defaultIcon,
@@ -56,6 +62,7 @@ class NotificationPreferencesStore {
     }
   }
 
+  /// Returns the channel definitions saved during the last local initialization.
   List<NotificationChannelDefinition> getSavedChannels() {
     final box = _configBox;
     if (box == null) return [];
@@ -76,10 +83,12 @@ class NotificationPreferencesStore {
     return [];
   }
 
+  /// Returns the default icon saved during the last local initialization.
   String? getSavedDefaultIcon() {
     return _configBox?.get('defaultIcon') as String?;
   }
 
+  /// Closes all opened Hive boxes.
   Future<void> close() async {
     await _box?.close();
     await _configBox?.close();

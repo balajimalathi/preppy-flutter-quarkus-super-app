@@ -1,3 +1,7 @@
+/// Authentication package entrypoint.
+///
+/// Exposes auth contracts, models, and Riverpod providers used to build the
+/// app-wide authentication flow.
 library;
 
 export 'src/auth_notifier.dart'

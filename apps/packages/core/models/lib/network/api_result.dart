@@ -77,6 +77,7 @@ sealed class ApiResult<T> {
   }
 }
 
+/// Idle state before any API work has started.
 final class ApiIdle<T> extends ApiResult<T> {
   const ApiIdle() : super._();
 
@@ -88,6 +89,7 @@ final class ApiIdle<T> extends ApiResult<T> {
   int get hashCode => (ApiIdle).hashCode;
 }
 
+/// Loading state that may optionally retain stale [previousData].
 final class ApiLoading<T> extends ApiResult<T> {
   const ApiLoading({this.previousData}) : super._();
 
@@ -103,6 +105,7 @@ final class ApiLoading<T> extends ApiResult<T> {
   int get hashCode => Object.hash(ApiLoading, previousData);
 }
 
+/// Successful API state containing [data].
 final class ApiSuccess<T> extends ApiResult<T> {
   const ApiSuccess(this.data) : super._();
 
@@ -118,6 +121,7 @@ final class ApiSuccess<T> extends ApiResult<T> {
   int get hashCode => Object.hash(ApiSuccess, data);
 }
 
+/// Failed API state containing a user-facing [message] and optional metadata.
 final class ApiError<T> extends ApiResult<T> {
   const ApiError({required this.message, this.code, this.cause}) : super._();
 
@@ -151,6 +155,7 @@ final class ApiError<T> extends ApiResult<T> {
   int get hashCode => Object.hash(ApiError, message, code, cause);
 }
 
+/// Convenience boolean helpers for narrowing [ApiResult] variants.
 extension ApiResultStatus<T> on ApiResult<T> {
   bool get isIdle => this is ApiIdle<T>;
 

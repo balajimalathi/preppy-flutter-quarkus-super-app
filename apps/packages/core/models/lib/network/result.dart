@@ -1,3 +1,4 @@
+import '../errors/app_error.dart';
 import 'api_result.dart';
 import 'failure.dart';
 
@@ -22,6 +23,7 @@ sealed class Result<T> {
   }
 }
 
+/// Successful terminal result containing [data].
 final class Success<T> extends Result<T> {
   const Success(this.data) : super._();
 
@@ -35,6 +37,7 @@ final class Success<T> extends Result<T> {
   int get hashCode => Object.hash(Success, data);
 }
 
+/// Failed terminal result containing a [failure].
 final class FailureResult<T> extends Result<T> {
   const FailureResult(this.failure) : super._();
 
@@ -49,6 +52,15 @@ final class FailureResult<T> extends Result<T> {
   int get hashCode => Object.hash(FailureResult, failure);
 }
 
+/// Unwraps success data or throws [AppError] mapped from [Failure].
+extension ResultGetOrThrow<T> on Result<T> {
+  T getOrThrow() => switch (this) {
+    Success(:final data) => data,
+    FailureResult(:final failure) => throw failure.toAppError(),
+  };
+}
+
+/// Converts terminal repository results into UI-friendly [ApiResult] values.
 extension ResultToApiResult<T> on Result<T> {
   /// Maps a terminal [Result] to [ApiResult.success] or [ApiResult.error].
   ApiResult<T> toApiResult() {

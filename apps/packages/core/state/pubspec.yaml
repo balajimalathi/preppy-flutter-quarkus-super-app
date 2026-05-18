@@ -1,5 +1,5 @@
 name: core_state
-description: ScreenState and Notifier base helpers for Riverpod feature ViewModels.
+description: Presentation-layer ScreenState and BaseViewModel helpers for Riverpod feature ViewModels.
 version: 0.1.0
 publish_to: 'none'
 

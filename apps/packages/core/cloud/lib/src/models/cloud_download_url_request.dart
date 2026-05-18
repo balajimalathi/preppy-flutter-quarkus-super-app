@@ -14,12 +14,14 @@ enum CloudUrlKind {
 }
 
 @immutable
+/// Options controlling how a download URL should be resolved.
 final class CloudDownloadUrlRequest {
   const CloudDownloadUrlRequest({
     this.kind = CloudUrlKind.legacy,
     this.expiresIn = const Duration(hours: 1),
   });
 
+  /// Preferred URL resolution mode.
   final CloudUrlKind kind;
 
   /// Used when [kind] is [CloudUrlKind.signed].

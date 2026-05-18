@@ -1,9 +1,19 @@
 import 'package:core_models/core_models.dart';
 import 'package:dashboard/src/application/use_cases/get_dashboard_summary_use_case.dart';
+import 'package:dashboard/src/data/repositories/dashboard_repository.dart';
 import 'package:dashboard/src/domain/entities/dashboard_summary.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 
+import 'get_dashboard_summary_use_case_test.mocks.dart';
+
+@GenerateMocks([DashboardRepository])
 void main() {
+  provideDummy<Result<DashboardSummary>>(
+    const Result.failure(UnknownFailure(message: 'dummy')),
+  );
+
   const summary = DashboardSummary(
     greeting: 'Hi',
     streakDays: 3,
@@ -11,20 +21,29 @@ void main() {
     coveragePercent: 50,
   );
 
-  GetDashboardSummaryUseCase useCaseWith(Result<DashboardSummary> result) {
-    return GetDashboardSummaryUseCase.testing(() async => result);
-  }
+  late MockDashboardRepository repository;
+  late GetDashboardSummaryUseCase useCase;
+
+  setUp(() {
+    repository = MockDashboardRepository();
+    useCase = GetDashboardSummaryUseCase(repository);
+  });
 
   group('GetDashboardSummaryUseCase', () {
     test('returns summary on success', () async {
-      final useCase = useCaseWith(const Result.success(summary));
+      when(
+        repository.getSummary(),
+      ).thenAnswer((_) async => const Result.success(summary));
+
       final result = await useCase.execute();
+
       expect(result, summary);
+      verify(repository.getSummary()).called(1);
     });
 
     test('throws ValidationError for negative coverage', () async {
-      final useCase = useCaseWith(
-        const Result.success(
+      when(repository.getSummary()).thenAnswer(
+        (_) async => const Result.success(
           DashboardSummary(
             greeting: 'Hi',
             streakDays: 1,
@@ -33,13 +52,15 @@ void main() {
           ),
         ),
       );
+
       await expectLater(useCase.execute(), throwsA(isA<ValidationError>()));
     });
 
     test('throws AppError on repository failure', () async {
-      final useCase = useCaseWith(
-        const Result.failure(CacheFailure(message: 'no cache')),
+      when(repository.getSummary()).thenAnswer(
+        (_) async => const Result.failure(CacheFailure(message: 'no cache')),
       );
+
       await expectLater(useCase.execute(), throwsA(isA<NetworkError>()));
     });
   });

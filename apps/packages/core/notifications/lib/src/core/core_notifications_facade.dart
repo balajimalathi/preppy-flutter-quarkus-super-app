@@ -16,8 +16,11 @@ import 'core_notifications_bridge.dart';
 /// Call only after [Firebase.initializeApp] and [Hive.initFlutter] in the host app.
 class CoreNotificationsFacade {
   CoreNotificationsFacade._();
+
+  /// Global singleton used by host apps to configure notification behavior.
   static final CoreNotificationsFacade instance = CoreNotificationsFacade._();
 
+  /// Hive-backed store for opt-in state and initialization metadata.
   final NotificationPreferencesStore preferences =
       NotificationPreferencesStore();
 
@@ -103,12 +106,14 @@ class CoreNotificationsFacade {
   }
 
   /// Optional: register main-isolate bridge for background action delivery.
+  /// Installs the main-isolate action forwarding bridge for background action handlers.
   Future<void> installActionPortBridgeForMainIsolate(
     void Function(ReceivedAction action) onAction,
   ) {
     return CoreNotificationsBridge.instance.installActionPortBridge(onAction);
   }
 
+  /// Removes the previously installed action forwarding bridge.
   Future<void> uninstallActionPortBridge() {
     return CoreNotificationsBridge.instance.uninstallActionPortBridge();
   }
@@ -134,6 +139,7 @@ class CoreNotificationsFacade {
   Future<bool> isNotificationAllowed() =>
       AwesomeNotifications().isNotificationAllowed();
 
+  /// Requests an FCM token from the plugin, returning null when unavailable.
   Future<String?> requestFirebaseAppToken() async {
     final token = await AwesomeNotificationsFcm().requestFirebaseAppToken();
     if (token.isEmpty) {
@@ -142,14 +148,18 @@ class CoreNotificationsFacade {
     return token;
   }
 
+  /// Subscribes the current device token to an FCM topic.
   Future<bool> subscribeToTopic(String topic) =>
       AwesomeNotificationsFcm().subscribeToTopic(topic);
 
+  /// Unsubscribes the current device token from an FCM topic.
   Future<bool> unsubscribeFromTopic(String topic) =>
       AwesomeNotificationsFcm().unsubscribeToTopic(topic);
 
+  /// Deletes the current FCM token from the device.
   Future<bool> deleteFcmToken() => AwesomeNotificationsFcm().deleteToken();
 
+  /// Whether the current runtime has Firebase support available for FCM.
   Future<bool> isFirebaseAvailableForFcm() =>
       AwesomeNotificationsFcm().isFirebaseAvailable;
 
@@ -169,6 +179,7 @@ class CoreNotificationsFacade {
     return AwesomeNotifications().createNotification(content: content);
   }
 
+  /// Returns the action that launched the app, if any.
   Future<ReceivedAction?> getInitialNotificationAction({
     bool removeFromActionEvents = false,
   }) {
@@ -177,7 +188,12 @@ class CoreNotificationsFacade {
     );
   }
 
+  /// Whether local notification infrastructure has been initialized.
   bool get isLocalInitialized => _localReady;
+
+  /// Whether remote/Firebase notification infrastructure has been initialized.
   bool get isRemoteInitialized => _remoteReady;
+
+  /// Whether Awesome notification listeners are currently attached.
   bool get areListenersAttached => _listenersReady;
 }

@@ -6,6 +6,7 @@ sealed class AppError {
   const AppError();
 }
 
+/// Network or remote API failure with an optional HTTP-style [statusCode].
 final class NetworkError extends AppError {
   const NetworkError({this.statusCode, required this.message});
 
@@ -13,35 +14,37 @@ final class NetworkError extends AppError {
   final String message;
 }
 
+/// The requested resource does not exist.
 final class NotFoundError extends AppError {
   const NotFoundError(this.resource);
 
   final String resource;
 }
 
+/// Authentication or authorization is required before retrying.
 final class UnauthorizedError extends AppError {
   const UnauthorizedError();
 }
 
+/// The request payload was rejected for one or more fields.
 final class ValidationError extends AppError {
   const ValidationError(this.fieldErrors);
 
   final Map<String, String> fieldErrors;
 }
 
+/// Fallback error for unexpected failures that do not fit a domain-specific type.
 final class UnknownError extends AppError {
   const UnknownError(this.cause);
 
   final Object cause;
 }
 
+/// Converts repository/data-source [Failure] values into UI-facing [AppError]s.
 extension FailureToAppError on Failure {
   AppError toAppError() {
     return switch (this) {
-      NetworkFailure() => NetworkError(
-        statusCode: code,
-        message: message,
-      ),
+      NetworkFailure() => NetworkError(statusCode: code, message: message),
       CacheFailure() => NetworkError(statusCode: code, message: message),
       UnknownFailure() => UnknownError(cause ?? message),
     };

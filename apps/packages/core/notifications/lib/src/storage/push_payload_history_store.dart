@@ -7,16 +7,19 @@ import 'package:hive_ce/hive.dart';
 class PushPayloadHistoryStore {
   PushPayloadHistoryStore({this.boxName = 'core_notifications_push_log'});
 
+  /// Hive box name used to persist recent events.
   final String boxName;
   static const _eventsKey = 'events';
   static const int maxStoredEvents = 50;
 
   Box<String>? _box;
 
+  /// Opens the underlying Hive box.
   Future<void> open() async {
     _box ??= await Hive.openBox<String>(boxName);
   }
 
+  /// Loads all saved events in newest-first order.
   Future<List<PushReceiveEvent>> loadAll() async {
     final box = _box;
     if (box == null) {
@@ -40,6 +43,7 @@ class PushPayloadHistoryStore {
     }
   }
 
+  /// Replaces the stored event list, trimming it to [maxStoredEvents].
   Future<void> replaceAll(List<PushReceiveEvent> events) async {
     final box = _box;
     if (box == null) {
@@ -54,10 +58,12 @@ class PushPayloadHistoryStore {
     );
   }
 
+  /// Removes all stored events.
   Future<void> clear() async {
     await _box?.delete(_eventsKey);
   }
 
+  /// Closes the underlying Hive box.
   Future<void> close() async {
     await _box?.close();
     _box = null;

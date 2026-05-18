@@ -4,6 +4,7 @@ import '../models/cloud_upload.dart';
 
 /// Object/file storage (images, attachments).
 abstract interface class CloudStorage {
+  /// Uploads the object described by [config].
   Future<CloudResult<CloudUploadResult>> upload(CloudUploadConfig config);
 
   /// Resolves a URL for [path]. Use [request] to request public vs signed URLs
@@ -13,6 +14,7 @@ abstract interface class CloudStorage {
     CloudDownloadUrlRequest request = const CloudDownloadUrlRequest(),
   });
 
+  /// Deletes the object stored at [path].
   Future<CloudResult<CloudUnit>> deleteFile(String path);
 
   /// Emits 0.0–1.0 progress where the backend supports it.
