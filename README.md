@@ -4,6 +4,10 @@ Super-app for exam prep — covers ingestion of study material, AI-generated MCQ
 
 Domain: **preppy.skndan.com**
 
+## Roadmap
+
+Product milestones from MVP through v3 are defined in [ROADMAP.md](ROADMAP.md).
+
 ## Repository layout
 
 ```
