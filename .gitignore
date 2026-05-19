@@ -58,3 +58,5 @@ lcov.info
 
 .dart_tool/
 .metadata
+
+node_modules/
