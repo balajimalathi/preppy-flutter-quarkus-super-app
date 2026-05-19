@@ -207,7 +207,12 @@ REST is the default API style for product screens and synchronous actions. These
 Current and target REST areas:
 
 - `GET /v1/users/me`: sync and return the authenticated profile.
+- `PUT /v1/users/me/onboarding`: upsert the authenticated user's student profile, learning capability profile, notification preferences, and onboarding completion timestamp.
 - `PUT /v1/users/me/fcm-token`: update push-notification token.
+- `POST /v1/notebooks`: create a notebook for the authenticated user.
+- `GET /v1/notebooks`: list the authenticated user's notebooks.
+- `GET /v1/notebooks/{notebookId}`: read an authenticated user's notebook by ID.
+- `GET /v1/notebooks/{notebookId}/materials`: list notebook-scoped material metadata for upload readiness.
 - `POST /ingestion/upload`: start an upload/ingestion workflow.
 - `GET /taxonomy/syllabus`: fetch exam syllabus tree.
 - `GET /taxonomy/coverage`: fetch per-user coverage summary.
@@ -480,7 +485,9 @@ Output validation rules:
 
 Status: **Planned**
 
-Onboarding should create a `StudentProfile` and `LearningCapabilityProfile` before the first meaningful plan is generated. The target questionnaire should capture:
+Onboarding should create a `StudentProfile`, `LearningCapabilityProfile`, and `NotificationPreference` before the first meaningful plan is generated. The concrete execution contract for the first onboarding slice is `docs/superpowers/specs/2026-05-19-onboarding-execution-design.md`; it fixes the REST paths, DTO fields, enum values, route gates, and Postgres tables used by MS-01 through MS-04.
+
+The target questionnaire should capture:
 
 - What the student is learning.
 - Study level or age group.
