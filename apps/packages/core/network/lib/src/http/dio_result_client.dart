@@ -29,7 +29,8 @@ Future<Result<T>> dioGetEnvelope<T>({
     if (data is! Map<String, dynamic>) {
       return Result.failure(
         NetworkFailure(
-          message: 'Invalid response envelope: missing or invalid "$envelopeKey"',
+          message:
+              'Invalid response envelope: missing or invalid "$envelopeKey"',
         ),
       );
     }

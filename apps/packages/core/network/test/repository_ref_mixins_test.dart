@@ -15,8 +15,7 @@ final _testRepoProvider = Provider<_TestRepo>((ref) => _TestRepo(ref));
 
 final class _FakeConnectivity implements ConnectivityContract {
   @override
-  Future<ConnectivityState> get currentStatus async =>
-      ConnectivityState.online;
+  Future<ConnectivityState> get currentStatus async => ConnectivityState.online;
 
   @override
   Stream<ConnectivityState> get onStatusChange => const Stream.empty();

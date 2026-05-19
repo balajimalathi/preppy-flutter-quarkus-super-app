@@ -12,7 +12,6 @@ import 'dashboard_repository.dart';
 final class ApiDashboardRepository
     with DashboardSummaryMapper, ConnectivityAware, DioAware
     implements DashboardRepository {
-      
   ApiDashboardRepository(this.ref, {this.boxName = 'dashboard_summary_cache'});
 
   @override

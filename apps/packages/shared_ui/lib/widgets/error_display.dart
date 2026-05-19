@@ -14,11 +14,7 @@ String resolveErrorMessage(AppError error) => switch (error) {
 
 /// Centered error message with optional retry.
 class ErrorBody extends StatelessWidget {
-  const ErrorBody({
-    super.key,
-    required this.error,
-    required this.onRetry,
-  });
+  const ErrorBody({super.key, required this.error, required this.onRetry});
 
   final AppError error;
   final VoidCallback onRetry;
@@ -31,10 +27,7 @@ class ErrorBody extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              resolveErrorMessage(error),
-              textAlign: TextAlign.center,
-            ),
+            Text(resolveErrorMessage(error), textAlign: TextAlign.center),
             const SizedBox(height: 16),
             FilledButton(onPressed: onRetry, child: const Text('Retry')),
           ],
