@@ -1,6 +1,6 @@
 # Preppy
 
-Super-app for exam prep — covers ingestion of study material, AI-generated MCQs and flashcards, spaced repetition, syllabus coverage tracking and PYQ pattern analysis.
+Preppy is a self-preparation workspace for school, university, and competitive-exam students. Learners create notebooks for subjects or exams, upload syllabi, textbooks, notes, PYQs, and other study material, then get syllabus-to-source mapping, topic workspaces, AI-generated MCQs and flashcards, adaptive study plans, spaced repetition nudges, PYQ mock practice, and source-grounded explanations.
 
 Domain: **preppy.skndan.com**
 

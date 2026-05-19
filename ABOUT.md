@@ -1,259 +1,205 @@
-# Preppy – Exam Autopilot v1 Product Plan and PM Review
+# Preppy Product Plan and PM Review
 
-## Executive summary
+## Executive Summary
 
-Preppy is an exam‑specific autopilot for UPSC/NET/TNPSC built around a simple promise: "bring your own PDFs and PYQs, get a full exam prep pipeline out the other side."[1] It competes not with generic "AI over documents" tools but with serious exam platforms by tying ingestion, question generation, spaced repetition, and PYQ analytics into one loop.
+Preppy is a self-preparation system for school, university, and competitive-exam students. It starts from the learner's own material: syllabi, textbooks, handwritten notes, PDFs, videos, images, PPTs, docs, spreadsheets, and previous-year questions. Preppy turns that material into structured notebooks, topic workspaces, source-grounded explanations, MCQs, flashcards, mock exams, and a daily study plan that adapts to the learner's deadline and capability.
 
-The v1 thesis is narrow but powerful: start with a backend "exam brain" that understands exam structures, maps user material to syllabus topics, auto‑generates questions and flashcards with provenance, and drives a daily plan tuned to the exam date and user availability.[1] The UI should remain minimal: a sharp practice surface (flashcards, MCQs, PYQs) and a single dashboard for coverage and time.
+The product should not feel like a generic "chat with documents" tool. NotebookLM-style products are useful for summaries and Q&A, but Preppy should behave more like a curriculum engine: map the syllabus to source material, validate what the learner already knows, create a realistic plan, and keep the student moving through spaced repetition instead of last-minute cramming.
 
-## Market and competitive reality
+## Market And Competitive Reality
 
-The generic AI study tools (e.g., NotebookLM, "AI + PDFs" apps) already offer summaries, notes, quizzes, and flashcards from uploaded documents, so "upload PDF → get MCQs" is now commodity functionality.[1] Dedicated AI flashcard/SRS tools similarly take arbitrary notes or PDFs and produce flashcards with adaptive schedules and exam‑date‑aware plans.
+Generic AI study tools already accept documents and produce summaries, quizzes, notes, and flashcards. Their weakness is structure: they usually do not understand completion dates, syllabus coverage, source-to-topic mapping, revision cadence, or what a particular student can realistically finish.
 
-In the exam‑prep vertical, there are already AI‑powered UPSC/TNPSC products: platforms like SothanAI, Learnpro AI, UPSC.ai, and ExamPad provide large question banks, years of PYQs, AI explanations, adaptive drills, study plans, and model answers.[1] These tools demonstrate clear demand for AI‑enhanced prep, but they are optimized around centralized content rather than deep integration with a single student's messy personal material.
+Exam-prep products often provide strong centralized content, PYQ banks, analytics, and practice modules. Their weakness is personal context: a student's actual textbook, class notes, teacher slides, handwritten material, and local syllabus are usually second-class data.
 
-The key gap is a tool that treats the aspirant's own PDFs, notes, and PYQs as the primary asset and wraps them into an exam‑aware, long‑horizon pipeline from syllabus coverage to daily practice.[1] Preppy fills this by specializing in UPSC/NET/TNPSC structures and using user‑provided content as the default source of truth.
+Preppy fills the gap between those categories. It treats the student's own material as the source of truth, uses the syllabus as the curriculum spine, and builds a plan that adapts to the learner rather than presenting an endless pile of generated content.
 
-## Product thesis and positioning
+## Product Thesis And Positioning
 
-Core thesis: "A personal exam autopilot that ingests your syllabus, PDFs, and PYQs, understands the exam you are writing, and then runs your prep for you: questions, spaced repetition, daily plans, and PYQ‑aware focus."[1] This is a workflow product more than a content product.
+Core thesis: "Bring your syllabus and study material. Preppy maps it into topic workspaces, checks what you already know, builds a plan around your deadline, and nudges you through daily practice and spaced repetition."
 
 Positioning relative to existing categories:
-- Versus NotebookLM: deeper exam modeling, scheduling, syllabus tracking, and PYQ trends, at the cost of being narrower in domain.[1]
-- Versus generic AI flashcard/SRS tools: Preppy knows about Prelims/Mains, negative marking, GS papers, optionals, and directive verbs; it is not "just" recall optimization.[1]
-- Versus UPSC.ai/SothanAI/ExamPad: BYO material is first‑class; Preppy does not try to replace coaching notes or books but to operationalize them.
 
-The strategic moat is the exam‑specific modeling (taxonomies, question templates, directives, scoring logic) plus long‑term user data (performance, coverage, and time) that drives personalization and PYQ‑aware recommendations.[1] Over time, this can evolve into a serious "exam operating system" rather than another AI chatbot.
+- Versus NotebookLM: Preppy is structured around syllabus coverage, topic workspaces, study plans, active recall, and revision schedules rather than open-ended document chat.
+- Versus generic flashcard tools: Preppy generates recall tasks from mapped source material and uses the student's goal, deadline, baseline ability, and progress to decide what comes next.
+- Versus exam-prep platforms: Preppy can support UPSC, NET, TNPSC, and similar competitive exams, but its broader model works for school subjects, university courses, semester exams, and professional self-study.
 
-## Target user and initial scope
+The strategic moat is the combination of user-owned study material, syllabus-to-source provenance, longitudinal learning data, and adaptive planning. Over time, Preppy becomes a private learning operating system for the student.
 
-Primary initial user:
-- Serious self‑studying aspirant for UPSC CSE, UGC NET Computer Science, or TNPSC Group exams, already drowning in PDFs/coaching material but lacking structure.
-- Comfortable with web apps and mobile, often revising late at night, and willing to upload personal notes and PYQ collections.
+## Target Users And Initial Scope
 
-Secondary early adopter:
-- Tech‑savvy aspirant who already uses tools like Anki, Obsidian, or Notion and is looking for an exam‑specific layer on top of them.
+Primary users:
 
-Scope constraints for v1:
-- Only UPSC CSE (GS1–4 + Prelims) and one state/NET variant in the first 3–6 months.
-- No coaching‑style lectures, live classes, or full community features.
-- No attempt at full answer‑evaluation reliability; Mains answer evaluation remains a later milestone.
+- School students preparing for term exams, board exams, or specific subjects from textbooks, teacher notes, and syllabi.
+- University students preparing for semester exams from course outlines, lecture slides, reference books, lab sheets, and previous papers.
+- Competitive-exam aspirants preparing from a defined syllabus, PYQs, books, coaching notes, and their own revision material.
 
-## Core modules in v1
+Early adopters are likely to be students who already collect material in folders, Notion, Obsidian, Anki, or Google Drive but struggle to convert that material into a day-by-day plan.
 
-### Input and modeling layer
+Initial scope should stay narrow enough to ship: onboarding, one notebook per subject or exam, PDF/image ingestion first, syllabus and bibliography mapping, topic workspaces, MCQs, flashcards, daily plans, spaced repetition nudges, and PYQ mapping. Rich video understanding, spreadsheets, PPT extraction, and advanced exam-specific formats can expand after the core loop works.
 
-Function:
-- Ingest PDFs (syllabus, notes, books, PYQs) into a normalized corpus with document IDs, page references, and chunked text segments.[1]
-- Classify chunks into an exam‑aware taxonomy: exam → paper → subject → topic → sub‑topic.[2]
+## Core Product Workflow
 
-Key behaviors:
-- OCR for scanned PDFs, at least good enough for NCERT scans and coaching notes.
-- Persistent mapping between syllabus bullets and material coverage: for each bullet, how many pages/sections in the corpus map here, and what is their quality.
-- Simple metrics: 0/partial/full coverage for each syllabus item, and total pages/sections per topic.
+### 1. Student Onboarding
 
-Why it matters:
-- This is a differentiator vs flat document notebooks, enabling coverage analytics and targeted practice per syllabus bullet.[1][3]
+Onboarding should build a useful learner profile before the first notebook is created. It should ask what the student is learning, who they are, age or study level, goal type, target date, available time, current confidence, preferred learning methods, and notification preferences.
 
-### Question and flashcard engine
+This profile should influence the study plan. A younger school student, a university student with one week left, and a UPSC aspirant with a one-year horizon should not receive the same plan or the same style of practice.
 
-Function:
-- From the normalized corpus, generate exam‑style questions and atomic flashcards with explicit provenance back to source pages.[1]
+### 2. Notebook Creation
 
-Outputs:
-- MCQs in UPSC/TNPSC styles: single‑correct, assertion‑reason, match‑the‑following, true/false, with rationales and linked pages.
-- Short‑answer prompts for Mains and NET, tuned by directive verbs like "discuss", "critically examine", "evaluate".
-- Atomic flashcards (definitions, dates, thinkers, formulae, facts) optimized for active recall.
+A notebook is the main workspace for a subject, course, or exam. The student creates a notebook with a name, learning goal, target completion date or exam date, and optional context such as class, semester, exam board, university, or competitive-exam track.
 
-Design constraints:
-- Every card/question stores: document ID, page range, and topic path, so a user can jump back to revision context and trust that the system is not hallucinating.
-- Difficulty tagging (easy/medium/hard) based on heuristics (e.g., length, number of steps, topic rarity) plus LLM judgment.
+The notebook should hold all material related to that subject: syllabus, bibliography/textbooks, notes, handwritten images, PDFs, videos, PPTs, docs, spreadsheets, links, and PYQs. In v1, ingestion can begin with PDFs and images while the product language keeps the broader multimodal direction clear.
 
-### Spaced repetition and daily plan engine
+### 3. Syllabus And Source Mapping
 
-Function:
-- Treat each syllabus topic as a deck and compute a spaced‑repetition schedule backward from exam date, constrained by user availability per weekday/weekend.[1]
+After upload, Preppy extracts, chunks, and indexes the material. The syllabus becomes the topic tree. Textbooks, notes, slides, and other material are mapped to the relevant topics with page, chunk, or timestamp references.
 
-Daily playlist behavior:
-- Determine due review cards (per SRS algorithm tuned for high‑stakes exams rather than casual language learning).
-- Introduce new cards based on under‑covered high‑weight syllabus areas and user performance.
-- Add a small set of PYQs or MCQs per day.
+Each syllabus topic gets its own workspace. The workspace should show where the topic appears in source material, what has already been covered, what is weak, and what practice is due. This is the key difference from a flat notebook: the syllabus drives the learning journey.
 
-Output example:
-- "60 minutes today: 25 due SRS cards, 10 new Modern History cards, 10 Polity MCQs (PYQs), 1 short Mains answer (GS II)."[3]
+### 4. Baseline Validation
 
-### PYQ ingestion and pattern analysis
+Once the notebook has enough mapped material, Preppy should ask random diagnostic questions to estimate the student's current knowledge. These can be lightweight MCQs, flashcards, short answers, or confidence checks.
 
-Function:
-- Ingest PYQ PDFs from the user plus (eventually) a curated central dataset; tag each question by year, paper, topic, difficulty, and question type.[1][3]
+The baseline should not become a high-stakes test. Its purpose is to help the planner decide whether the student needs first-pass learning, revision, practice, or mock-exam work for each topic.
 
-Outputs:
-- Topic‑wise PYQ coverage percentages for the user.
-- Topic frequency trends over 10–30 years: which themes are "hot" or declining.
-- Pattern‑aware guidance: topics that can safely be given minimal coverage versus those that must be mastered.
+### 5. Adaptive Study Plan
 
-Why this is a moat:
-- This is exam‑specific, data‑heavy, and tied to the official syllabus structure; generic AI document tools will not invest enough to match it.
+The study plan should be generated from syllabus coverage, material volume, baseline results, target date, available time, learning capability, and topic priority. The student must be able to edit the plan, because real students have holidays, classes, tests, family commitments, and uneven energy.
 
-### Practice UI and dashboard
+Once accepted, the plan becomes the daily operating system: what to learn today, what to revise, what to practice, and what can wait. The plan should favor steady progress over cramming and should rebalance when the student falls behind or completes work early.
 
-Function:
-- Provide a minimal but sharp UI for:
-  - Flashcards/SRS with ease ratings.
-  - MCQ drills (timed/untimed, adaptive difficulty).
-  - PYQ practice with filters and model answers.
+### 6. Topic Workspaces And Practice
 
-Dashboard metrics:
-- Syllabus coverage by topic and paper.
-- Cards due today/this week.
-- PYQ coverage per topic.
-- Time spent vs target per week.
+Every topic workspace should support multiple modes of clarity and memorization:
 
-This module should feel more like a control panel than a coaching portal: one place where a serious aspirant can quickly see "what matters today" and execute on it.
+- Source-grounded Q&A over mapped material.
+- MCQs and flashcards generated from the topic's source chunks.
+- Short explanations, summaries, and examples.
+- Video or media references where available.
+- Review history, confidence, and next due tasks.
 
-## Feature matrix for v1
+The experience should answer "what do I need to understand about this topic, where is it in my material, and how do I know I remember it?"
 
-| Module | Must‑have for v1 | Can slip to v1.1 | Notes |
-|--------|------------------|------------------|-------|
-| PDF ingestion + OCR | Yes | Quality tuning | Without this, BYO material is impossible. |
-| Exam taxonomy + syllabus mapping | Yes | Additional exams | Core moat; start with UPSC CSE GS. |
-| MCQ generation with provenance | Yes | Advanced types | Single‑correct and assertion‑reason first. |
-| Flashcard engine + SRS | Yes | Multi‑device sync | Essential habit‑forming loop. |
-| Daily plan from exam date | Yes | Calendar integrations | MVP: simple daily playlist. |
-| PYQ ingestion (user PDFs) | Yes | Central PYQ dataset | User’s own PYQs are enough for alpha. |
-| PYQ trend analysis charts | No | Yes | Can be CLI/backoffice first, UI later. |
-| Practice UI (web) | Yes | Native mobile apps | Target responsive web first. |
-| Mains model answers | No | Yes | Defer full answer evaluation to v2. |
-| Coaching/teacher dashboards | No | Yes | Separate B2B track. |
+### 7. Spaced Repetition And Mobile Nudges
 
-## Architecture overview (conceptual)
+The mobile app should keep the learner on track through spaced repetition reminders, daily plan nudges, and lightweight review sessions. Notifications should respect study windows, quiet hours, and the student's plan rather than spamming generic reminders.
 
-### High‑level components
+Time blocking and focus support can become part of this layer: planned study sessions, notification silencing, reminders to start, and recovery plans when a session is missed.
 
-- Ingestion service: handles PDF upload, OCR, chunking, and metadata storage.
-- Taxonomy/classifier service: maps chunks to exam taxonomy and syllabus bullets.
-- Question engine: LLM‑backed service generating MCQs, short‑answers, and flashcards from chunked text.
-- Scheduler/SRS engine: stores user performance on cards/questions and computes due items per day.
-- PYQ engine: ingests and tags PYQs, computes topic frequencies and coverage.
-- API gateway: exposes secure endpoints to the front‑end for practice sessions and dashboards.
-- Front‑end: minimal React/Next (or Flutter web) app for dashboard, decks, and drills.
+### 8. PYQ Mapping And Mock Exams
 
-### Data model (simplified)
+When a student uploads previous-year questions, Preppy should map each question to syllabus topics and source references. For competitive exams, that means paper, year, topic, difficulty, and book/page linkage. For school and university students, it can mean past semester questions or model papers linked to textbook chapters and syllabus bullets.
+
+PYQs should support two modes: analysis and practice. Analysis shows topic frequency, coverage, and weak areas. Practice lets the student attend PYQs as a mock exam or filtered drill, then routes mistakes back into topic workspaces and spaced repetition.
+
+## Feature Matrix For v1
+
+| Module | Must-have for v1 | Can slip to v1.1 | Notes |
+| --- | --- | --- | --- |
+| Student onboarding | Yes | Rich psychometric profiling | Capture goal, level, time, deadline, preferences, and baseline context. |
+| Notebook creation | Yes | Collaboration and sharing | Notebook is the core subject/exam workspace. |
+| PDF/image ingestion | Yes | Video, PPT, docs, spreadsheets | Start narrow but design metadata for multimodal material. |
+| Syllabus and bibliography mapping | Yes | Advanced confidence scoring | Core differentiator: topics link to textbooks/pages/chunks. |
+| Baseline validation | Yes | Long adaptive diagnostics | Use lightweight random questions before plan generation. |
+| Editable study plan | Yes | Calendar integrations | Plan should adapt to timeframe, ability, progress, and student edits. |
+| MCQs and flashcards | Yes | Advanced exam-specific formats | Every item must retain source provenance. |
+| Spaced repetition nudges | Yes | Deep focus/time-blocking automation | Mobile reminders should support the accepted plan. |
+| PYQ mapping and practice | Yes | Rich trend analytics | PYQs map to syllabus and sources; mock exam mode can start simple. |
+
+## Architecture Overview (Conceptual)
+
+High-level components:
+
+- Onboarding/profile service: stores learner identity, study level, goals, learning preferences, deadlines, and notification settings.
+- Notebook service: owns subject or exam workspaces, notebook materials, completion dates, and workspace state.
+- Ingestion service: handles file upload, extraction, OCR, chunking, metadata, and future multimodal processing.
+- Mapping/classifier service: links syllabus topics to textbook pages, notes, chunks, videos, PYQs, and generated artifacts.
+- Question and flashcard engine: generates source-grounded MCQs, flashcards, short prompts, explanations, and diagnostics.
+- Planner/SRS engine: creates editable study plans, schedules reviews, adapts to performance, and powers mobile nudges.
+- PYQ engine: ingests and maps previous-year questions, computes topic coverage, and creates mock exams.
+- Dashboard and topic workspace APIs: expose today's plan, topic status, weak areas, due reviews, and source references.
 
 Key entities:
-- User, ExamProfile (exam type, attempt year, target date, daily hours).
-- Document, Page, Chunk (with text, embedding vectors, topic path).
-- SyllabusItem (hierarchical tree), SyllabusCoverage (per user, per item).
-- Question (type, text, options, answer, explanation, difficulty, source references, topic path).
-- Card (subset of Question or atomic fact), CardReview (timestamp, rating, nextDueAt).
-- PYQQuestion (year, paper, marks, topic, difficulty, tags).
-- DailyPlan (date, list of tasks, estimated minutes, completion status).
 
-This architecture aligns with the user’s prior experience in building structured edtech apps (MCQs, mocks, syllabus workspaces) and LLM‑backed backends.
+- User, StudentProfile, LearningCapabilityProfile.
+- Notebook, NotebookMaterial, SyllabusItem, TopicWorkspace.
+- Document, Page, Chunk, EmbeddingRecord.
+- BaselineAssessment, Question, Flashcard, CardReview.
+- StudyPlan, PlanTask, NotificationPreference.
+- PYQQuestion, PYQMapping, PYQMockExam.
 
-## Phased delivery plan and milestones
+## Phased Delivery Plan
 
-### Phase 0 – Discovery and UX definition (1–2 weeks)
+### Phase 0: Product Definition And UX
 
 Goals:
-- Validate workflows with 3–5 serious aspirants (including the founder) using low‑fidelity prototypes and Notion/Sheets.
-- Lock narrow v1 exam scope (e.g., UPSC CSE GS + Prelims) and confirm the daily playlist metaphor resonates.
 
-Key tasks:
-- Map the detailed UPSC GS + Prelims syllabus into a clean taxonomy with topics/sub‑topics and link to official PDFs.[2][3]
-- Draft UX flows for: onboarding (exam selection, hours, date), upload, deck view, MCQ drill, PYQ practice, dashboard.
-- Define success metrics for alpha: e.g., D7 retention for daily plans, number of cards reviewed per week, % syllabus covered.
+- Validate the notebook and topic-workspace model with school, university, and competitive-exam students.
+- Define onboarding questions that are useful without feeling like a long survey.
+- Draft UX flows for onboarding, notebook creation, upload, syllabus mapping, baseline validation, plan editing, topic practice, and PYQ mock exams.
 
-Deliverables:
-- UX flow diagrams and wireframes.
-- Taxonomy + syllabus JSON seed.
-- Product spec for v1 modules.
-
-### Phase 1 – Backend foundations (4–6 weeks)
+### Phase 1: Notebook And Ingestion Foundations
 
 Goals:
-- Build ingestion, taxonomy mapping, basic question generation, and a working SRS store.
 
-Key tasks:
-- Implement PDF upload, storage, basic OCR, and chunking with metadata.
-- Implement exam taxonomy mapping for UPSC GS + Prelims and API for listing syllabus items.
-- Implement simple LLM‑powered question generation for MCQs and flashcards with provenance.
-- Implement SRS data model and a first‑cut scheduling algorithm (e.g., SM‑2 variant tuned to exam horizon).
-- Implement minimal authentication and user profile (ExamProfile) storage.
+- Implement authenticated onboarding and profile persistence.
+- Create notebooks with target dates and basic study settings.
+- Upload syllabus and source material, starting with PDFs and images.
+- Extract text, chunk content, preserve page references, and create topic mapping v0.
 
-Milestones:
-- Given a small set of PDFs and a target exam/date, the system produces:
-  - A mapped syllabus view with coverage bars.
-  - A deck of initial cards/questions per topic.
-
-### Phase 2 – PYQ engine and daily planner (3–4 weeks)
+### Phase 2: Practice And Planning Core
 
 Goals:
-- Integrate PYQ ingestion and topic tagging; build the daily playlist engine.
 
-Key tasks:
-- Ingest user PYQ PDFs (starting with UPSC GS + Prelims), tag questions by year/paper/topic.
-- Implement topic‑wise PYQ coverage and simple frequency statistics.
-- Implement daily planner that combines SRS due cards, new cards from under‑covered topics, and a small PYQ/MCQ set per day.
-- Build APIs to fetch a daily playlist for the front‑end.
+- Ask baseline questions after enough material has been mapped.
+- Generate source-grounded MCQs and flashcards per topic.
+- Build an editable daily study plan constrained by target date, available time, baseline knowledge, and material volume.
+- Implement SRS review state and mobile-ready due items.
 
-Milestones:
-- For a dogfooding user, the system can generate a realistic daily plan each day and adjust based on what was actually completed.[3]
-
-### Phase 3 – Practice UI and alpha launch (3–4 weeks)
+### Phase 3: PYQ And Alpha Launch
 
 Goals:
-- Ship a minimal, reliable practice UI and onboard 5–20 alpha users.
 
-Key tasks:
-- Implement practice UI: flashcard/SRS view with rating, MCQ drill screens, simple PYQ practice screen.
-- Build dashboard cards for syllabus coverage, due cards, PYQ coverage, and time spent.
-- Add lightweight analytics (events per practice action) and error logging.
-- Ship closed alpha, instrument feedback loops (NPS, qualitative interviews).
+- Ingest PYQs or past papers and map questions to syllabus topics and source references.
+- Support filtered PYQ practice and simple mock exams.
+- Show notebook dashboard metrics: coverage, today's plan, due reviews, weak topics, PYQ exposure, and readiness.
+- Run a closed alpha with real student notebooks and measure whether students follow the plan.
 
-Milestones:
-- At least 5 users actively using the system for 2+ weeks.
-- Qualitative validation that the daily plan + practice surfaces feel like an "exam autopilot" rather than a toy quiz app.
+## Risks And Mitigations
 
-## Risks and mitigations
+### Risk 1: Overbroad Input Types
 
-### Risk 1 – Quality of generated questions
+Students will want to upload everything. Supporting every file type at production quality from day one would slow the product down. Mitigation: start with PDFs and images, design the material model for future formats, and expand into video, PPT, docs, and spreadsheets in priority order.
 
-If MCQs and flashcards feel low quality or obviously hallucinated, user trust collapses quickly. Mitigations:
-- Strict provenance enforcement: every question links to a specific page and passage; show these links prominently.
-- Conservative prompts and templates that bias towards fact‑based recall rather than creative inference.
-- Founder‑in‑the‑loop review for early decks (especially UPSC GS) to tune prompts and heuristics.
+### Risk 2: Poor Mapping Quality
 
-### Risk 2 – Over‑scope vs solo founder bandwidth
+If syllabus-to-source mapping is wrong, the plan and practice loop lose trust. Mitigation: preserve confidence scores, expose source references, let students correct mappings, and use corrections to improve future classification.
 
-The full "exam autopilot" vision is large, and there is a tendency to overbuild architecture and under‑ship user value.[4] Mitigations:
-- Aggressively limit v1 exams and features; focus on a single exam (UPSC CSE GS) and a small set of modules.
-- Reuse existing infra patterns from prior projects (Next.js, LLM integration stacks, deployment pipelines) instead of reinventing.
-- Treat everything beyond the daily playlist and practice UI as v1.1+.
+### Risk 3: Generated Content Without Trust
 
-### Risk 3 – Competition from incumbents
+Low-quality or hallucinated MCQs and flashcards will feel worse than no generation. Mitigation: require provenance for every generated artifact, validate outputs before persistence, and show the source context in the UI.
 
-UPSC/PSC AI tools and NotebookLM‑style products can move fast and copy surface features. Mitigations:
-- Double down on BYO material and exam‑specific modeling, which are harder to copy quickly.
-- Focus on depth for a narrow ICP (serious self‑studying aspirants) rather than breadth.
-- Collect longitudinal performance and coverage data that feeds into personalization models over time.
+### Risk 4: Unrealistic Plans
 
-### Risk 4 – Engagement and habit formation
+Students ignore plans that overload them. Mitigation: constrain the planner by available minutes, deadline, backlog, baseline knowledge, and completion behavior; let students edit plans and recover from missed days.
 
-Even the best engine fails if users do not stick with it daily. Mitigations:
-- Design the daily playlist to be realistic, not aspirational, based on user availability and past completion.
-- Use small, visible streaks and progress markers, but avoid turning it into a gamified distraction.
-- Integrate within the founder’s own daily UPSC/NET/TNPSC prep as a primary user, so product decisions are grounded in lived pain.
+### Risk 5: Engagement Fatigue
 
-## Suggested Linear backlog structure (conceptual)
+Notifications can become noise. Mitigation: tie nudges to due reviews and accepted plan tasks, respect quiet hours, support time blocking, and avoid generic streak pressure that distracts from learning.
+
+## Suggested Backlog Structure
 
 Epics:
-- EPIC 1 – Product discovery and exam taxonomy.
-- EPIC 2 – Ingestion and syllabus mapping engine.
-- EPIC 3 – Question and flashcard engine.
-- EPIC 4 – SRS + daily planner.
-- EPIC 5 – PYQ ingestion and analytics.
-- EPIC 6 – Practice UI and dashboard.
-- EPIC 7 – Alpha launch, analytics, and feedback.
 
-Within each epic, issues should be small, testable, and phrased with clear "Done when" criteria, following the user’s established Linear planning style from projects like Trainer Suite.[4] Dependencies should reflect the natural pipeline: ingestion before questions, questions before SRS, SRS before daily plans, and so on.
+- EPIC 1: Onboarding and student profile.
+- EPIC 2: Notebook creation and material library.
+- EPIC 3: Syllabus, bibliography, and topic mapping.
+- EPIC 4: Baseline validation and adaptive study planning.
+- EPIC 5: Topic workspaces, MCQs, flashcards, and SRS.
+- EPIC 6: Mobile nudges, time blocking, and focus support.
+- EPIC 7: PYQ mapping, analytics, and mock exams.
+- EPIC 8: Alpha launch, analytics, privacy, and feedback.
+
+Dependencies should follow the learning pipeline: profile before plan, notebook before upload, upload before mapping, mapping before generation, generation before SRS, SRS before daily nudges, and PYQ mapping before mock exams.

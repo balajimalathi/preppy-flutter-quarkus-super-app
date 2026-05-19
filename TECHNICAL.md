@@ -2,13 +2,13 @@
 
 ## Executive Technical Summary
 
-Preppy is an exam-prep autopilot for UPSC, NET, and TNPSC aspirants. The product turns a user's own syllabus files, PDFs, notes, and previous-year questions into an exam-aware workflow: ingestion, OCR, chunking, topic mapping, retrieval, question generation, flashcards, spaced repetition, PYQ analytics, and a daily practice plan.
+Preppy is a self-preparation platform for school, university, and competitive-exam students. The product turns a learner's own syllabi, textbooks, notes, PDFs, images, videos, PPTs, docs, spreadsheets, and previous-year questions into structured notebooks: ingestion, OCR/extraction, chunking, syllabus-to-source mapping, retrieval, question generation, flashcards, spaced repetition, PYQ/mock-exam workflows, and an adaptive study plan.
 
-The current implementation is centered on a Quarkus 3 backend with Firebase authentication, REST APIs, Postgres/Flyway persistence, Redis configuration, Qdrant configuration, OpenAPI documentation, and early module boundaries for ingestion, taxonomy, questions, SRS, PYQ, users, and dashboard summary. The target architecture keeps Quarkus as the product/API core and adds a separate Java AI module for LangChain/LangChain4j-style orchestration, RAG execution, generation, and chat streams.
+The current implementation is centered on a Quarkus 3 backend with Firebase authentication, REST APIs, Postgres/Flyway persistence, Redis configuration, Qdrant configuration, OpenAPI documentation, and early module boundaries for ingestion, taxonomy, questions, SRS, PYQ, users, and dashboard summary. The target architecture keeps Quarkus as the product/API core, expands the product model around student profiles, notebooks, topic workspaces, and study plans, and adds a separate Java AI module for LangChain/LangChain4j-style orchestration, RAG execution, generation, and chat streams.
 
 The communication model is intentionally mixed:
 
-- REST handles normal request/response product APIs such as profile, dashboard, taxonomy, PYQ browsing, SRS review, and question retrieval.
+- REST handles normal request/response product APIs such as onboarding/profile, notebooks, dashboard, taxonomy, PYQ browsing, SRS review, plan editing, and question retrieval.
 - gRPC handles long-running or streaming workloads such as ingestion progress, generation progress, RAG chat, token streams, and job status updates.
 - Postgres remains the transactional source of truth.
 - Qdrant stores embeddings for user-owned study material and retrieval-ready knowledge chunks.
@@ -20,7 +20,11 @@ This document is a target architecture blueprint. Sections marked **Implemented*
 
 ### User Material Is The Source Of Truth
 
-Preppy is not a generic chatbot over PDFs. User-uploaded PDFs, notes, syllabi, and PYQs are the primary knowledge base. Every generated question, card, explanation, and recommendation should preserve provenance back to source documents, pages, chunks, and syllabus topics.
+Preppy is not a generic chatbot over PDFs. User-uploaded syllabi, textbooks, notes, handwritten material, media, and PYQs are the primary knowledge base. Every generated question, card, explanation, recommendation, and PYQ mapping should preserve provenance back to source documents, pages, chunks, timestamps where available, and syllabus topics.
+
+### Notebooks Are The Product Boundary
+
+A notebook is the durable study workspace for a subject, course, or exam. It owns the completion date, syllabus, bibliography/textbooks, uploaded materials, topic workspaces, baseline assessments, study plans, and practice history. Product APIs should scope learning workflows through notebooks instead of treating uploads as loose documents.
 
 ### Quarkus Owns Product State
 
@@ -38,9 +42,13 @@ REST remains the default for synchronous product APIs because it is easy to insp
 
 Generated content must be auditable before it is beautiful. A lower-quality generated question with exact page references is more useful than a polished answer with unclear origin. The architecture should enforce provenance in data models, APIs, UI, and AI prompts.
 
+### Plans Must Be Editable And Realistic
+
+The planner should use timeframe, available minutes, baseline knowledge, review backlog, material volume, and learning capability to create a first plan, but the student must be able to modify it. Preppy should optimize for steady daily progress and recovery from missed days instead of brittle schedules that assume perfect behavior.
+
 ### Build Narrow, Keep Extraction Points Clear
 
-The first production path should be narrow: UPSC GS/Prelims first, then one NET or TNPSC variant. The codebase can start as a practical modular system, but the boundaries for AI/RAG extraction, job orchestration, and streaming contracts should be explicit from the beginning.
+The first production path should be narrow: one or two notebook flows with PDFs/images, syllabus mapping, topic practice, and plan nudges before every file type and advanced exam format is supported. The codebase can start as a practical modular system, but the boundaries for AI/RAG extraction, job orchestration, multimodal processing, and streaming contracts should be explicit from the beginning.
 
 ## Current Implementation Status
 
@@ -49,17 +57,19 @@ The first production path should be narrow: UPSC GS/Prelims first, then one NET 
 | Flutter app shell | Implemented | `apps/preppy_app` exists as the application shell. | Consume REST APIs for product flows and gRPC streams for long-running status/chat. |
 | Quarkus backend | Implemented | `backend` is a Quarkus 3.x Java 17 application. | Remain the product/API core. |
 | Firebase authentication | Implemented | `FirebaseAuthenticationMechanism`, `FirebaseAuthService`, and `/v1/users/me` profile sync exist. | Continue using Firebase ID tokens at the edge of product APIs. |
-| REST API resources | Stubbed | User APIs are functional; ingestion, taxonomy, question, SRS, PYQ, and dashboard resources exist with early/static behavior. | Expand each resource into production feature APIs with typed request/response contracts. |
+| REST API resources | Stubbed | User APIs are functional; ingestion, taxonomy, question, SRS, PYQ, and dashboard resources exist with early/static behavior. | Expand each resource into production feature APIs with typed request/response contracts, plus planned onboarding, notebook, and plan APIs. |
+| Student onboarding | Planned | Authenticated profile sync exists, but learner profiling and onboarding questions are not implemented. | Add student profile, learning preferences, target dates, and notification preferences. |
+| Notebook workspace | Planned | No durable notebook aggregate exists yet. | Add notebooks as subject/exam workspaces that own syllabus, materials, topic workspaces, plans, and practice history. |
 | OpenAPI/Swagger | Implemented | SmallRye OpenAPI and Swagger UI are configured. | Treat OpenAPI as the REST contract source for clients and QA. |
-| Postgres and Flyway | Implemented | Datasource and Flyway migrations are configured. | Store users, documents, chunks, syllabus, questions, cards, reviews, PYQs, plans, and job records. |
+| Postgres and Flyway | Implemented | Datasource and Flyway migrations are configured. | Store users, profiles, notebooks, materials, documents, chunks, syllabus, questions, cards, reviews, PYQs, plans, and job records. |
 | Redis | Configured | Redis is present in local infra and Quarkus config. | Use for cache, short-lived coordination, rate limits, and job/event fan-out. |
-| Qdrant | Configured | Qdrant is present in local infra and the Java client dependency is configured. | Store vector embeddings for document chunks, PYQs, generated content, and retrieval contexts. |
+| Qdrant | Configured | Qdrant is present in local infra and the Java client dependency is configured. | Store notebook-scoped vector embeddings for document chunks, PYQs, generated content, and retrieval contexts. |
 | PDF text extraction | Stubbed | PDFBox dependency and ingestion module exist. | Add upload storage, OCR fallback, page extraction, chunking, and provenance indexing. |
 | gRPC surface | Stubbed | A small proto exists with `Ping` and `WatchJobStatus`. | Expand into job, ingestion, AI generation, and chat streaming contracts. |
 | Java AI module | Planned | No separate AI runtime exists yet. | Add a separate Java module/service for LangChain/LangChain4j-style RAG, generation, and chat streams. |
 | Question generation | Stubbed | `QuestionResource`, `QuestionService`, `FlashcardService`, `LlmGateway`, and `StubLlmGateway` exist. | Replace stubs with structured AI generation using RAG and provenance. |
 | SRS and daily plans | Stubbed | `SrsResource`, `SrsService`, `SchedulerService`, and `DailyPlanService` exist. | Implement review scheduling, new-card selection, and daily playlist generation. |
-| PYQ analytics | Stubbed | `PyqResource`, `PyqService`, and `PyqAnalyticsService` exist. | Ingest PYQs, tag topics, compute frequency and coverage. |
+| PYQ analytics | Stubbed | `PyqResource`, `PyqService`, and `PyqAnalyticsService` exist. | Ingest PYQs, tag topics, compute frequency and coverage, and support mock-exam sessions. |
 | Observability | Partially implemented | Prometheus Micrometer dependency and request/API log helpers exist. | Add structured job logs, AI trace metadata, latency metrics, and generation quality dashboards. |
 
 ## Target System Architecture
@@ -91,7 +101,7 @@ Status: **Implemented shell, planned feature depth**
 Responsibilities:
 
 - Authenticate users through Firebase.
-- Render dashboard, syllabus coverage, decks, MCQs, PYQ practice, and daily plan surfaces.
+- Render onboarding, notebooks, topic workspaces, dashboard, syllabus coverage, decks, MCQs, PYQ practice, and daily plan surfaces.
 - Call REST APIs for normal product queries and mutations.
 - Subscribe to gRPC streams for job progress, generation progress, and chat responses.
 - Keep UI state separate from raw async data using feature-level state models.
@@ -105,7 +115,7 @@ Responsibilities:
 - Verify Firebase ID tokens.
 - Sync authenticated user profiles.
 - Expose REST APIs and OpenAPI documentation.
-- Own product workflow state and transactional records.
+- Own student profiles, notebooks, product workflow state, and transactional records.
 - Coordinate ingestion, generation, SRS, PYQ, taxonomy, and dashboard workflows.
 - Persist source-of-truth data in Postgres.
 - Write and read vector retrieval metadata with Qdrant.
@@ -122,6 +132,12 @@ Current resource boundaries:
 - `PyqResource`: PYQ browsing and analytics entry points.
 - `DashboardResource`: authenticated dashboard summary entry point.
 
+Planned resource boundaries:
+
+- `OnboardingResource`: learner profile, study level, goals, preferences, target dates, and notification settings.
+- `NotebookResource`: notebook creation, material library, completion date, plan state, and workspace summary.
+- `PlanResource`: generated study plans, student edits, task completion, replanning, and recovery from missed work.
+
 ### Java AI Module
 
 Status: **Planned**
@@ -131,11 +147,11 @@ Responsibilities:
 - Implement LangChain/LangChain4j-style chains for retrieval, generation, evaluation, and chat.
 - Convert product jobs into prompt plans and model calls.
 - Retrieve relevant chunks from Qdrant.
-- Generate structured MCQs, flashcards, short-answer prompts, explanations, and chat responses.
+- Generate structured diagnostics, MCQs, flashcards, short-answer prompts, explanations, and chat responses.
 - Stream token-level or event-level progress back to Quarkus.
 - Return outputs with source references, confidence metadata, and validation status.
 
-The AI module should not own user profiles, billing, product settings, syllabus state, or review state. It can cache execution details, but durable product records belong in Postgres through Quarkus.
+The AI module should not own student profiles, notebooks, billing, product settings, syllabus state, plans, or review state. It can cache execution details, but durable product records belong in Postgres through Quarkus.
 
 ### Postgres
 
@@ -281,18 +297,28 @@ Postgres is the durable source of truth. Qdrant is the vector index. Redis is sh
 Core target entities:
 
 - `User`: internal product user mapped to Firebase identity.
-- `ExamProfile`: exam type, target date, available study time, language preferences, and selected papers.
-- `Document`: uploaded source file metadata.
+- `StudentProfile`: learner identity, age or study level, learning goals, preferred methods, language preferences, and onboarding completion.
+- `LearningCapabilityProfile`: baseline confidence, diagnostic performance, pace assumptions, daily/weekly availability, and plan difficulty preferences.
+- `NotificationPreference`: review reminder windows, quiet hours, channel preferences, and opt-in state.
+- `Notebook`: subject, course, or exam workspace with goal, completion date, owner, status, and summary metrics.
+- `NotebookMaterial`: uploaded or linked study material scoped to a notebook, including syllabus files, bibliography/textbooks, notes, media, and PYQs.
+- `ExamProfile`: optional exam-specific extension for competitive tracks, including exam type, target date, available study time, and selected papers.
+- `Document`: uploaded source file metadata for PDFs, images, notes, PPTs, docs, spreadsheets, videos, and links as support expands.
 - `Page`: page-level extraction metadata.
-- `Chunk`: retrieval-ready text segment with page range, source type, and topic candidates.
+- `Chunk`: retrieval-ready text or transcript segment with page range, timestamp range where applicable, source type, and topic candidates.
 - `EmbeddingRecord`: mapping between Postgres chunk identity and Qdrant point identity.
 - `SyllabusItem`: hierarchical exam taxonomy node.
 - `SyllabusCoverage`: per-user coverage status for syllabus nodes.
+- `TopicWorkspace`: per-notebook workspace for a syllabus topic, linked materials, generated artifacts, review state, and confidence.
+- `BaselineAssessment`: lightweight diagnostic questions and answers used to estimate starting knowledge before planning.
 - `Question`: generated or imported question with type, options, answer, rationale, difficulty, and source references.
 - `Flashcard`: atomic recall item derived from a chunk, question, or PYQ.
 - `CardReview`: SRS review event with rating and next due time.
 - `PYQQuestion`: previous-year question metadata, year, paper, topic, marks, and source.
-- `DailyPlan`: date-bound set of review, practice, and generation tasks.
+- `PYQMockExam`: timed or untimed mock session assembled from uploaded or curated PYQs.
+- `StudyPlan`: editable plan generated from notebook scope, target date, available time, baseline capability, topic priority, and backlog.
+- `PlanTask`: date-bound learning, review, practice, mock, or catch-up task with estimated minutes and completion state.
+- `DailyPlan`: date-bound view of plan tasks, review, practice, and generation tasks.
 - `JobRecord`: durable state for ingestion, generation, indexing, and chat-related background work.
 
 ### Provenance Model
@@ -300,8 +326,11 @@ Core target entities:
 Every generated learning artifact should store references back to source material:
 
 - `documentId`
+- `notebookId`
 - `pageStart`
 - `pageEnd`
+- `timestampStart`
+- `timestampEnd`
 - `chunkIds`
 - `topicPath`
 - `syllabusItemIds`
@@ -309,7 +338,7 @@ Every generated learning artifact should store references back to source materia
 - `modelProvider`
 - `promptTemplateVersion`
 
-This allows the UI to show “why this exists,” lets users jump back to source context, and gives the team an audit trail for debugging hallucinations.
+This allows the UI to show “why this exists,” lets users jump back to source context, maps PYQs to exact source material, and gives the team an audit trail for debugging hallucinations.
 
 ## RAG Architecture With Qdrant
 
@@ -320,15 +349,15 @@ Qdrant will store vector embeddings for source chunks and retrieval-oriented con
 Recommended Qdrant collection strategy:
 
 - Start with one collection for study chunks, partitioned through payload filters.
-- Use payload fields such as `userId`, `exam`, `paper`, `subject`, `topicPath`, `documentId`, `pageStart`, `pageEnd`, `sourceType`, and `contentLanguage`.
+- Use payload fields such as `userId`, `notebookId`, `exam`, `paper`, `subject`, `topicPath`, `syllabusItemIds`, `documentId`, `pageStart`, `pageEnd`, `timestampStart`, `timestampEnd`, `sourceType`, and `contentLanguage`.
 - Add separate collections later only if retrieval behavior, embedding models, or retention policies differ materially.
 
 Target retrieval flow:
 
 1. Quarkus receives a generation or chat request.
-2. Quarkus validates user access, creates a `JobRecord`, and sends a scoped request to the Java AI module.
+2. Quarkus validates user and notebook access, creates a `JobRecord`, and sends a scoped request to the Java AI module.
 3. The AI module embeds the query or generation objective.
-4. The AI module searches Qdrant with user/exam/topic filters.
+4. The AI module searches Qdrant with user/notebook/topic filters.
 5. The AI module reranks and trims retrieved chunks.
 6. The AI module builds a prompt with retrieved context and provenance metadata.
 7. The LLM returns structured output.
@@ -336,7 +365,7 @@ Target retrieval flow:
 9. Quarkus persists accepted output in Postgres.
 10. Flutter receives progress and completion events through gRPC or final data through REST.
 
-The retrieval layer must avoid cross-user leakage by requiring `userId` or shared-curated-content scope in every query.
+The retrieval layer must avoid cross-user and cross-notebook leakage by requiring `userId` plus `notebookId` or an approved shared-curated-content scope in every query.
 
 ## Java AI Module And Chat Streaming
 
@@ -360,6 +389,7 @@ Suggested AI job request shape:
 {
   "jobId": "job_123",
   "userId": "user_123",
+  "notebookId": "notebook_123",
   "exam": "UPSC_CSE",
   "paper": "GS_PRELIMS",
   "topicPath": ["History", "Modern India"],
@@ -406,27 +436,32 @@ Target ingestion flow:
 
 ```mermaid
 flowchart TD
-    Upload[Upload PDF or PYQ] --> CreateJob[Create JobRecord]
-    CreateJob --> ExtractText[Extract Text With PDFBox]
+    Upload[Upload Material] --> CreateJob[Create JobRecord]
+    CreateJob --> DetectType[Detect Material Type]
+    DetectType --> ExtractText[Extract Text Or Transcript]
     ExtractText --> OcrFallback[OCR Fallback For Scans]
-    OcrFallback --> ChunkText[Chunk Text With Page Metadata]
-    ChunkText --> Classify[Map To Exam Taxonomy]
+    OcrFallback --> ChunkText[Chunk With Page Or Timestamp Metadata]
+    ChunkText --> Classify[Map To Syllabus Topics]
     Classify --> Embed[Create Embeddings]
     Embed --> IndexQdrant[Index In Qdrant]
     IndexQdrant --> StoreMetadata[Persist Metadata In Postgres]
-    StoreMetadata --> Generate[Generate Questions And Cards]
-    Generate --> Validate[Validate Provenance And Shape]
-    Validate --> Publish[Publish Job Completion]
+    StoreMetadata --> Ready[Notebook Material Ready]
 ```
 
-The initial implementation can process small uploads synchronously during development, but the production design should treat ingestion as a long-running job. Large PDFs, scanned material, OCR, embedding, and generation can all exceed a normal HTTP request budget.
+The initial implementation can process small uploads synchronously during development, but the production design should treat ingestion as a long-running job. Large PDFs, scanned material, OCR, embedding, video transcription, and future PPT/doc/spreadsheet extraction can all exceed a normal HTTP request budget.
+
+Target material support:
+
+- v1 starts with PDFs and images, including scanned or handwritten notes where OCR quality is sufficient.
+- Later versions add video/audio transcript extraction, PPT/document parsing, spreadsheets, web links, and richer media metadata.
+- Every material type should normalize into notebook-scoped metadata plus retrieval chunks, even if extraction quality varies by type.
 
 Target generation flow:
 
-1. User selects a topic, document, syllabus area, or daily-plan task.
+1. User selects a notebook, topic workspace, document, syllabus area, or plan task.
 2. Quarkus validates access and creates a generation job.
 3. Java AI module retrieves source chunks from Qdrant.
-4. AI module generates structured questions, cards, or explanations.
+4. AI module generates structured diagnostics, questions, cards, or explanations.
 5. AI module streams progress and partial validation events.
 6. Quarkus persists accepted artifacts and rejects invalid artifacts.
 7. Flutter shows the generated set, linked source pages, and next practice action.
@@ -439,19 +474,55 @@ Output validation rules:
 - Flashcards should be atomic and answerable without requiring unrelated context.
 - Explanations should cite source chunks rather than invent unsupported claims.
 
-## Exam Taxonomy, SRS, PYQ, And Dashboard Workflows
+## Notebook, Taxonomy, SRS, PYQ, And Dashboard Workflows
+
+### Student Onboarding And Profile
+
+Status: **Planned**
+
+Onboarding should create a `StudentProfile` and `LearningCapabilityProfile` before the first meaningful plan is generated. The target questionnaire should capture:
+
+- What the student is learning.
+- Study level or age group.
+- Goal type, such as school subject, university course, competitive exam, or professional self-study.
+- Target date or completion date.
+- Available study time and weekly rhythm.
+- Known learning preferences, such as visual explanations, active recall, MCQs, flashcards, videos, or reading.
+- Notification and focus preferences.
+
+The profile should remain editable. Plan generation should treat onboarding values as constraints and starting assumptions, then refine them with baseline assessments and observed completion behavior.
+
+### Notebook And Topic Workspace
+
+Status: **Planned**
+
+A notebook is the durable aggregate for a subject, course, or exam. It should contain:
+
+- Notebook goal and target completion date.
+- Uploaded syllabus and bibliography/textbooks.
+- Notes, handwritten material, images, PDFs, videos, PPTs, docs, spreadsheets, links, and PYQs as supported material types.
+- Topic workspaces derived from syllabus items.
+- Baseline assessments, generated artifacts, study plans, review history, and dashboard summary state.
+
+Each topic workspace should act as a focused learning surface. It links the syllabus item to source pages/chunks, Q&A context, MCQs, flashcards, video or media references, review state, and weak-area signals.
 
 ### Exam Taxonomy
 
 Status: **Stubbed**
 
-The taxonomy module exposes syllabus trees and coverage summaries. The target model is a hierarchy:
+The taxonomy module exposes syllabus trees and coverage summaries. For school and university notebooks, the hierarchy can be:
+
+```text
+notebook -> unit/module -> topic -> subtopic -> syllabus bullet
+```
+
+For competitive-exam notebooks, the hierarchy can remain:
 
 ```text
 exam -> paper -> subject -> topic -> subtopic -> syllabus bullet
 ```
 
-The first production taxonomy should stay narrow, ideally UPSC CSE GS/Prelims. Additional exams should be added only after the ingestion and practice loop works end to end.
+The first production taxonomy should stay narrow enough to validate the full notebook loop. Additional exam-specific taxonomies should be added only after onboarding, ingestion, mapping, practice, and planning work end to end.
 
 ### Syllabus Coverage
 
@@ -464,15 +535,21 @@ Coverage should be computed from mapped chunks, generated artifacts, user review
 - `covered`
 - `needs_revision`
 
-Later versions can add confidence scores based on source quality, recency, review performance, and PYQ frequency.
+Later versions can add confidence scores based on source quality, recency, review performance, baseline results, and PYQ frequency.
+
+### Baseline Validation
+
+Status: **Planned**
+
+After a notebook has enough mapped material, Preppy should generate lightweight diagnostic questions to estimate current knowledge. The baseline can include MCQs, flashcards, short answers, or self-confidence checks. Results should feed into the first study plan, but should not block the student from editing or starting the plan.
 
 ### Question And Flashcard Engine
 
 Status: **Stubbed**
 
-The question engine should generate exam-style artifacts:
+The question engine should generate notebook-scoped learning artifacts:
 
-- UPSC/TNPSC-style single-correct MCQs.
+- School, university, and competitive-exam single-correct MCQs.
 - Assertion-reason questions.
 - Match-the-following questions.
 - True/false statement sets.
@@ -485,20 +562,22 @@ Every artifact must be linked to source pages and topic paths.
 
 Status: **Stubbed**
 
-SRS should begin with a simple review algorithm and evolve after real user behavior is observed. The daily planner should combine:
+SRS should begin with a simple review algorithm and evolve after real user behavior is observed. The planner should combine:
 
 - Due review cards.
 - New cards from under-covered high-priority topics.
 - A small set of MCQs or PYQs.
+- Baseline weak areas.
+- Time left until the notebook completion date.
 - Optional writing practice for Mains-oriented exams.
 
-The plan should be constrained by target exam date, available minutes, weak topics, and backlog size.
+The plan should be constrained by target date, available minutes, learning capability, weak topics, material volume, and backlog size. Students must be able to edit the plan; the backend should record changes and regenerate future tasks when the student misses work or completes tasks early.
 
 ### PYQ Engine
 
 Status: **Stubbed**
 
-The PYQ engine should ingest user-provided PYQs first, then optionally add curated datasets. It should tag each question by year, paper, subject, topic, difficulty, and question type.
+The PYQ engine should ingest user-provided PYQs or past papers first, then optionally add curated datasets where licensing permits. It should tag each question by year, paper or course, subject, topic, difficulty, question type, source document, and linked syllabus item.
 
 Target outputs:
 
@@ -506,6 +585,8 @@ Target outputs:
 - Frequency trends across years.
 - Topic-priority hints for study planning.
 - Linked practice sessions from the daily plan.
+- Mock-exam sessions from uploaded PYQs or filtered question sets.
+- Source links from PYQ to syllabus topic and book/page/chunk where available.
 
 ### Dashboard
 
@@ -518,7 +599,7 @@ The dashboard should act as a control panel, not a content portal. It should ans
 - How many cards are due?
 - How much of the syllabus is mapped?
 - Which PYQ areas are important?
-- Am I on track for my exam date?
+- Am I on track for my notebook completion date or exam date?
 
 ## API Contract Strategy
 
@@ -533,6 +614,8 @@ Recommended contract rules:
 - Use REST for resource-oriented CRUD and synchronous queries.
 - Use gRPC server streaming for progress and chat.
 - Keep job identifiers stable across REST and gRPC.
+- Scope notebook APIs by authenticated user and notebook ownership.
+- Keep plan edits explicit so generated plans and student modifications are auditable.
 - Return structured errors, not free-form strings.
 - Do not expose internal database IDs unless they are intended client identifiers.
 - Version breaking API changes explicitly.
@@ -604,13 +687,13 @@ Reliability patterns:
 
 Status: **Implemented auth foundation, planned privacy depth**
 
-Preppy handles user-uploaded study material, which may include copyrighted coaching PDFs, personal notes, and exam prep annotations. Security and privacy should be treated as product requirements.
+Preppy handles user-uploaded study material, which may include textbooks, copyrighted coaching PDFs, teacher notes, personal notes, handwritten scans, class media, and exam prep annotations. Security and privacy should be treated as product requirements.
 
 Security rules:
 
 - Verify Firebase ID tokens on every protected backend request.
 - Scope all user data by internal user identity.
-- Never let the client choose another user's document, job, or Qdrant filter scope.
+- Never let the client choose another user's notebook, document, job, or Qdrant filter scope.
 - Do not log raw PDF text, full prompts, full LLM outputs, or service-account credentials.
 - Store production secrets outside git and outside application resources.
 - Keep Firebase service account files gitignored.
@@ -619,7 +702,7 @@ Security rules:
 Privacy rules:
 
 - Preserve source provenance for user trust.
-- Make document deletion remove or tombstone related chunks, embeddings, and generated artifacts according to retention policy.
+- Make notebook or document deletion remove or tombstone related chunks, embeddings, generated artifacts, plans, reviews, and PYQ mappings according to retention policy.
 - Separate user-owned corpora from curated/shared corpora.
 - Avoid training or fine-tuning external models on user content unless explicitly supported by product policy and user consent.
 
@@ -638,10 +721,10 @@ Privacy rules:
 ### Phase 1: Backend Foundations
 
 - Replace static/stub responses with typed DTOs and persisted entities.
-- Implement document upload metadata and storage strategy.
+- Implement onboarding profile, notebook, material metadata, and storage strategy.
 - Implement PDF text extraction and chunking with page references.
-- Seed first UPSC taxonomy.
-- Persist syllabus coverage, questions, flashcards, reviews, PYQs, and daily plan records.
+- Seed the first notebook syllabus/taxonomy path.
+- Persist syllabus coverage, topic workspaces, questions, flashcards, reviews, PYQs, study plans, and daily plan records.
 
 ### Phase 2: RAG And AI Integration
 
@@ -649,7 +732,7 @@ Privacy rules:
 - Add embedding generation for chunks.
 - Create the separate Java AI module.
 - Define Quarkus-to-AI gRPC contracts.
-- Implement RAG retrieval and structured question/card generation.
+- Implement notebook-scoped RAG retrieval and structured diagnostic/question/card generation.
 - Persist source-grounded generated artifacts.
 
 ### Phase 3: Streaming Experience
@@ -662,17 +745,18 @@ Privacy rules:
 ### Phase 4: Practice Loop And Alpha Hardening
 
 - Implement SRS review scheduling.
-- Implement daily playlist generation.
-- Implement PYQ ingestion and topic analytics.
-- Add dashboard metrics for coverage, due cards, weak topics, and exam readiness.
+- Implement editable study plan and daily playlist generation.
+- Implement PYQ ingestion, topic mapping, analytics, and mock-exam sessions.
+- Add dashboard metrics for coverage, due cards, weak topics, PYQ exposure, and notebook readiness.
 - Add production-grade observability, quotas, and failure handling.
-- Run closed alpha with a narrow exam scope.
+- Run closed alpha with a narrow notebook scope.
 
 ## Open Decisions
 
 These decisions should be made before production implementation, but they do not block this technical blueprint:
 
 - Exact OCR provider for scanned PDFs.
+- Order of support for videos, PPTs, docs, spreadsheets, and web links after PDFs/images.
 - Long-term object storage provider for uploaded documents.
 - Embedding model and vector dimensions.
 - Whether Qdrant is self-hosted or managed in production.
@@ -680,7 +764,8 @@ These decisions should be made before production implementation, but they do not
 - Exact Java AI framework dependency and deployment shape.
 - Retention policy for deleted documents, embeddings, prompts, and generated outputs.
 - Quota model for expensive AI generation and chat streams.
+- Planner policy for student-edited schedules, missed days, and notification quiet hours.
 
 ## Execution Summary
 
-The planned architecture keeps Preppy practical for v1 while preserving clean extraction points. Quarkus owns product state and normal APIs. The Java AI module owns AI execution. REST stays the default product interface. gRPC is reserved for streams and long-running jobs. Postgres stores truth. Qdrant powers retrieval. Redis supports coordination. The product differentiator is not just AI generation, but exam-aware provenance, syllabus mapping, PYQ analytics, and a daily practice loop built from the user's own material.
+The planned architecture keeps Preppy practical for v1 while preserving clean extraction points. Quarkus owns product state and normal APIs. The Java AI module owns AI execution. REST stays the default product interface. gRPC is reserved for streams and long-running jobs. Postgres stores truth. Qdrant powers retrieval. Redis supports coordination. The product differentiator is not just AI generation, but notebook-aware provenance, syllabus-to-source mapping, adaptive planning, spaced repetition, PYQ mock practice, and a daily learning loop built from the student's own material.
