@@ -12,6 +12,8 @@ final class AppProfile {
     this.avatarUrl,
     required this.createdAt,
     required this.metadata,
+    this.onboardingCompleted = false,
+    this.onboardingCompletedAt,
   });
 
   final String profileId;
@@ -20,6 +22,8 @@ final class AppProfile {
   final String? avatarUrl;
   final DateTime createdAt;
   final Map<String, dynamic> metadata;
+  final bool onboardingCompleted;
+  final DateTime? onboardingCompletedAt;
 
   /// Accepts either backend `profileId` or generic `id` fields.
   factory AppProfile.fromJson(Map<String, dynamic> json) {
@@ -38,6 +42,12 @@ final class AppProfile {
       metadata: Map<String, dynamic>.from(
         (json['metadata'] as Map?)?.cast<String, dynamic>() ?? const {},
       ),
+      onboardingCompleted: json['onboardingCompleted'] as bool? ?? false,
+      onboardingCompletedAt: switch (json['onboardingCompletedAt']) {
+        final String s => DateTime.tryParse(s),
+        final int ms => DateTime.fromMillisecondsSinceEpoch(ms),
+        _ => null,
+      },
     );
   }
 
@@ -48,6 +58,8 @@ final class AppProfile {
     'avatarUrl': avatarUrl,
     'createdAt': createdAt.toIso8601String(),
     'metadata': metadata,
+    'onboardingCompleted': onboardingCompleted,
+    'onboardingCompletedAt': onboardingCompletedAt?.toIso8601String(),
   };
 
   /// JSON string form used for local persistence.
@@ -62,7 +74,9 @@ final class AppProfile {
           fullName == other.fullName &&
           avatarUrl == other.avatarUrl &&
           createdAt == other.createdAt &&
-          mapEquals(metadata, other.metadata);
+          mapEquals(metadata, other.metadata) &&
+          onboardingCompleted == other.onboardingCompleted &&
+          onboardingCompletedAt == other.onboardingCompletedAt;
 
   @override
   int get hashCode => Object.hash(
@@ -72,5 +86,7 @@ final class AppProfile {
     avatarUrl,
     createdAt,
     Object.hashAll(metadata.entries),
+    onboardingCompleted,
+    onboardingCompletedAt,
   );
 }

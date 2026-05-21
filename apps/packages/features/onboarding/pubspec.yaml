@@ -1,0 +1,33 @@
+name: onboarding
+description: Learner onboarding and profile setup.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.11.5
+  flutter: ">=3.41.0"
+
+resolution: workspace
+
+dependencies:
+  core_models:
+    path: ../../core/models
+  core_network:
+    path: ../../core/network
+  core_state:
+    path: ../../core/state
+  dio: ^5.9.2
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.3.1
+  go_router: ^14.6.1
+  shared_ui:
+    path: ../../shared_ui
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true

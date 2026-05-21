@@ -18,6 +18,21 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('AuthNotifier hydration', () {
+    test('profile parses backend onboarding completion fields', () {
+      final profile = AppProfile.fromJson({
+        ...sampleProfileJson,
+        'onboardingCompleted': true,
+        'onboardingCompletedAt': '2026-05-19T10:00:00Z',
+      });
+
+      expect(profile.onboardingCompleted, isTrue);
+      expect(profile.onboardingCompletedAt, DateTime.parse('2026-05-19T10:00:00Z'));
+      expect(
+        AppProfile.fromJson(profile.toJson()),
+        profile,
+      );
+    });
+
     test('returns unauthenticated when token is null', () async {
       final storage = InMemoryStorage();
       final auth = FakeAuthService(token: null);

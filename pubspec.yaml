@@ -22,6 +22,7 @@ workspace:
   - apps/packages/features/auth
   - apps/packages/features/dashboard
   - apps/packages/features/ingestion
+  - apps/packages/features/onboarding
   - apps/packages/features/practice
   - apps/packages/features/pyq
   - apps/packages/features/syllabus

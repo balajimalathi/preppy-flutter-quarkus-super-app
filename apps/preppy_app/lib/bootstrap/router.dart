@@ -1,7 +1,7 @@
 import 'package:auth/feature_auth.dart';
-import 'package:core_di/core_di.dart';
 import 'package:dashboard/feature_dashboard.dart';
 import 'package:ingestion/feature_ingestion.dart';
+import 'package:onboarding/feature_onboarding.dart';
 import 'package:practice/feature_practice.dart';
 import 'package:pyq/feature_pyq.dart';
 import 'package:syllabus/feature_syllabus.dart';
@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'router_refresh.dart';
+import 'session_gate_provider.dart';
 import 'splash_screen.dart';
 
 /// Top-level [GoRouter] for the Preppy shell. Each feature package exposes its
@@ -21,17 +22,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     refreshListenable: refresh,
     redirect: (context, state) {
       final loc = state.matchedLocation;
-      final authAsync = ref.read(authProvider);
-      return switch (authAsync) {
-        AsyncLoading() => loc == '/splash' ? null : '/splash',
-        AsyncError() => loc == '/login' ? null : '/login',
-        AsyncData(:final value) => switch (value) {
-          AuthAuthenticated() when loc == '/splash' || loc == '/login' =>
-            '/dashboard',
-          AuthAuthenticated() => null,
-          _ when loc != '/login' => '/login',
-          _ => null,
-        },
+      final gate = ref.read(sessionGateProvider);
+      return switch (gate.target) {
+        SessionRouteTarget.splash => loc == '/splash' ? null : '/splash',
+        SessionRouteTarget.login => loc == '/login' ? null : '/login',
+        SessionRouteTarget.onboarding =>
+          loc == '/onboarding' ? null : '/onboarding',
+        SessionRouteTarget.dashboard
+            when loc == '/splash' || loc == '/login' || loc == '/onboarding' =>
+          '/dashboard',
+        SessionRouteTarget.dashboard => null,
       };
     },
     routes: [
@@ -42,6 +42,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ...featureAuthRoutes,
       ...featureDashboardRoutes,
       ...featureIngestionRoutes,
+      ...featureOnboardingRoutes,
       ...featurePracticeRoutes,
       ...featurePyqRoutes,
       ...featureSyllabusRoutes,

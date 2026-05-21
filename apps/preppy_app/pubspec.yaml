@@ -45,6 +45,8 @@ dependencies:
     path: ../packages/features/dashboard
   ingestion:
     path: ../packages/features/ingestion
+  onboarding:
+    path: ../packages/features/onboarding
   practice:
     path: ../packages/features/practice
   pyq:
