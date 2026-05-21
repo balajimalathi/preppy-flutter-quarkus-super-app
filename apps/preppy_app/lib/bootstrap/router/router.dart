@@ -10,7 +10,7 @@ import 'package:go_router/go_router.dart';
 
 import 'router_refresh.dart';
 import 'session_gate_provider.dart';
-import 'splash_screen.dart';
+import '../splash_screen.dart';
 
 /// Top-level [GoRouter] for the Preppy shell. Each feature package exposes its
 /// own `routes` list which we splice in here, so adding a new feature does not

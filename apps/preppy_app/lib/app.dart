@@ -9,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_ui/shared_ui.dart';
 
 import 'bootstrap/preppy_fcm_token_sync.dart';
-import 'bootstrap/router.dart';
+import 'bootstrap/router/router.dart';
 
 class PreppyApp extends ConsumerWidget {
   const PreppyApp({super.key});

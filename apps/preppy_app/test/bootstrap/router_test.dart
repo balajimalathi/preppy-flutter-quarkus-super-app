@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:preppy_app/bootstrap/router.dart';
-import 'package:preppy_app/bootstrap/session_gate_provider.dart';
+import 'package:preppy_app/bootstrap/router/router.dart';
+import 'package:preppy_app/bootstrap/router/session_gate_provider.dart';
 
 void main() {
   testWidgets('incomplete authenticated users are redirected to onboarding', (
