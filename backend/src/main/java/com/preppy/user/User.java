@@ -4,6 +4,7 @@ import com.preppy.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,4 +31,7 @@ public class User extends BaseEntity {
 
     @Column(name = "fcm_token")
     private String fcmToken;
+
+    @Column(name = "onboarding_completed_at")
+    private Instant onboardingCompletedAt;
 }

@@ -1,6 +1,7 @@
 package com.preppy.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.preppy.user.dto.OnboardingProfileResponse;
 import java.time.Instant;
 import java.util.Map;
 
@@ -11,4 +12,7 @@ public record ProfileResponse(
         String fullName,
         String avatarUrl,
         Instant createdAt,
-        Map<String, Object> metadata) {}
+        Map<String, Object> metadata,
+        boolean onboardingCompleted,
+        Instant onboardingCompletedAt,
+        OnboardingProfileResponse onboardingProfile) {}

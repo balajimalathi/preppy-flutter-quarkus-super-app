@@ -3,7 +3,11 @@ package com.preppy.user;
 import com.preppy.auth.CurrentUser;
 import com.preppy.auth.UserPrincipal;
 import com.preppy.auth.dto.ProfileResponse;
+import com.preppy.common.ApiResponse;
+import com.preppy.user.dto.OnboardingProfileResponse;
+import com.preppy.user.dto.OnboardingUpsertRequest;
 import com.preppy.user.dto.UpdateFcmTokenRequest;
+import jakarta.validation.Valid;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -45,5 +49,18 @@ public class UserResource {
                 body == null ? null : body.fcmToken(),
                 currentUser.requireFirebaseToken());
         return Response.noContent().build();
+    }
+
+    @PUT
+    @Path("/me/onboarding")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<OnboardingProfileResponse> upsertOnboarding(
+            @Valid final OnboardingUpsertRequest body) {
+        final UserPrincipal principal = currentUser.requirePrincipal();
+        return ApiResponse.of(userService.upsertOnboarding(
+                principal.origin(),
+                principal.externalUid(),
+                currentUser.requireFirebaseToken(),
+                body));
     }
 }

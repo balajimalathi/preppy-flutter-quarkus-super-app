@@ -24,7 +24,7 @@ public class AppExceptionMapper implements ExceptionMapper<AppException> {
         ApiLogContext.reportError(
                 requestContext, exception.getMessage(), exception.status().getStatusCode());
         return Response.status(exception.status())
-                .entity(ErrorResponse.of(exception.getMessage()))
+                .entity(ErrorResponse.of(exception.getMessage(), exception.errors()))
                 .build();
     }
 }
