@@ -8,11 +8,13 @@ import 'package:onboarding/src/domain/entities/onboarding_draft.dart';
 import 'package:onboarding/src/domain/entities/onboarding_profile.dart';
 import 'package:onboarding/src/presentation/onboarding_screen.dart';
 
+import '../helpers/fake_onboarding_repository.dart';
+
 void main() {
   testWidgets('blocks submit with inline messages for required fields', (
     tester,
   ) async {
-    final repository = _FakeOnboardingRepository();
+    final repository = FakeOnboardingRepository();
     await tester.pumpWidget(_app(repository));
 
     await tester.tap(find.text('Save onboarding'));
@@ -24,7 +26,22 @@ void main() {
   });
 
   testWidgets('fills form and submits repository request', (tester) async {
-    final repository = _FakeOnboardingRepository();
+    final repository = FakeOnboardingRepository(
+      onUpsert: (draft) async => Result.success(
+        OnboardingProfile(
+          onboardingCompleted: true,
+          learningTarget: draft.learningTarget,
+          studyLevel: draft.studyLevel!,
+          goalType: draft.goalType!,
+          targetDate: draft.targetDate!,
+          dailyMinutes: draft.dailyMinutes,
+          preferredLearningMethods: draft.preferredLearningMethods,
+          notificationsEnabled: draft.notificationsEnabled,
+          quietHoursStart: draft.quietHoursStart,
+          quietHoursEnd: draft.quietHoursEnd,
+        ),
+      ),
+    );
     await tester.pumpWidget(_app(repository));
 
     await tester.enterText(
@@ -33,8 +50,14 @@ void main() {
     );
     await tester.tap(find.text('Competitive exam').first);
     await tester.tap(find.text('Competitive exam goal').first);
-    await tester.enterText(find.byKey(const ValueKey('targetDateField')), '2026-12-31');
-    await tester.enterText(find.byKey(const ValueKey('dailyMinutesField')), '90');
+    await tester.enterText(
+      find.byKey(const ValueKey('targetDateField')),
+      '2026-12-31',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('dailyMinutesField')),
+      '90',
+    );
     await tester.tap(find.text('MCQ'));
     await tester.tap(find.text('Flashcards'));
     await tester.tap(find.text('Save onboarding'));
@@ -59,29 +82,4 @@ Widget _app(OnboardingRepository repository) {
     overrides: [onboardingRepositoryProvider.overrideWithValue(repository)],
     child: const MaterialApp(home: OnboardingScreen()),
   );
-}
-
-final class _FakeOnboardingRepository implements OnboardingRepository {
-  OnboardingDraft? lastDraft;
-
-  @override
-  Future<Result<OnboardingProfile>> upsertOnboarding(
-    OnboardingDraft draft,
-  ) async {
-    lastDraft = draft;
-    return Result.success(
-      OnboardingProfile(
-        onboardingCompleted: true,
-        learningTarget: draft.learningTarget,
-        studyLevel: draft.studyLevel!,
-        goalType: draft.goalType!,
-        targetDate: draft.targetDate!,
-        dailyMinutes: draft.dailyMinutes,
-        preferredLearningMethods: draft.preferredLearningMethods,
-        notificationsEnabled: draft.notificationsEnabled,
-        quietHoursStart: draft.quietHoursStart,
-        quietHoursEnd: draft.quietHoursEnd,
-      ),
-    );
-  }
 }

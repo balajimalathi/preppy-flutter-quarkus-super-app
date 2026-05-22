@@ -1,4 +1,4 @@
-import 'package:core_notifications/core_notifications.dart';
+import 'package:core_dev_debug/core_dev_debug.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

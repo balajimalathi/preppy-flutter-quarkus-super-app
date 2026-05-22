@@ -1,12 +1,14 @@
 import 'package:core_models/core_models.dart';
 import 'package:core_state/core_state.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:onboarding/src/application/providers/onboarding_providers.dart';
 import 'package:onboarding/src/application/view_models/onboarding_view_model.dart';
 import 'package:onboarding/src/data/repositories/onboarding_repository.dart';
 import 'package:onboarding/src/domain/entities/onboarding_draft.dart';
 import 'package:onboarding/src/domain/entities/onboarding_profile.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../helpers/fake_onboarding_repository.dart';
 
 void main() {
   final targetDate = DateTime(2026, 12, 31);
@@ -22,7 +24,7 @@ void main() {
   );
 
   test('initial state contains editable draft', () {
-    final container = _container(_FakeOnboardingRepository());
+    final container = _container(FakeOnboardingRepository());
     addTearDown(container.dispose);
 
     final state = container.read(onboardingViewModelProvider);
@@ -32,7 +34,7 @@ void main() {
   });
 
   test('invalid local draft sets field errors and skips repository', () async {
-    final repository = _FakeOnboardingRepository();
+    final repository = FakeOnboardingRepository();
     final container = _container(repository);
     addTearDown(container.dispose);
 
@@ -48,7 +50,7 @@ void main() {
   });
 
   test('valid save stores returned profile', () async {
-    final repository = _FakeOnboardingRepository(
+    final repository = FakeOnboardingRepository(
       result: Result.success(savedProfile),
     );
     final container = _container(repository);
@@ -66,7 +68,7 @@ void main() {
   });
 
   test('repository validation error populates field errors', () async {
-    final repository = _FakeOnboardingRepository(
+    final repository = FakeOnboardingRepository(
       result: const Result.failure(
         UnknownFailure(
           message: 'validation',
@@ -101,21 +103,4 @@ void _fillValidDraft(OnboardingViewModel notifier, DateTime targetDate) {
   notifier.updateTargetDate(targetDate);
   notifier.updateDailyMinutes(90);
   notifier.toggleLearningMethod(LearningMethod.mcq, true);
-}
-
-final class _FakeOnboardingRepository implements OnboardingRepository {
-  _FakeOnboardingRepository({
-    this.result = const Result.failure(UnknownFailure(message: 'unset')),
-  });
-
-  final Result<OnboardingProfile> result;
-  int calls = 0;
-
-  @override
-  Future<Result<OnboardingProfile>> upsertOnboarding(
-    OnboardingDraft draft,
-  ) async {
-    calls++;
-    return result;
-  }
 }

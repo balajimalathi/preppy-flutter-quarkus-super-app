@@ -14,5 +14,4 @@ export 'src/storage/notification_preferences_store.dart';
 export 'src/display/push_payload_mapper.dart';
 export 'src/display/push_display_relay.dart';
 export 'src/display/push_local_display.dart';
-export 'src/storage/push_payload_history_store.dart';
-export 'src/debug/push_receive_debug_log.dart';
+export 'package:core_dev_debug/core_dev_debug.dart';

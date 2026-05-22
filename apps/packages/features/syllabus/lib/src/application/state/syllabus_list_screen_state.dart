@@ -2,22 +2,20 @@ import 'package:core_models/core_models.dart';
 import 'package:core_state/core_state.dart';
 import 'package:flutter/foundation.dart';
 
-import '../../domain/entities/dashboard_summary.dart';
-
 @immutable
-class DashboardScreenState extends ScreenState<DashboardSummary> {
-  const DashboardScreenState({super.data, super.error, super.phase});
+class SyllabusListScreenState extends ScreenState<List<SyllabusItem>> {
+  const SyllabusListScreenState({super.data, super.error, super.phase});
 
-  const DashboardScreenState.initial() : super(phase: LoadPhase.loading);
+  const SyllabusListScreenState.initial() : super(phase: LoadPhase.loading);
 
   @override
-  DashboardScreenState copyWith({
-    DashboardSummary? data,
+  SyllabusListScreenState copyWith({
+    List<SyllabusItem>? data,
     AppError? error,
     bool clearError = false,
     LoadPhase? phase,
   }) {
-    return DashboardScreenState(
+    return SyllabusListScreenState(
       data: data ?? this.data,
       error: clearError ? null : (error ?? this.error),
       phase: phase ?? this.phase,

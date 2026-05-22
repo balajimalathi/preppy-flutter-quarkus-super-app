@@ -1,7 +1,7 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 
 import '../core/core_notifications_bridge.dart';
-import '../debug/push_receive_debug_log.dart';
+import 'package:core_dev_debug/core_dev_debug.dart';
 
 @pragma('vm:entry-point')
 Future<void> coreNotificationsOnActionReceived(ReceivedAction action) async {

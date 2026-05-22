@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:core_auth/core_auth.dart';
 import 'package:core_auth/src/auth_storage_keys.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:riverpod/riverpod.dart';
 
 import 'helpers/auth_test_fakes.dart';
 
@@ -34,20 +34,14 @@ void main() {
     });
 
     test('returns unauthenticated when token is null', () async {
-      final storage = InMemoryStorage();
-      final auth = FakeAuthService(token: null);
       final profile = FakeProfileService();
-
-      final container = ProviderContainer(
-        overrides: authTestOverrides(
-          storage: storage,
-          auth: auth,
-          profile: profile,
-        ),
+      final harness = AuthTestHarness(
+        auth: FakeAuthService(token: null),
+        profile: profile,
       );
-      addTearDown(container.dispose);
+      addTearDown(harness.dispose);
 
-      final state = await container.read(authProvider.future);
+      final state = await harness.readAuth();
       expect(state, isA<AuthUnauthenticated>());
       expect(profile.fetchCallCount, 0);
     });
@@ -58,19 +52,11 @@ void main() {
         AuthStorageKeys.userProfile,
         sampleProfile.toJsonString(),
       );
-      final auth = FakeAuthService(token: 'token');
       final profile = FakeProfileService();
+      final harness = AuthTestHarness(storage: storage, profile: profile);
+      addTearDown(harness.dispose);
 
-      final container = ProviderContainer(
-        overrides: authTestOverrides(
-          storage: storage,
-          auth: auth,
-          profile: profile,
-        ),
-      );
-      addTearDown(container.dispose);
-
-      final state = await container.read(authProvider.future);
+      final state = await harness.readAuth();
       expect(state, isA<AuthAuthenticated>());
       expect((state as AuthAuthenticated).profile, sampleProfile);
     });
@@ -78,19 +64,11 @@ void main() {
     test('corrupt cache is cleared then profile is fetched', () async {
       final storage = InMemoryStorage();
       await storage.write(AuthStorageKeys.userProfile, 'not-json');
-      final auth = FakeAuthService(token: 'token');
       final profile = FakeProfileService();
+      final harness = AuthTestHarness(storage: storage, profile: profile);
+      addTearDown(harness.dispose);
 
-      final container = ProviderContainer(
-        overrides: authTestOverrides(
-          storage: storage,
-          auth: auth,
-          profile: profile,
-        ),
-      );
-      addTearDown(container.dispose);
-
-      final state = await container.read(authProvider.future);
+      final state = await harness.readAuth();
       expect(state, isA<AuthAuthenticated>());
       expect(profile.fetchCallCount, 1);
       expect(await storage.read(AuthStorageKeys.userProfile), isNotNull);
@@ -98,19 +76,11 @@ void main() {
 
     test('fetches profile when no cache', () async {
       final storage = InMemoryStorage();
-      final auth = FakeAuthService(token: 'token');
       final profile = FakeProfileService();
+      final harness = AuthTestHarness(storage: storage, profile: profile);
+      addTearDown(harness.dispose);
 
-      final container = ProviderContainer(
-        overrides: authTestOverrides(
-          storage: storage,
-          auth: auth,
-          profile: profile,
-        ),
-      );
-      addTearDown(container.dispose);
-
-      final state = await container.read(authProvider.future);
+      final state = await harness.readAuth();
       expect(state, isA<AuthAuthenticated>());
       expect(profile.fetchCallCount, 1);
       final cached = await storage.read(AuthStorageKeys.userProfile);
@@ -122,45 +92,39 @@ void main() {
     });
 
     test('profile 401 signs out and returns unauthenticated', () async {
-      final storage = InMemoryStorage();
-      final auth = FakeAuthService(token: 'token');
-      final profile = FakeProfileService(
-        onFetch: () => throw profileAuthException(),
-      );
-
-      final container = ProviderContainer(
-        overrides: authTestOverrides(
-          storage: storage,
-          auth: auth,
-          profile: profile,
+      final harness = AuthTestHarness(
+        profile: FakeProfileService(
+          onFetch: () => throw profileAuthException(),
         ),
       );
-      addTearDown(container.dispose);
+      addTearDown(harness.dispose);
 
-      final state = await container.read(authProvider.future);
+      final state = await harness.readAuth();
       expect(state, isA<AuthUnauthenticated>());
-      expect(auth.signOutCallCount, 1);
+      expect(
+        harness.container.read(authServiceProvider),
+        isA<FakeAuthService>(),
+      );
+      expect(
+        (harness.container.read(authServiceProvider) as FakeAuthService)
+            .signOutCallCount,
+        1,
+      );
     });
 
     test('generic fetch error signs out', () async {
-      final storage = InMemoryStorage();
-      final auth = FakeAuthService(token: 'token');
-      final profile = FakeProfileService(
-        onFetch: () => throw Exception('boom'),
+      final harness = AuthTestHarness(
+        profile: FakeProfileService(onFetch: () => throw Exception('boom')),
       );
+      addTearDown(harness.dispose);
 
-      final container = ProviderContainer(
-        overrides: authTestOverrides(
-          storage: storage,
-          auth: auth,
-          profile: profile,
-        ),
-      );
-      addTearDown(container.dispose);
-
-      final state = await container.read(authProvider.future);
+      final state = await harness.readAuth();
       expect(state, isA<AuthUnauthenticated>());
-      expect(auth.signOutCallCount, 1);
+      expect(
+        (harness.container.read(authServiceProvider) as FakeAuthService)
+            .signOutCallCount,
+        1,
+      );
     });
 
     test(
@@ -171,24 +135,16 @@ void main() {
           AuthStorageKeys.userProfile,
           sampleProfile.toJsonString(),
         );
-        final auth = FakeAuthService(token: 'token');
-        final profile = FakeProfileService(
-          onFetch: () async => _updatedProfile,
+        final harness = AuthTestHarness(
+          storage: storage,
+          profile: FakeProfileService(onFetch: () async => _updatedProfile),
         );
+        addTearDown(harness.dispose);
 
-        final container = ProviderContainer(
-          overrides: authTestOverrides(
-            storage: storage,
-            auth: auth,
-            profile: profile,
-          ),
-        );
-        addTearDown(container.dispose);
-
-        await container.read(authProvider.future);
+        await harness.readAuth();
         await pumpEventQueue(times: 3);
 
-        final async = container.read(authProvider);
+        final async = harness.container.read(authProvider);
         expect(async.hasValue, isTrue);
         final state = async.requireValue;
         expect(state, isA<AuthAuthenticated>());
@@ -204,140 +160,110 @@ void main() {
 
   group('AuthNotifier mutations', () {
     test('signIn success sets authenticated', () async {
-      final container = _containerWithSession();
-      addTearDown(container.dispose);
-      await container.read(authProvider.future);
+      final harness = AuthTestHarness();
+      addTearDown(harness.dispose);
+      await harness.readAuth();
 
-      await container
-          .read(authProvider.notifier)
-          .signIn(const EmailCredentials(email: 'a@b.com', password: 'secret'));
+      await harness.notifier.signIn(
+        const EmailCredentials(email: 'a@b.com', password: 'secret'),
+      );
 
-      final state = container.read(authProvider).requireValue;
-      expect(state, isA<AuthAuthenticated>());
+      expect(harness.current, isA<AuthAuthenticated>());
     });
 
     test('signIn failure sets error state', () async {
-      final auth = FakeAuthService(
-        token: null,
-        onSignIn: (_) async => const AuthFailure(
-          message: 'Invalid',
-          code: AuthErrorCode.invalidCredentials,
+      final harness = AuthTestHarness(
+        auth: FakeAuthService(
+          token: null,
+          onSignIn: (_) async => const AuthFailure(
+            message: 'Invalid',
+            code: AuthErrorCode.invalidCredentials,
+          ),
         ),
       );
-      final container = ProviderContainer(
-        overrides: authTestOverrides(
-          storage: InMemoryStorage(),
-          auth: auth,
-          profile: FakeProfileService(),
-        ),
+      addTearDown(harness.dispose);
+      await harness.readAuth();
+
+      await harness.notifier.signIn(
+        const EmailCredentials(email: 'a@b.com', password: 'wrong'),
       );
-      addTearDown(container.dispose);
-      await container.read(authProvider.future);
 
-      await container
-          .read(authProvider.notifier)
-          .signIn(const EmailCredentials(email: 'a@b.com', password: 'wrong'));
-
-      final state = container.read(authProvider).requireValue;
+      final state = harness.current;
       expect(state, isA<AuthErrorState>());
       expect((state as AuthErrorState).code, AuthErrorCode.invalidCredentials);
     });
 
     test('signUp success sets authenticated', () async {
-      final container = _containerWithSession();
-      addTearDown(container.dispose);
-      await container.read(authProvider.future);
+      final harness = AuthTestHarness();
+      addTearDown(harness.dispose);
+      await harness.readAuth();
 
-      await container
-          .read(authProvider.notifier)
-          .signUp(
-            const EmailCredentials(email: 'new@b.com', password: 'secret'),
-          );
-
-      expect(
-        container.read(authProvider).requireValue,
-        isA<AuthAuthenticated>(),
+      await harness.notifier.signUp(
+        const EmailCredentials(email: 'new@b.com', password: 'secret'),
       );
+
+      expect(harness.current, isA<AuthAuthenticated>());
     });
 
     test('signUp failure sets error state', () async {
-      final auth = FakeAuthService(
-        token: null,
-        onSignUp: (_) async => const AuthFailure(
-          message: 'Taken',
-          code: AuthErrorCode.emailAlreadyInUse,
+      final harness = AuthTestHarness(
+        auth: FakeAuthService(
+          token: null,
+          onSignUp: (_) async => const AuthFailure(
+            message: 'Taken',
+            code: AuthErrorCode.emailAlreadyInUse,
+          ),
         ),
       );
-      final container = ProviderContainer(
-        overrides: authTestOverrides(
-          storage: InMemoryStorage(),
-          auth: auth,
-          profile: FakeProfileService(),
-        ),
+      addTearDown(harness.dispose);
+      await harness.readAuth();
+
+      await harness.notifier.signUp(
+        const EmailCredentials(email: 'x@y.com', password: 'p'),
       );
-      addTearDown(container.dispose);
-      await container.read(authProvider.future);
 
-      await container
-          .read(authProvider.notifier)
-          .signUp(const EmailCredentials(email: 'x@y.com', password: 'p'));
-
-      final state = container.read(authProvider).requireValue;
+      final state = harness.current;
       expect(state, isA<AuthErrorState>());
       expect((state as AuthErrorState).code, AuthErrorCode.emailAlreadyInUse);
     });
 
     test('signOut sets unauthenticated', () async {
-      final container = _containerWithSession();
-      addTearDown(container.dispose);
-      await container.read(authProvider.future);
+      final harness = AuthTestHarness();
+      addTearDown(harness.dispose);
+      await harness.readAuth();
 
-      await container.read(authProvider.notifier).signOut();
+      await harness.notifier.signOut();
 
-      expect(
-        container.read(authProvider).requireValue,
-        isA<AuthUnauthenticated>(),
-      );
+      expect(harness.current, isA<AuthUnauthenticated>());
     });
 
     test('clearError from error state sets unauthenticated', () async {
-      final auth = FakeAuthService(
-        token: null,
-        onSignIn: (_) async =>
-            const AuthFailure(message: 'fail', code: AuthErrorCode.unknown),
-      );
-      final container = ProviderContainer(
-        overrides: authTestOverrides(
-          storage: InMemoryStorage(),
-          auth: auth,
-          profile: FakeProfileService(),
+      final harness = AuthTestHarness(
+        auth: FakeAuthService(
+          token: null,
+          onSignIn: (_) async =>
+              const AuthFailure(message: 'fail', code: AuthErrorCode.unknown),
         ),
       );
-      addTearDown(container.dispose);
-      await container.read(authProvider.future);
-      await container
-          .read(authProvider.notifier)
-          .signIn(const EmailCredentials(email: 'a@b.com', password: 'x'));
-
-      await container.read(authProvider.notifier).clearError();
-
-      expect(
-        container.read(authProvider).requireValue,
-        isA<AuthUnauthenticated>(),
+      addTearDown(harness.dispose);
+      await harness.readAuth();
+      await harness.notifier.signIn(
+        const EmailCredentials(email: 'a@b.com', password: 'x'),
       );
+
+      await harness.notifier.clearError();
+
+      expect(harness.current, isA<AuthUnauthenticated>());
     });
 
     test('clearError is no-op when authenticated', () async {
-      final container = _containerWithSession();
-      addTearDown(container.dispose);
-      await container.read(authProvider.future);
+      final harness = AuthTestHarness();
+      addTearDown(harness.dispose);
+      await harness.readAuth();
 
-      await container.read(authProvider.notifier).clearError();
+      await harness.notifier.clearError();
 
-      expect(
-        container.read(authProvider).requireValue,
-        isA<AuthAuthenticated>(),
-      );
+      expect(harness.current, isA<AuthAuthenticated>());
     });
   });
 
@@ -348,29 +274,25 @@ void main() {
         AuthStorageKeys.userProfile,
         sampleProfile.toJsonString(),
       );
-      final profile = FakeProfileService(
-        onFetch: () async => AppProfile(
-          profileId: _updatedProfile.profileId,
-          email: _updatedProfile.email,
-          createdAt: _updatedProfile.createdAt,
-          metadata: _updatedProfile.metadata,
-          onboardingCompleted: true,
-          onboardingCompletedAt: DateTime.utc(2026, 5, 19),
+      final harness = AuthTestHarness(
+        storage: storage,
+        profile: FakeProfileService(
+          onFetch: () async => AppProfile(
+            profileId: _updatedProfile.profileId,
+            email: _updatedProfile.email,
+            createdAt: _updatedProfile.createdAt,
+            metadata: _updatedProfile.metadata,
+            onboardingCompleted: true,
+            onboardingCompletedAt: DateTime.utc(2026, 5, 19),
+          ),
         ),
       );
-      final container = ProviderContainer(
-        overrides: authTestOverrides(
-          storage: storage,
-          auth: FakeAuthService(token: 'token'),
-          profile: profile,
-        ),
-      );
-      addTearDown(container.dispose);
-      await container.read(authProvider.future);
+      addTearDown(harness.dispose);
+      await harness.readAuth();
 
-      await container.read(authProvider.notifier).refreshAuthenticatedProfile();
+      await harness.notifier.refreshAuthenticatedProfile();
 
-      final async = container.read(authProvider);
+      final async = harness.container.read(authProvider);
       expect(async.isLoading, isFalse);
       expect(async.requireValue, isA<AuthAuthenticated>());
       final authenticated = async.requireValue as AuthAuthenticated;
@@ -381,58 +303,39 @@ void main() {
 
   group('profileIdProvider', () {
     test('returns profileId when authenticated', () async {
-      final container = _containerWithSession();
-      addTearDown(container.dispose);
-      await container.read(authProvider.future);
+      final harness = AuthTestHarness();
+      addTearDown(harness.dispose);
+      await harness.readAuth();
 
-      expect(container.read(profileIdProvider), sampleProfile.profileId);
+      expect(
+        harness.container.read(profileIdProvider),
+        sampleProfile.profileId,
+      );
     });
 
     test('returns null when unauthenticated', () async {
-      final container = ProviderContainer(
-        overrides: authTestOverrides(
-          storage: InMemoryStorage(),
-          auth: FakeAuthService(token: null),
-          profile: FakeProfileService(),
-        ),
-      );
-      addTearDown(container.dispose);
-      await container.read(authProvider.future);
+      final harness = AuthTestHarness(auth: FakeAuthService(token: null));
+      addTearDown(harness.dispose);
+      await harness.readAuth();
 
-      expect(container.read(profileIdProvider), isNull);
+      expect(harness.container.read(profileIdProvider), isNull);
     });
 
     test('returns null on error state', () async {
-      final auth = FakeAuthService(
-        token: null,
-        onSignIn: (_) async =>
-            const AuthFailure(message: 'err', code: AuthErrorCode.unknown),
-      );
-      final container = ProviderContainer(
-        overrides: authTestOverrides(
-          storage: InMemoryStorage(),
-          auth: auth,
-          profile: FakeProfileService(),
+      final harness = AuthTestHarness(
+        auth: FakeAuthService(
+          token: null,
+          onSignIn: (_) async =>
+              const AuthFailure(message: 'err', code: AuthErrorCode.unknown),
         ),
       );
-      addTearDown(container.dispose);
-      await container.read(authProvider.future);
-      await container
-          .read(authProvider.notifier)
-          .signIn(const EmailCredentials(email: 'a@b.com', password: 'x'));
+      addTearDown(harness.dispose);
+      await harness.readAuth();
+      await harness.notifier.signIn(
+        const EmailCredentials(email: 'a@b.com', password: 'x'),
+      );
 
-      expect(container.read(profileIdProvider), isNull);
+      expect(harness.container.read(profileIdProvider), isNull);
     });
   });
-}
-
-ProviderContainer _containerWithSession() {
-  final storage = InMemoryStorage();
-  return ProviderContainer(
-    overrides: authTestOverrides(
-      storage: storage,
-      auth: FakeAuthService(token: 'token'),
-      profile: FakeProfileService(),
-    ),
-  );
 }

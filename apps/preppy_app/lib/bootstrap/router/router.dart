@@ -1,5 +1,6 @@
 import 'package:auth/feature_auth.dart';
 import 'package:dashboard/feature_dashboard.dart';
+import 'package:dev_tools/feature_dev_tools.dart';
 import 'package:ingestion/feature_ingestion.dart';
 import 'package:onboarding/feature_onboarding.dart';
 import 'package:practice/feature_practice.dart';
@@ -42,6 +43,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       ...featureAuthRoutes,
       ...featureDashboardRoutes,
+      ...featureDevToolsRoutes,
       ...featureIngestionRoutes,
       ...featureOnboardingRoutes(ref),
       ...featurePracticeRoutes,

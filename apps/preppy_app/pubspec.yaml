@@ -43,6 +43,8 @@ dependencies:
     path: ../packages/features/auth
   dashboard:
     path: ../packages/features/dashboard
+  dev_tools:
+    path: ../packages/features/dev_tools
   ingestion:
     path: ../packages/features/ingestion
   onboarding:

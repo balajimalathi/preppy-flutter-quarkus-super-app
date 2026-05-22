@@ -1,3 +1,4 @@
+import 'package:core_dev_debug/core_dev_debug.dart';
 import 'package:core_notifications/core_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -53,7 +54,6 @@ class _StatusScreenState extends ConsumerState<StatusScreen> {
       appBar: AppBar(title: const Text('Notification Tracker')),
       floatingActionButton: FloatingActionButton(
         onPressed: () => pushLog.clear(),
-
         child: const Icon(Icons.clear_all),
       ),
       body: ListenableBuilder(

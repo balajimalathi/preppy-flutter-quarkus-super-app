@@ -16,7 +16,7 @@ export 'src/http/api_client.dart'
 export 'src/http/dio_aware.dart';
 export 'src/http/auth_token.dart' show authTokenProvider;
 export 'src/http/dio_result_client.dart'
-    show dioGetEnvelope, fetchWithOfflineCache;
+    show dioGetEnvelope, dioGetList, dioPutEnvelope, fetchWithOfflineCache;
 export 'src/http/multipart_helpers.dart' show singleFileFormData;
 export 'src/http/sse_client.dart' show SseClient, SseMessage;
 

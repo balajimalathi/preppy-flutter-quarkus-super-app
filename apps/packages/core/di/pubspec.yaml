@@ -13,8 +13,6 @@ dependencies:
     path: ../analytics
   core_auth:
     path: ../auth
-  core_cloud:
-    path: ../cloud
   core_env:
     path: ../env
   core_network:

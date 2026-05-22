@@ -1,7 +1,7 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:awesome_notifications_fcm/awesome_notifications_fcm.dart';
 
-import '../debug/push_receive_debug_log.dart';
+import 'package:core_dev_debug/core_dev_debug.dart';
 import '../display/push_display_relay.dart';
 import '../display/push_local_display.dart';
 import '../display/push_payload_mapper.dart';

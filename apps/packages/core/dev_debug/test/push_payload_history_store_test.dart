@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:core_notifications/core_notifications.dart';
+import 'package:core_dev_debug/core_dev_debug.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
 

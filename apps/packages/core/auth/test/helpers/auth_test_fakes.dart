@@ -1,6 +1,7 @@
 import 'package:core_auth/core_auth.dart';
 import 'package:core_auth/src/impl/profile_exceptions.dart';
 import 'package:core_storage/core_storage.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod/misc.dart';
 
 final _sampleCreatedAt = DateTime.utc(2024, 6, 1, 12, 0, 0);
@@ -140,4 +141,33 @@ List<Override> authTestOverrides({
 
 ProfileFetchException profileAuthException([String message = 'Unauthorized']) {
   return ProfileFetchException(message, statusCode: 401);
+}
+
+/// Shared [ProviderContainer] setup for auth notifier tests.
+class AuthTestHarness {
+  AuthTestHarness({
+    InMemoryStorage? storage,
+    FakeAuthService? auth,
+    FakeProfileService? profile,
+    List<Override> extraOverrides = const [],
+  }) : container = ProviderContainer(
+         overrides: [
+           ...authTestOverrides(
+             storage: storage ?? InMemoryStorage(),
+             auth: auth ?? FakeAuthService(token: 'token'),
+             profile: profile ?? FakeProfileService(),
+           ),
+           ...extraOverrides,
+         ],
+       );
+
+  final ProviderContainer container;
+
+  void dispose() => container.dispose();
+
+  Future<AuthState> readAuth() => container.read(authProvider.future);
+
+  AuthNotifier get notifier => container.read(authProvider.notifier);
+
+  AuthState get current => container.read(authProvider).requireValue;
 }
