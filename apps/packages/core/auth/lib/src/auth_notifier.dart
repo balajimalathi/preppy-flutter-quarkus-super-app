@@ -56,6 +56,21 @@ final class AuthNotifier extends AsyncNotifier<AuthState> {
     }
   }
 
+  /// Re-fetches `/v1/users/me` and updates auth state without a loading phase.
+  Future<void> refreshAuthenticatedProfile() async {
+    if (state case AsyncData(:final value) when value is AuthAuthenticated) {
+      try {
+        final profileSvc = ref.read(profileServiceProvider);
+        final fresh = await profileSvc.fetchProfile();
+        final storage = ref.read(storageProvider);
+        await storage.write(AuthStorageKeys.userProfile, fresh.toJsonString());
+        state = AsyncData(AuthAuthenticated(profile: fresh));
+      } on Object {
+        // Keep the current profile when refresh fails.
+      }
+    }
+  }
+
   Future<void> _refreshProfileInBackground(AppProfile cached) async {
     try {
       final profileSvc = ref.read(profileServiceProvider);

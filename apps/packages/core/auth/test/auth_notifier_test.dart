@@ -26,11 +26,11 @@ void main() {
       });
 
       expect(profile.onboardingCompleted, isTrue);
-      expect(profile.onboardingCompletedAt, DateTime.parse('2026-05-19T10:00:00Z'));
       expect(
-        AppProfile.fromJson(profile.toJson()),
-        profile,
+        profile.onboardingCompletedAt,
+        DateTime.parse('2026-05-19T10:00:00Z'),
       );
+      expect(AppProfile.fromJson(profile.toJson()), profile);
     });
 
     test('returns unauthenticated when token is null', () async {
@@ -338,6 +338,44 @@ void main() {
         container.read(authProvider).requireValue,
         isA<AuthAuthenticated>(),
       );
+    });
+  });
+
+  group('refreshAuthenticatedProfile', () {
+    test('updates cached profile without entering loading', () async {
+      final storage = InMemoryStorage();
+      await storage.write(
+        AuthStorageKeys.userProfile,
+        sampleProfile.toJsonString(),
+      );
+      final profile = FakeProfileService(
+        onFetch: () async => AppProfile(
+          profileId: _updatedProfile.profileId,
+          email: _updatedProfile.email,
+          createdAt: _updatedProfile.createdAt,
+          metadata: _updatedProfile.metadata,
+          onboardingCompleted: true,
+          onboardingCompletedAt: DateTime.utc(2026, 5, 19),
+        ),
+      );
+      final container = ProviderContainer(
+        overrides: authTestOverrides(
+          storage: storage,
+          auth: FakeAuthService(token: 'token'),
+          profile: profile,
+        ),
+      );
+      addTearDown(container.dispose);
+      await container.read(authProvider.future);
+
+      await container.read(authProvider.notifier).refreshAuthenticatedProfile();
+
+      final async = container.read(authProvider);
+      expect(async.isLoading, isFalse);
+      expect(async.requireValue, isA<AuthAuthenticated>());
+      final authenticated = async.requireValue as AuthAuthenticated;
+      expect(authenticated.profile.onboardingCompleted, isTrue);
+      expect(authenticated.profile.email, _updatedProfile.email);
     });
   });
 

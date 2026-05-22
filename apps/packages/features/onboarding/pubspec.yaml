@@ -10,6 +10,8 @@ environment:
 resolution: workspace
 
 dependencies:
+  core_auth:
+    path: ../../core/auth
   core_models:
     path: ../../core/models
   core_network:

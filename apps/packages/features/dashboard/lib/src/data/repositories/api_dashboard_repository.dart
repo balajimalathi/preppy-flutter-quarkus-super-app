@@ -60,4 +60,10 @@ final class ApiDashboardRepository
     final box = await _boxAsync;
     await box.put(DashboardSummaryMapper.cacheKey, encodeSummary(summary));
   }
+  
+  @override
+  Future<Result<List<String>>> getDashboardItems() {
+    // TODO: implement getDashboardItems
+    throw UnimplementedError();
+  }
 }

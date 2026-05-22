@@ -19,22 +19,29 @@ final class SessionGateState {
   int get hashCode => target.hashCode;
 }
 
+/// Test override hook; production reads [authProvider].
 final sessionGateAuthStateProvider = Provider<AsyncValue<AuthState>>((ref) {
   return ref.watch(authProvider);
 });
 
 final sessionGateProvider = Provider<SessionGateState>((ref) {
   final authAsync = ref.watch(sessionGateAuthStateProvider);
-  return switch (authAsync) {
-    AsyncLoading() => const SessionGateState(target: SessionRouteTarget.splash),
-    AsyncError() => const SessionGateState(target: SessionRouteTarget.login),
-    AsyncData(:final value) => switch (value) {
-      AuthAuthenticated(:final profile) when !profile.onboardingCompleted =>
-        const SessionGateState(target: SessionRouteTarget.onboarding),
-      AuthAuthenticated() => const SessionGateState(
-        target: SessionRouteTarget.dashboard,
-      ),
-      _ => const SessionGateState(target: SessionRouteTarget.login),
-    },
+  if (authAsync.isLoading) {
+    return const SessionGateState(target: SessionRouteTarget.splash);
+  }
+  if (authAsync.hasError) {
+    return const SessionGateState(target: SessionRouteTarget.login);
+  }
+  final value = authAsync.asData?.value;
+  if (value == null) {
+    return const SessionGateState(target: SessionRouteTarget.splash);
+  }
+  return switch (value) {
+    AuthAuthenticated(:final profile) when !profile.onboardingCompleted =>
+      const SessionGateState(target: SessionRouteTarget.onboarding),
+    AuthAuthenticated() => const SessionGateState(
+      target: SessionRouteTarget.dashboard,
+    ),
+    _ => const SessionGateState(target: SessionRouteTarget.login),
   };
 });

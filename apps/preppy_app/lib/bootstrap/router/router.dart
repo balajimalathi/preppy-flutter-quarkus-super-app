@@ -16,6 +16,7 @@ import '../splash_screen.dart';
 /// own `routes` list which we splice in here, so adding a new feature does not
 /// require touching this file beyond an import + a single entry below.
 final appRouterProvider = Provider<GoRouter>((ref) {
+  ref.watch(sessionGateProvider);
   final refresh = ref.watch(authRouterRefreshProvider);
   return GoRouter(
     initialLocation: '/splash',
@@ -42,7 +43,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ...featureAuthRoutes,
       ...featureDashboardRoutes,
       ...featureIngestionRoutes,
-      ...featureOnboardingRoutes,
+      ...featureOnboardingRoutes(ref),
       ...featurePracticeRoutes,
       ...featurePyqRoutes,
       ...featureSyllabusRoutes,
