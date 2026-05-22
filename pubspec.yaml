@@ -18,7 +18,9 @@ workspace:
   - apps/packages/core/network
   - apps/packages/core/storage
   - apps/packages/core/notifications
+  - apps/packages/core/dev_debug
   - apps/packages/core/state
+  - apps/packages/features/dev_tools
   - apps/packages/features/auth
   - apps/packages/features/dashboard
   - apps/packages/features/ingestion
